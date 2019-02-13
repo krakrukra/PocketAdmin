@@ -1,4 +1,4 @@
-# AutoKeys (rev 1.0)
+# AutoKeys (rev 1.0)  
 
 This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
@@ -18,13 +18,14 @@ any special software and keep converting payload.txt to inject.bin, you just edi
 3. the device can show up as both keyboard and a USB disk (contains payload.txt), so there is no need to  
 keep sticking SD card in/out of various devices while developing payloads.  
 
-4. configurable enumeration process: with "VID ", "PID " commands user can change VID / PID values used for enumeration.  
-with "HID\_ONLY\_MODE" command device will enumerate in HID-only/MSD-only mode, depending on the state of MSD-only button;  
+4. configurable enumeration process:  
+with "VID ", "PID " commands user can change VID / PID values used for enumeration.  
+with "HID\_ONLY\_MODE" command device will enumerate in HID-only mode (or MSD-only mode, if MSD-only button if pressed);  
 if such command is not present device enumerates in HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
 
 ---
 
-##hardware
+## hardware
 
 project is designed using KiCad 5.0.2  
 check KiCad pcb file for PCB manufacturing info  
@@ -37,7 +38,7 @@ make sure to plug the programming cable into the header the right way
 based on full-speed (12Mbit/s) USB2.0 peripheral, uses on-board 32MiB flash memory chip for data storage;  
 measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.  
 
-##firmware
+## firmware
 
 firmware was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain (compiler, linker, binutils)  
 and it does use gcc specific extentions. was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
@@ -61,7 +62,7 @@ connect ST-LINKv2 programmer to the board, then to computer and type:
 
 > make upload  
 
-##usage
+## usage
 
 By default AutoKeys shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
 For any keystrokes to be injected, the USB flash drive must have a FAT filesystem on the first partition  
@@ -79,30 +80,36 @@ For example:
 "PID 5635"  
 ... all other commands here ...  
 
-2. "DELAY " command first waits extra time until host had sent at least 1 read command to MSD interface (in MSD+HID configuration) and  
-received at least 1 report from HID interface (all configurations), and only then waits for a specified number of milliseconds.  
-that is to make sure host has done its initializations (e.g. installed drivers) and you are only waiting for GUI elements to update  
+2. "DELAY " command first waits extra time until host had sent at least 1 read command to MSD interface  
+(in MSD+HID configuration) and received at least 1 report from HID interface (all configurations),  
+and only then waits for a specified number of milliseconds.  
+that is to make sure host has done its initializations (e.g. installed drivers) and you are only waiting  
+for GUI elements to update  
 
-3. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters. If you want to use a  
-different language, switch GUI settings and then use ASCII symbols that are bound to the same physical key as the symbol you are trying  
-to print. for example, if GUI is configured to use RU layout, "STRING dtkjcbgtl" command will result in "велосипед" string typed.  
+3. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
+If you want to use a different language, switch GUI settings and then use ASCII symbols that are bound  
+to the same physical key as the symbol you are trying to print. For example,  
+if GUI is configured to use RU layout, "STRING dtkjcbgtl" command will result in "велосипед" string typed.  
 
-4. single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is, both commands "M"  
-and "m"  will type "m". This also means that commands such as "GUI r" or "GUI R" are the same.  
+4. single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
+both commands "M" and "m"  will type "m". This also means that commands such as "GUI r" or "GUI R" are the same.  
 any non ASCII-printable character causes the rest of the line to be ignored.  
 
-5. there can be multiple kewords on one line (up to 5), but only if modifier key commands are used, all other commands  
-(including single character commands) execute and skip the rest of the line. Modifier key commands only work if followed  
-by a press key command or newline, for example, "CTRL ALT DELETE", "CONTROL SHIFT T" or "ALT " are valid commands.  
+5. there can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
+all other commands (including single character commands) execute and skip the rest of the line.  
+Modifier key commands only work if followed by a press key command or newline, for example,  
+"CTRL ALT DELETE", "CONTROL SHIFT T" or "ALT " are valid commands.  
 
-6. if you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it, always keep a spacebar after the  
-keyword, such as "CTRL ", "ALT " instead of "CTRL", "ALT"  
+6. if you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
+always keep a spacebar after the keyword, such as "CTRL ", "ALT " instead of "CTRL", "ALT"  
 
-7. commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID " take numeric arguments (decimal numbers).  
+7. commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
+take numeric arguments (decimal numbers).  
 size of these decimal strings can not be longer than 6 symbols. that means "DELAY 5123456" is invalid  
 
-8. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE " command specifies the number of commands in this  
-block, for example the following script will execute 3 commands right before REPEAT for 11 times (once normally + repeated 10 times):  
+8. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE "  
+command specifies the number of commands in this block, for example the following script will execute  
+3 commands right before REPEAT for 11 times (once normally + repeated 10 times):  
 "REPEAT\_SIZE 3"  
 "STRING this command block of 3 commands is repeated"  
 "ENTER"  
@@ -112,11 +119,11 @@ block, for example the following script will execute 3 commands right before REP
 quotation marks used here are not parts of commands and are just used to indicate start and end of a command.  
 full list of available keywords is available in /extra/listOfKeywords.txt  
 
-Keep in mind that payloads need to be modified to fit your target machine configuration, since keyboard shortcuts can depend on OS used,  
-language, hardware capabilities, etc.  
+Keep in mind that payloads need to be modified to fit your target machine configuration,  
+since keyboard shortcuts can depend on OS used, language, hardware capabilities, etc.  
 
 
-##directories info
+## directories info
 
 #### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
 
@@ -144,13 +151,13 @@ along with diskio.c + diskio.h (custom low level driver for communication with W
 
 #### /extra/ -------------------  contains pictures, pdf version of schematic, various extra documents, etc.
 
-##contact info
+## contact info
 
-if you have a problem / question / feature request, here are your options for contacting me:
+if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
-create a new github issue, or use of the existing one called [general discussion](link_to_issue);  
-EEVBlog forum [post](), dedicated to the project;  
-my [youtube channel]()  
+create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/AutoKeys/issues/1);  
+use EEVBlog forum [post](), dedicated to the project;  
+
 
 if you want to support my projects through donations here are currently available options:  
 Ethereum: 0xd5bB8837772a53a36b7D84306d5e16918664F60A  
