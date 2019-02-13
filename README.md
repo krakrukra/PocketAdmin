@@ -20,7 +20,7 @@ keep sticking SD card in/out of various devices while developing payloads.
 
 4. configurable enumeration process:  
 with "VID ", "PID " commands user can change VID / PID values used for enumeration.  
-with "HID\_ONLY\_MODE" command device will enumerate in HID-only mode (or MSD-only mode, if MSD-only button if pressed);  
+with "HID\_ONLY\_MODE" command device will enumerate in HID-only mode (or MSD-only mode, if MSD-only button is pressed);  
 if such command is not present device enumerates in HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
 
 ---
@@ -71,7 +71,7 @@ will run commands from that file, which are mostly the same as in existing [duck
 
 There are however, some differences/extentions to ducky script:  
 
-1. pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID "  
+1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID "  
 pre-configuration commands (if present) must be placed at the very start of payload.txt and come as  
 one contiguous block of up to 3 commands (no other types of commands are allowed in between these)  
 For example:  
@@ -88,24 +88,24 @@ for GUI elements to update
 
 3. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
 If you want to use a different language, switch GUI settings and then use ASCII symbols that are bound  
-to the same physical key as the symbol you are trying to print. For example,  
-if GUI is configured to use RU layout, "STRING dtkjcbgtl" command will result in "велосипед" string typed.  
+to the same physical key as the symbol you are trying to print. For example, if GUI is configured  
+to use RU layout, "STRING dtkjcbgtl" command will result in "велосипед" string typed.  
 
-4. single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
-both commands "M" and "m"  will type "m". This also means that commands such as "GUI r" or "GUI R" are the same.  
-any non ASCII-printable character causes the rest of the line to be ignored.  
+4. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
+both commands "M" and "m"  will type "m". This also means that commands such as "GUI r" or "GUI R" are  
+the same. Any non ASCII-printable character causes the rest of the line to be ignored.  
 
-5. there can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
+5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
 all other commands (including single character commands) execute and skip the rest of the line.  
 Modifier key commands only work if followed by a press key command or newline, for example,  
 "CTRL ALT DELETE", "CONTROL SHIFT T" or "ALT " are valid commands.  
 
-6. if you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
+6. If you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
 always keep a spacebar after the keyword, such as "CTRL ", "ALT " instead of "CTRL", "ALT"  
 
-7. commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
-take numeric arguments (decimal numbers).  
-size of these decimal strings can not be longer than 6 symbols. that means "DELAY 5123456" is invalid  
+7. Commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
+take numeric arguments (decimal numbers). Size of these decimal strings can not be longer  
+than 6 symbols. That means "DELAY 5123456" is invalid.  
 
 8. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE "  
 command specifies the number of commands in this block, for example the following script will execute  
@@ -116,8 +116,8 @@ command specifies the number of commands in this block, for example the followin
 "DELAY 300"  
 "REPEAT 10"  
 
-quotation marks used here are not parts of commands and are just used to indicate start and end of a command.  
-full list of available keywords is available in /extra/listOfKeywords.txt  
+Quotation marks used here are not parts of commands and are just used to indicate start and  
+end of a command. Full list of available keywords is available in /extra/listOfKeywords.txt  
 
 Keep in mind that payloads need to be modified to fit your target machine configuration,  
 since keyboard shortcuts can depend on OS used, language, hardware capabilities, etc.  
@@ -159,6 +159,7 @@ create a new github issue, or use of the existing one called [general discussion
 use EEVBlog forum [post](), dedicated to the project;  
 
 
-if you want to support my projects through donations here are currently available options:  
+if you want to support my projects through donations here are currently available options:
+
 Ethereum: 0xd5bB8837772a53a36b7D84306d5e16918664F60A  
 Bitcoin: bc1qn0eygdtcxm5rxv7uwhl0h6ayw3sl59cs4q8vl5  
