@@ -1,0 +1,36 @@
+AutoKeys_rev1.0 ----------------------- 13.02.2019 (dd.mm.yyyy)
+
+all components, including mechanical ones are available on aliexpress.
+example links to these items are for information purposes, check
+for offers with better prices and shipping details yourself
+
+quantities specified in this file are pieces per single PCB
+
+
+STM32F072C8T6 microcontroller --- 1pcs
+
+W25Q256FVFG 32MiB flash memory chip --- 1pcs
+
+IP4220CZ6 USB transient protection diode --- 1pcs
+
+MCP1700-3302E 3.3V LDO linear regulator --- 1pcs
+
+0805 (2012 metric) 20% 6.3V 10uF tantalum capacitors --- 3pcs
+
+0603 (1608 metric) 10% 50V C0G 20pF ceramic capacitors --- 4pcs
+
+0603 (1608 metric) 20% 50V X7R 100nF ceramic capacitors --- 4pcs
+
+0603 (1608 metric) 5% 33ohm resistors --- 2pcs
+
+(5032 metric) NX5032GA 8MHz quartz crystal --- 1pcs
+
+TL3342 tactile switch --- 1pcs
+       you might want to choose similar ones with bigger height-off-PCB, up to 2mm (instead of 1.5mm with TL3342)
+       https://www.aliexpress.com/store/product/200pcs-lot-4-pins-4-4-1-5-1-6-1-7-2-5-mm-SMD/615097_32955933042.html?spm=2114.12010615.8148356.5.61fc5617Swz0s9
+
+G49? USB type A plug --- 1pcs
+     	https://www.aliexpress.com/store/product/10pcs-lot-USB-2-0-4Pin-A-Type-Male-Plug-SMT-Connector-Black-G49-for-Data/3019003_32826261577.html?spm=2114.12010615.8148356.1.7e6a7d8cHnNSH8
+
+AK-N-52 black plastic enclosure --- 1pcs
+	https://www.aliexpress.com/store/product/10-pcs-8-18-53mm-plastic-usb-stick-enclosure-for-pcb-design-szomk-hot-sales-small/2007003_32849611612.html?spm=2114.12010615.8148356.3.4f766f44RP8p3Z

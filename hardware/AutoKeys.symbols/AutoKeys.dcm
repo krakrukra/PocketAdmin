@@ -1,0 +1,19 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP IP4220CZ6
+D low capacitance ESD protection chip
+K zener TVS ESD protection
+$ENDCMP
+#
+$CMP ST-LINK_V2
+D 2.54 pitch ISP connector for ribbon cable
+K STM ISP connector ribbon cable
+$ENDCMP
+#
+$CMP W25Q256FVFG
+D 256Mbit serial flash memory chip
+K serial flash memory chip ic
+F https://www.winbond.com/resource-files/w25q256fv_revg1_120214_qpi_website_rev_g.pdf
+$ENDCMP
+#
+#End Doc Library
