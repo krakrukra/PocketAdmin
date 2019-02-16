@@ -12,7 +12,7 @@
   (page A4)
   (title_block
     (date 2019-01-31)
-    (rev 1.0)
+    (rev 1.1)
   )
 
   (layers
@@ -1409,7 +1409,7 @@
   (segment (start 134.75 83.7) (end 135.5 84.45) (width 0.2) (layer B.Cu) (net 43))
   (segment (start 134.75 82.85) (end 134.75 83.7) (width 0.2) (layer B.Cu) (net 43))
 
-  (zone (net 2) (net_name GND) (layer B.Cu) (tstamp 5C29FBC2) (hatch edge 0.508)
+  (zone (net 2) (net_name GND) (layer B.Cu) (tstamp 5C67E33F) (hatch edge 0.508)
     (connect_pads yes (clearance 0.2))
     (min_thickness 0.2)
     (fill yes (arc_segments 16) (thermal_gap 0.508) (thermal_bridge_width 0.508) (smoothing fillet) (radius 1))
@@ -1594,7 +1594,7 @@
       )
     )
   )
-  (zone (net 2) (net_name GND) (layer F.Cu) (tstamp 5C29FBBF) (hatch edge 0.508)
+  (zone (net 2) (net_name GND) (layer F.Cu) (tstamp 5C67E33C) (hatch edge 0.508)
     (connect_pads yes (clearance 0.2))
     (min_thickness 0.2)
     (fill yes (arc_segments 16) (thermal_gap 0.508) (thermal_bridge_width 0.508) (smoothing fillet) (radius 1))

@@ -1,5 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:AutoKeys-cache
+LIBS:PocketAdmin-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -7,7 +7,7 @@ encoding utf-8
 Sheet 1 1
 Title ""
 Date "2019-01-31"
-Rev "1.0"
+Rev "1.1"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -334,7 +334,7 @@ Wire Wire Line
 	1850 2950 1750 2950
 Connection ~ 1850 2950
 $Comp
-L AutoKeys:ST-LINK_V2 CON1
+L PocketAdmin:ST-LINK_V2 CON1
 U 1 1 5B94CFC5
 P 1900 3450
 F 0 "CON1" H 1900 3100 50  0000 C CNN
@@ -345,7 +345,7 @@ F 3 "" H 2100 3450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L AutoKeys:IP4220CZ6 U1
+L PocketAdmin:IP4220CZ6 U1
 U 1 1 5B9436C1
 P 2900 3750
 F 0 "U1" H 3228 3803 60  0000 L CNN
@@ -491,7 +491,7 @@ Connection ~ 2250 3550
 Wire Wire Line
 	2250 3550 2300 3550
 $Comp
-L AutoKeys:W25Q256FVFG U4
+L PocketAdmin:W25Q256FVFG U4
 U 1 1 5C140C9A
 P 8600 4300
 F 0 "U4" H 9200 4000 50  0000 C CNN
@@ -630,11 +630,6 @@ F 3 "" H 5750 2750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5750 2750 5800 2750
-Wire Wire Line
-	9050 3900 9050 4150
-Connection ~ 9050 4150
-Wire Wire Line
-	9050 4150 9050 4250
 Text GLabel 5800 2550 0    50   Input ~ 0
 nrst
 Text GLabel 5800 3450 0    50   Input ~ 0
@@ -672,4 +667,6 @@ Wire Wire Line
 	9250 4700 9250 4650
 Text Notes 4250 5100 0    50   ~ 0
 PC15 and PB13 are connected \nto netnames only to ease PCB\nlayout, and are not used by MCU
+Wire Wire Line
+	9050 3900 9050 4250
 $EndSCHEMATC

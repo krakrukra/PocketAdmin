@@ -1,4 +1,4 @@
-# AutoKeys (rev 1.0)  
+# PocketAdmin (rev 1.1)  
 
 This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
@@ -64,7 +64,7 @@ connect ST-LINKv2 programmer to the board, then to computer and type:
 
 ## usage
 
-By default AutoKeys shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
+By default PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
 For any keystrokes to be injected, the USB flash drive must have a FAT filesystem on the first partition  
 of the disk, with a text file named payload.txt in the root directory. After that the built-in interpreter  
 will run commands from that file, which are mostly the same as in existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
@@ -89,11 +89,11 @@ for GUI elements to update
 3. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
 If you want to use a different language, switch GUI settings and then use ASCII symbols that are bound  
 to the same physical key as the symbol you are trying to print. For example, if GUI is configured  
-to use RU layout, "STRING dtkjcbgtl" command will result in "велосипед" string typed.  
+to use RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
 
 4. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
-both commands "M" and "m"  will type "m". This also means that commands such as "GUI r" or "GUI R" are  
-the same. Any non ASCII-printable character causes the rest of the line to be ignored.  
+(unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands such as  
+"GUI r" or "GUI R" are the same. Any non ASCII-printable character causes the rest of the line to be ignored.  
 
 5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
 all other commands (including single character commands) execute and skip the rest of the line.  
@@ -143,9 +143,9 @@ along with diskio.c + diskio.h (custom low level driver for communication with W
 
 #### /hardware/ ------------------- contains KiCad project, schematic, PCB files  
 
-/hardware/AutoKeys.symbols/ -- project specific symbol library  
+/hardware/PocketAdmin.symbols/ -- project specific symbol library  
 
-/hardware/AutoKeys.pretty/ --- project specific footprint library  
+/hardware/PocketAdmin.pretty/ --- project specific footprint library  
 
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
@@ -155,7 +155,7 @@ along with diskio.c + diskio.h (custom low level driver for communication with W
 
 if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
-create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/AutoKeys/issues/1);  
+create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1);  
 use EEVBlog forum [post](), dedicated to the project;  
 
 
