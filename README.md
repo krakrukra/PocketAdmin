@@ -92,8 +92,9 @@ to the same physical key as the symbol you are trying to print. For example, if 
 to use RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
 
 4. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
-(unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands such as  
-"GUI r" or "GUI R" are the same. Any non ASCII-printable character causes the rest of the line to be ignored.  
+(unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands  
+such as "GUI r" or "GUI R" are the same.  
+Any non ASCII-printable character causes the rest of the line to be ignored.  
 
 5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
 all other commands (including single character commands) execute and skip the rest of the line.  
