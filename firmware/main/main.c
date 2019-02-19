@@ -142,6 +142,7 @@ static unsigned int runDuckyCommand()
       else if( checkKeyword("REPEAT ") )        repeatDuckyCommand( checkValue() );
       
       else if( checkKeyword("GUI ") )        mod = mod | MOD_LGUI;
+      else if( checkKeyword("WINDOWS ") )    mod = mod | MOD_LGUI;
       else if( checkKeyword("CTRL ") )       mod = mod | MOD_LCTRL;
       else if( checkKeyword("CONTROL ") )    mod = mod | MOD_LCTRL;
       else if( checkKeyword("SHIFT ") )      mod = mod | MOD_LSHIFT;
@@ -174,6 +175,7 @@ static unsigned int runDuckyCommand()
       else if( checkKeyword("PRINTSCREEN") ) key = KB_PRINTSCREEN;
       else if( checkKeyword("SCROLLLOCK") )  key = KB_SCROLLLOCK;
       else if( checkKeyword("SPACE") )       key = KB_SPACEBAR;
+      else if( checkKeyword("SPACEBAR") )    key = KB_SPACEBAR;
       else if( checkKeyword("TAB") )         key = KB_TAB;
       else if( checkKeyword("F1") )          key = KB_F1;
       else if( checkKeyword("F2") )          key = KB_F2;
@@ -341,7 +343,6 @@ static void sendString(char* stringStart)
 {
   unsigned char mod;//modifier byte to send in a next report
   unsigned char key;//HID key code to send in a next report
-  unsigned char lastkey = KB_Reserved;//last keycode sent by this function
   unsigned short limit = 400;//maximum number of symbols by which PayloadPointer is allowed to move
   
   sendKeystroke(MOD_NONE, KB_Reserved);//send an empty report to make sure next keystroke is registered as new
@@ -355,12 +356,9 @@ static void sendString(char* stringStart)
       key = Keymap[ *stringStart - 32 ];//only 7 least significant bits will be used as key code
       if( Keymap[ *stringStart - 32 ] & (1<<7) ) mod = MOD_LSHIFT;//use most significant bit to set modifier byte
       else mod = MOD_NONE;
-      
-      //if last keycode was the same as current one, you need to send an empty report to make sure current keystroke is registered as new
-      if(key == lastkey) sendKeystroke(MOD_NONE, KB_Reserved);
-      
+
       sendKeystroke(mod, key);//send the keystroke
-      lastkey = key;//remember last keycode value used
+      sendKeystroke(MOD_NONE, KB_Reserved);//release all buttons
 
       //if argument to this fuction was PayloadInfo.PayloadPointer, move pointer by the number of symbols sent
       if( stringStart == PayloadInfo.PayloadPointer)

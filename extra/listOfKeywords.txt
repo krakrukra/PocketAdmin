@@ -14,6 +14,7 @@ special functionality commands:
 
 modifier key commands:
 "GUI "
+"WINDOWS "
 "CTRL "
 "CONTROL "
 "SHIFT "
@@ -47,6 +48,7 @@ press key commands:
 "PRINTSCREEN"
 "SCROLLLOCK"
 "SPACE"
+"SPACEBAR"
 "TAB"
 "F1"
 "F2"
@@ -61,5 +63,5 @@ press key commands:
 "F11"
 "F12"
 
-+ single ASCII-printable character commands
-(will not have SHIFT modifier, that is "!" will type "1", "+" will type "=", etc)
++ single ASCII-printable character commands (will not have SHIFT modifier, that is "!" will type "1", "+" will type "=", etc)
++ empty lines (they do nothing)

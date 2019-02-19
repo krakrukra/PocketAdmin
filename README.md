@@ -40,8 +40,9 @@ measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.
 
 ## firmware
 
-firmware was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain (compiler, linker, binutils)  
-and it does use gcc specific extentions. was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
+firmware (written in C) was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain  
+(compiler, linker, binutils) and it does use gcc specific extentions.  
+was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
 
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  (you will need to have make utility installed)  
@@ -96,8 +97,8 @@ to use RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велоси�
 such as "GUI r" or "GUI R" are the same.  
 Any non ASCII-printable character causes the rest of the line to be ignored.  
 
-5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used,  
-all other commands (including single character commands) execute and skip the rest of the line.  
+5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used.  
+All other commands (including single character commands) execute and skip the rest of the line.  
 Modifier key commands only work if followed by a press key command or newline, for example,  
 "CTRL ALT DELETE", "CONTROL SHIFT T" or "ALT " are valid commands.  
 
