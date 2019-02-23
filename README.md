@@ -2,7 +2,8 @@
 
 This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
-types in a preprogrammed payload.  
+types in a preprogrammed payload, which can be very useful for automating sysadmin tasks or  
+in penetration testing applications.  
 
 ![1.jpg](extra/pictures/1.jpg)
 ![2.jpg](extra/pictures/2.jpg)  
@@ -121,9 +122,13 @@ command specifies the number of commands in this block, for example the followin
 Quotation marks used here are not parts of commands and are just used to indicate start and  
 end of a command. Full list of available keywords is available in /extra/listOfKeywords.txt  
 
-Keep in mind that payloads need to be modified to fit your target machine configuration,  
-since keyboard shortcuts can depend on OS used, language, hardware capabilities, etc.  
+Some example payloads can be found in /extra/examplePayloads/ but keep in mind that payloads  
+need to be modified to fit your target machine (as well as your exact requirements),  
+since they heavily depend on OS used, GUI settings, language, hardware capabilities, etc.  
 
+Of course, there are plenty other scripts/executables/original ducky payloads available  
+on the internet for you to use, if you are too lazy to make your own payloads. Remember,  
+it can do anything that your keyboard can (even more than that, actiually)  
 
 ## directories info
 
@@ -160,6 +165,10 @@ send me an email to krakrukra@tutanota.com
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1);  
 use EEVBlog forum [post](), dedicated to the project;  
 
+openbazaar shop link (paste it into the app's internal address bar):  
+ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
+
+---
 
 if you want to support my projects through donations here are currently available options:
 
