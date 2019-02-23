@@ -168,6 +168,9 @@ use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-
 openbazaar shop link (paste it into the app's internal address bar):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
 
+also, you can preview my shop items here if you do not have openbazaar app installed yet:  
+[https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr)  
+
 ---
 
 if you want to support my projects through donations here are currently available options:
