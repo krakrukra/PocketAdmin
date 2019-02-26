@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 4)
+    (drawings 6)
     (tracks 192)
     (zones 0)
     (modules 21)
@@ -994,7 +994,7 @@
     )
   )
 
-  (module Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm (layer F.Cu) (tedit 5A02F2D3) (tstamp 5C2C6A1F)
+  (module Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm (layer F.Cu) (tedit 5A02F2D3) (tstamp 5C74253E)
     (at 137.2 86.1 180)
     (descr "16-Lead Plastic Small Outline (SO) - Wide, 7.50 mm Body [SOIC] (see Microchip Packaging Specification 00000049BS.pdf)")
     (tags "SOIC 1.27")
@@ -1184,7 +1184,7 @@
     (fp_text reference C11 (at 2.1 0 90) (layer B.SilkS)
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
-    (fp_text value 100nF (at 0 -1.43) (layer B.Fab)
+    (fp_text value 20pF (at 0 -1.43) (layer B.Fab)
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
     (fp_line (start -0.8 -0.4) (end -0.8 0.4) (layer B.Fab) (width 0.1))
@@ -1211,6 +1211,12 @@
     )
   )
 
+  (gr_text rev_1.1 (at 131.6 77.7 90) (layer F.SilkS)
+    (effects (font (size 0.8 0.8) (thickness 0.15)))
+  )
+  (gr_text github.com/krakrukra/PocketAdmin (at 144 86.1 90) (layer F.SilkS)
+    (effects (font (size 0.8 0.8) (thickness 0.15)))
+  )
   (gr_line (start 130 101) (end 145 101) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 145 70) (end 145 101) (layer Edge.Cuts) (width 0.15) (tstamp 5B9A623C))
   (gr_line (start 130 70) (end 145 70) (layer Edge.Cuts) (width 0.15) (tstamp 5B9A623F))

@@ -1,5 +1,4 @@
 EESchema Schematic File Version 4
-LIBS:PocketAdmin-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -41,9 +40,9 @@ L Device:Crystal Y1
 U 1 1 5B929F95
 P 5250 3000
 F 0 "Y1" V 5204 2869 50  0000 R CNN
-F 1 "NX5032GA 8MHz" V 5295 2869 50  0000 R CNN
+F 1 "8MHz" V 5295 2869 50  0000 R CNN
 F 2 "Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm" H 5250 3000 50  0001 C CNN
-F 3 "load capacitance 8pF" H 5250 3000 50  0001 C CNN
+F 3 "NX5032GA" H 5250 3000 50  0001 C CNN
 	1    5250 3000
 	0    1    1    0   
 $EndComp
@@ -423,7 +422,6 @@ NoConn ~ 5800 5050
 NoConn ~ 5800 5150
 NoConn ~ 7100 4450
 NoConn ~ 7100 4550
-NoConn ~ 9050 4450
 NoConn ~ 7100 3950
 NoConn ~ 7100 3750
 NoConn ~ 7100 3650
@@ -531,7 +529,7 @@ F 3 "X7R 20% 50V" H 8700 3750 50  0001 C CNN
 	1    8700 3750
 	-1   0    0    1   
 $EndComp
-Text GLabel 9050 3900 2    50   Input ~ 0
+Text GLabel 9150 3900 2    50   Input ~ 0
 3.3V
 $Comp
 L power:GND #PWR0102
@@ -668,5 +666,11 @@ Wire Wire Line
 Text Notes 4250 5100 0    50   ~ 0
 PC15 and PB13 are connected \nto netnames only to ease PCB\nlayout, and are not used by MCU
 Wire Wire Line
-	9050 3900 9050 4250
+	9050 3900 9050 4150
+Connection ~ 9050 4150
+Wire Wire Line
+	9050 4150 9050 4250
+Wire Wire Line
+	9150 3900 9050 3900
+Connection ~ 9050 3900
 $EndSCHEMATC
