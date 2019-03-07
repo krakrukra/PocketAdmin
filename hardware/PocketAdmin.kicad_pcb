@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 6)
+    (drawings 5)
     (tracks 192)
     (zones 0)
     (modules 21)
@@ -1212,9 +1212,6 @@
   )
 
   (gr_text rev_1.1 (at 131.6 77.7 90) (layer F.SilkS)
-    (effects (font (size 0.8 0.8) (thickness 0.15)))
-  )
-  (gr_text github.com/krakrukra/PocketAdmin (at 144 86.1 90) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
   (gr_line (start 130 101) (end 145 101) (layer Edge.Cuts) (width 0.15))
