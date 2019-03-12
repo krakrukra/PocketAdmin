@@ -372,7 +372,7 @@ static void processGetDescriptorRequest()
 
       //add other descriptor codes here if necessary
       
-    default://if requested descriptor type is not one of these: DEVICE, CONFIGURATION, HID, REPORT
+    default://if requested descriptor type is not one of these: DEVICE, CONFIGURATION, STRING, HID, REPORT
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to next IN/OUT packet, clear both CTR flags
       return;
     }

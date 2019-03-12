@@ -119,6 +119,7 @@ command specifies the number of commands in this block, for example the followin
 "DELAY 300"  
 "REPEAT 10"  
 
+Every command must start at the beginning of a line and end with a newline character.  
 Quotation marks used here are not parts of commands and are just used to indicate start and  
 end of a command. Full list of available keywords is available in /extra/listOfKeywords.txt  
 
@@ -164,12 +165,14 @@ if you have a problem / question / feature request, here are your options for co
 send me an email to krakrukra@tutanota.com  
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
 use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-source-keystroke-injection-device-badusb/), dedicated to the project  
-
+also, you can check out my [youtube channel]()  
+  
+  
 openbazaar shop link (paste it into the app's internal address bar):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
+or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
 
-also, you can preview my shop items here if you do not have openbazaar app installed yet:  
-[https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr)  
+openbazaar shop is online whenever my PC is running. If you don't want to wait for that, you can order a sample over email
 
 ---
 

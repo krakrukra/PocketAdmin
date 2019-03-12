@@ -41,9 +41,9 @@ DeviceDescriptor_TypeDef DeviceDescriptor __attribute__(( aligned(2) )) =
   .bLength            = sizeof(DeviceDescriptor_TypeDef),
   .bDescriptorType    = 0x01,//DEVICE descriptor type
   .bcdUSB             = 0x0200,//USB 2.0
-  .bDeviceClass       = 0,//class specified not at device level
-  .bDeviceSubClass    = 0,//class specified not at device level
-  .bDeviceProtocol    = 0,//protocol specified not at device level
+  .bDeviceClass       = 0,//class is specified at interface level
+  .bDeviceSubClass    = 0,//class is specified at interface level
+  .bDeviceProtocol    = 0,//protocol is specified at interface level
   .bMaxPacketSize0    = MAXPACKET_0,//max packet size for EP0 (default = 64 bytes)
   .idVendor           = 0x1C4F,//SiGma Micro
   .idProduct          = 0x0026,//keyboard
