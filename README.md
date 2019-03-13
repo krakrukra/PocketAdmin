@@ -165,7 +165,7 @@ if you have a problem / question / feature request, here are your options for co
 send me an email to krakrukra@tutanota.com  
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
 use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-source-keystroke-injection-device-badusb/), dedicated to the project  
-also, you can check out my [youtube channel]()  
+also, you can check out my [youtube channel](https://www.youtube.com/channel/UCpx3VbcqgMQ-Zv4x2wwBbzA)  
   
   
 openbazaar shop link (paste it into the app's internal address bar):  
