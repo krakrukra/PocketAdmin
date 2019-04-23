@@ -2,27 +2,28 @@
 
 This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
-types in a preprogrammed payload. That can be very useful for automating sysadmin tasks or  
+types in a preprogrammed payload. This can be very useful for automating sysadmin tasks or  
 in penetration testing applications.  
 
-![1.jpg](extra/pictures/1.jpg)
+![1.jpg](extra/pictures/1.jpg)  
 ![2.jpg](extra/pictures/2.jpg)  
 
 The device here is intended to be an improved verison of USB rubber ducky, namely:  
 
-1. made from inexpensive off-the-shelf parts, with not only open source  
-firmware, but hardware design files as well.  
+1. made from inexpensive off-the-shelf parts, with not only open source firmware,  
+but hardware design files as well (allows you to make these yourself).  
 
-2. compatible with existing ducky script and has a built-in interpreter, so you never have to install  
-any special software and keep converting payload.txt to inject.bin, you just edit existing text file.  
+2. has a built-in interpreter (compatible with existing ducky script), so you never have to install  
+any encoder software and keep converting payload.txt to inject.bin, you just edit existing text file.  
 
-3. the device can show up as both keyboard and a USB disk (contains payload.txt), so there is no need to  
-keep sticking SD card in/out of various devices while developing payloads.  
+3. can act as both keyboard and USB flash drive, allowing for better payloads; the memory chip is integrated,  
+so there is no need to keep sticking SD card in/out of various devices while developing payloads.  
 
-4. configurable enumeration process:  
-with "VID ", "PID " commands user can change VID / PID values used for enumeration.  
-with "HID\_ONLY\_MODE" command device will enumerate in HID-only mode (or MSD-only mode, if MSD-only button is pressed);  
-if such command is not present device enumerates in HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
+4. extended set of commands:  
+without doing any firmware update, the user can set which VID / PID values to use,  
+as well as configure how the device should show up (keyboard only / flash disk only / keyboard+disk);  
+"DELAY " command can wait extra time for driver install, to help ensure payloads run at very first insertion;  
+"REPEAT " can repeat a block of several commands, instead of only 1;  
 
 ---
 
@@ -48,7 +49,7 @@ was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  (you will need to have make utility installed)  
 depends on libgcc.a, which together with the linker script, startup code  
-and openocd configuration files is included in this repository.
+and openocd configuration files is included in this repository.  
 
 files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
@@ -69,12 +70,16 @@ connect ST-LINKv2 programmer to the board, then to computer and type:
 By default PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
 For any keystrokes to be injected, the USB flash drive must have a FAT filesystem on the first partition  
 of the disk, with a text file named payload.txt in the root directory. After that the built-in interpreter  
-will run commands from that file, which are mostly the same as in existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
+will run commands directly from that file, which are mostly the same as in existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
 
 There are however, some differences/extentions to ducky script:  
 
-1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID "  
-pre-configuration commands (if present) must be placed at the very start of payload.txt and come as  
+1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID ".  
+With "VID ", "PID " commands user can change VID / PID values used for enumeration (they take **decimal** numbers as argument).  
+With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or in MSD-only mode (if MSD-only button is pressed);  
+if such command is not present device enumerates in HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
+
+2. Pre-configuration commands (if present) must be placed at the very start of payload.txt and come as  
 one contiguous block of up to 3 commands (no other types of commands are allowed in between these)  
 For example:  
 "HID\_ONLY\_MODE"  
@@ -82,35 +87,35 @@ For example:
 "PID 5635"  
 ... all other commands here ...  
 
-2. "DELAY " command first waits extra time until host had sent at least 1 read command to MSD interface  
+3. "DELAY " command first waits extra time until host had sent at least 1 read command to MSD interface  
 (in MSD+HID configuration) and received at least 1 report from HID interface (all configurations),  
 and only then waits for a specified number of milliseconds.  
 that is to make sure host has done its initializations (e.g. installed drivers) and you are only waiting  
 for GUI elements to update  
 
-3. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
+4. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
 If you want to use a different language, switch GUI settings and then use ASCII symbols that are bound  
 to the same physical key as the symbol you are trying to print. For example, if GUI is configured  
 to use RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
 
-4. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
+5. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
 (unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands  
 such as "GUI r" or "GUI R" are the same.  
 Any non ASCII-printable character causes the rest of the line to be ignored.  
 
-5. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used.  
+6. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used.  
 All other commands (including single character commands) execute and skip the rest of the line.  
 Modifier key commands only work if followed by a press key command or newline, for example,  
 "CTRL ALT DELETE", "CONTROL SHIFT T" or "ALT " are valid commands.  
 
-6. If you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
+7. If you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
 always keep a spacebar after the keyword, such as "CTRL ", "ALT " instead of "CTRL", "ALT"  
 
-7. Commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
-take numeric arguments (decimal numbers). Size of these decimal strings can not be longer  
-than 6 symbols. That means "DELAY 5123456" is invalid.  
+8. Commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
+take numeric arguments (decimal number string). Length of these decimal strings can not be more  
+than 6 symbols. That means "DELAY 1234567" is not valid, but "DELAY 123456" is.  
 
-8. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE "  
+9. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE "  
 command specifies the number of commands in this block, for example the following script will execute  
 3 commands right before REPEAT for 11 times (once normally + repeated 10 times):  
 "REPEAT\_SIZE 3"  
@@ -157,7 +162,7 @@ along with diskio.c + diskio.h (custom low level driver for communication with W
 
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
-#### /extra/ -------------------  contains pictures, pdf version of schematic, various extra documents, etc.
+#### /extra/ -------------------  contains pictures, pdf version of schematic, various extra documents, etc.  
 
 ## contact info
 
@@ -167,16 +172,11 @@ create a new github issue, or use of the existing one called [general discussion
 use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-source-keystroke-injection-device-badusb/), dedicated to the project  
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UCpx3VbcqgMQ-Zv4x2wwBbzA)  
   
-  
+#### if you want to buy:  
 openbazaar shop link (paste it into the app's internal address bar):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
 or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
+openbazaar shop is online whenever my PC is running.  
 
-openbazaar shop is online whenever my PC is running. If you don't want to wait for that, you can order a sample over email
-
----
-
-if you want to support my projects through donations here are currently available options:
-
-Ethereum: 0xd5bB8837772a53a36b7D84306d5e16918664F60A  
-Bitcoin: bc1qn0eygdtcxm5rxv7uwhl0h6ayw3sl59cs4q8vl5  
+tindie shop link:  
+ebay shop link:  
