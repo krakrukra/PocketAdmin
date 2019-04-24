@@ -13,17 +13,17 @@ The device here is intended to be an improved verison of USB rubber ducky, namel
 1. made from inexpensive off-the-shelf parts, with not only open source firmware,  
 but hardware design files as well (allows you to make these yourself).  
 
-2. has a built-in interpreter (compatible with existing ducky script), so you never have to install  
-any encoder software and keep converting payload.txt to inject.bin, you just edit existing text file.  
+2. has a built-in interpreter (compatible with existing ducky script) which takes text files directly,  
+so you never have to install any encoder software and keep converting payload.txt to inject.bin.  
 
-3. can act as both keyboard and USB flash drive, allowing for better payloads; the memory chip is integrated,  
+3. can act as both keyboard and USB disk, allowing for better payloads; the memory chip is integrated,  
 so there is no need to keep sticking SD card in/out of various devices while developing payloads.  
 
 4. extended set of commands:  
-without doing any firmware update, the user can set which VID / PID values to use,  
-as well as configure how the device should show up (keyboard only / flash disk only / keyboard+disk);  
-"DELAY " command can wait extra time for driver install, to help ensure payloads run at very first insertion;  
-"REPEAT " can repeat a block of several commands, instead of only 1;  
+without doing any firmware update, the user can set which VID / PID values to use, as well as  
+configure how the device should show up (keyboard only / flash disk only / keyboard+disk);  
+"DELAY " command can wait extra time for driver install, so that payloads run at very first insertion;  
+"REPEAT " command can repeat a block of several commands, instead of only 1;  
 
 ---
 
@@ -75,9 +75,10 @@ will run commands directly from that file, which are mostly the same as in exist
 There are however, some differences/extentions to ducky script:  
 
 1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID ".  
-With "VID ", "PID " commands user can change VID / PID values used for enumeration (they take **decimal** numbers as argument).  
-With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or in MSD-only mode (if MSD-only button is pressed);  
-if such command is not present device enumerates in HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
+With "VID ", "PID " commands user can change VID / PID values used for enumeration (they take **decimal**  
+numbers as argument). With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or  
+in MSD-only mode (if MSD-only button is pressed); if such command is not present device enumerates in  
+HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
 
 2. Pre-configuration commands (if present) must be placed at the very start of payload.txt and come as  
 one contiguous block of up to 3 commands (no other types of commands are allowed in between these)  
@@ -173,10 +174,9 @@ use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UCpx3VbcqgMQ-Zv4x2wwBbzA)  
   
 #### if you want to buy:  
-openbazaar shop link (paste it into the app's internal address bar):  
+openbazaar shop link (online whenever my PC is running):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
 or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
-openbazaar shop is online whenever my PC is running.  
 
 tindie shop link:  
 ebay shop link:  
