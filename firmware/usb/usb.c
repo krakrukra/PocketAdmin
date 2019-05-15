@@ -36,19 +36,20 @@ void usb_init()
 {
   RCC->CFGR3 |= (1<<7);//USB uses PLL clock
   RCC->APB1ENR |= (1<<23);//enable USB interface clock
-  RCC->APB1RSTR |= (1<<23);//reset USB register values
+  RCC->APB1RSTR |= (1<<23);//reset USB registers
   RCC->APB1RSTR &= ~(1<<23);//deassert USB macrocell reset signal
   
   USB->CNTR = (1<<0);//enable USB power supply, keep USB reset
   
-  //delay of approximately 1us before USB reset is cleared
+  //delay of approximately 1us (at SYSCLK = 48MHz) before USB reset is cleared
   RCC->APB1ENR |= (1<<1);//enable TIM3 clock
-  TIM3->ARR = 47;//timer 3 reload value is 47
-  TIM3->CR1 = (1<<7)|(1<<3)|(1<<0);//ARR is buffered enable, one pulse mode, start upcounting
+  TIM3->ARR = 50;//timer 3 reload value is 50
+  TIM3->CR1 = (1<<7)|(1<<3)|(1<<0);//ARR is buffered, one pulse mode, start upcounting
   while(TIM3->CR1 & (1<<0));//wait until timer has finished counting
 
-  USB->CNTR = (1<<15)|(1<<12)|(1<<11)|(1<<10);//clear USB reset; enable interrupts: CTR, WKUP, SUSP, RESET
+  USB->CNTR = 0;//clear USB reset
   USB->ISTR = 0;//clear any interrupt flags
+  USB->CNTR = (1<<15)|(1<<12)|(1<<11)|(1<<10);//enable interrupts: CTR, WKUP, SUSP, RESET
 
   //EP0 IN buffer start address = 0x0040, size = 64 bytes
   BTABLE->ADDR0_TX  = 0x0040;
@@ -71,14 +72,32 @@ void usb_init()
   //EP3 IN_1 buffer start address = 0x0220, size = 64 bytes
   BTABLE->ADDR3_RX  = 0x0220;
   BTABLE->COUNT3_RX = 0x0000;
-  //add other endpoint base addresses and sizes here if necessary
+
+  usb_reset();
+
+  USB->BCDR = (1<<15);//enable internal pullup at D+ line
   
+  //at this point the only thing left to enable USB transaction handling is to set EF bit in USB->DADDR. the host has to send a RESET signal for that to happend
+  return;
+}
+
+void usb_reset()
+{
+  USB->CNTR = 0;//clear USB reset
+  USB->ISTR = 0;//clear any interrupt flags
+  USB->CNTR = (1<<15)|(1<<12)|(1<<11)|(1<<10);//enable interrupts: CTR, WKUP, SUSP, RESET
+  
+  //reinitialize endpoints
+  USB->EP0R ^= (1<<15)|(1<<7);//disable EP0.    set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+  USB->EP1R ^= (1<<15)|(1<<7);//disable EP1_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+  USB->EP2R ^= (1<<15)|(1<<7);//disable EP2_RX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+  USB->EP3R ^= (1<<15)|(1<<7);//disable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+
   USB->EP0R = (1<<12)|(1<<9)|(1<<6)|(1<<4);//EP0 enabled, assigned CONTROL type, EA = 0. respond with STALL to IN/OUT packets
   USB->EP1R = (1<<10)|(1<<9)|(1<<0);//EP1 disabled, assigned INTERRUPT type, EA = 1
   USB->EP2R = (2<<0);//EP2 disabled, assigned BULK type, EA = 2
   USB->EP3R = (3<<0);//EP3 disabled, assigned BULK type, EA = 3  
-  //specify types and EA values for other endpoints here if necessary. keep them disabled until appropriate SetConfiguration request comes from the host
-
+  
   //initialize Control state machine related registers
   ControlInfo.DataPointer = 0;
   ControlInfo.BytesLeft = 0;  
@@ -100,10 +119,7 @@ void usb_init()
   (MSDinfo.CSW).bCSWStatus = 0;
   bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_TX), 13 );
   BTABLE->COUNT3_TX = 13;
-
-  USB->BCDR = (1<<15);//enable internal pullup at D+ line
   
-  //at this point the only thing left to enable USB transaction handling is to set EF bit in USB->DADDR. the host has to send a RESET signal for that to happend
   return;
 }
 
@@ -137,7 +153,7 @@ void usb_handler()
 
   else if(USB->ISTR & (1<<12))//WKUP
     {
-      USB->ISTR = 0xFEFF;//clear WKUP flag
+      USB->ISTR = 0xEFFF;//clear WKUP flag
     }
 
   else if(USB->ISTR & (1<<11))//SUSP
@@ -147,7 +163,7 @@ void usb_handler()
 
   else if(USB->ISTR & (1<<10))//RESET
     {
-      usb_init();//reinitialize USB, clear all interrupt flags
+      usb_reset();//reinitialize USB, clear all interrupt flags
       USB->DADDR = (1<<7);//enable USB transaction handling, set device address to 0
     }
 

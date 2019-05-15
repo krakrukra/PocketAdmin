@@ -3,6 +3,7 @@
 
 //externally visible functions
 void usb_init();
+void usb_reset();
 void usb_handler() __attribute__((interrupt));
 void bufferCopy(unsigned short* whereFrom, unsigned short* whereTo, unsigned short howMuch);
 
