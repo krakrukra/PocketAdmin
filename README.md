@@ -31,7 +31,7 @@ configure how the device should show up (keyboard only / flash disk only / keybo
 
 project is designed using KiCad 5.0.2  
 check KiCad pcb file for PCB manufacturing info  
-check KiCad sch file component fields + BOM.txt for component info  
+check KiCad sch file + BOM.txt for component info  
 
 programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
 you can use single pin male-female jumpers or a 1x5pin jumper cable  
@@ -141,14 +141,14 @@ it can do anything that your keyboard can (even more than that, actiually)
 
 #### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
 
-/firmware/cmsis/ ---------- necessary header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
+/firmware/cmsis/ ------- necessary header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
 
 /firmware/stdlib/ ---------- standard statically linked libraries (libgcc.a)  
 
 /firmware/openocd/ ------- standard configuration files for openocd  
 
-/firmware/fatfs/ ----------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) module for working with FAT filesystem,  
-along with diskio.c + diskio.h (custom low level driver for communication with W25Q256FVFG flash memory chip over SPI)  
+/firmware/fatfs/ ----------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) module for working with FAT filesystem, along with diskio.c + diskio.h  
+(custom low level driver for communication with W25Q256FVFG flash memory chip over SPI)  
 
 /firmware/usb/ ------------ custom USB stack, implementation of MSD and HID class devices  
 
@@ -164,6 +164,8 @@ along with diskio.c + diskio.h (custom low level driver for communication with W
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
 #### /extra/ -------------------  contains pictures, pdf version of schematic, various extra documents, etc.  
+
+/extra/firmware_rev1.1 ----------- precompiled firmware image for pocketadmin revision 1.1
 
 ## contact info
 
