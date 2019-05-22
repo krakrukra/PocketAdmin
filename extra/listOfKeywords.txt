@@ -1,4 +1,5 @@
-pre-configuration commands:
+pre-configuration commands (must be placed in config.txt):
+"USE_FINGERPRINTER"
 "HID_ONLY_MODE"
 "VID "
 "PID "

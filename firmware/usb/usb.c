@@ -27,7 +27,6 @@ extern void processMSDtransaction();
 
 //this data structure is needed for control transfers
 ControlInfo_TypeDef ControlInfo;
-volatile unsigned char EnumerationMode;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -201,6 +200,13 @@ static void processControlTransaction()
 	  //copy 8 bytes (which contain control request) from EP0_RX buffer in PMA to ControlInfo structure in RAM
 	  //that is needed because buffer in PMA can be overwritten by next transactions and then request data would be lost
 	  bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) &ControlInfo.ControlRequest, 8 );
+
+	  //save a copy of the first 10 received control requests as OS fingerprint
+	  if(ControlInfo.OSfingerprintCounter < 10)
+	    {
+	      bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) &(ControlInfo.OSfingerprintData[ ControlInfo.OSfingerprintCounter ]), 4 );
+	      ControlInfo.OSfingerprintCounter++;
+	    }
 	  
 	  //reinitialize variables needed for control transfer handling
 	  ControlInfo.DataPointer = 0;
@@ -209,7 +215,7 @@ static void processControlTransaction()
 	  ControlInfo.TransferStage = IDLE;
 
 	  //only process standard and class specific requests. respond with STALL to any other bmRequestType
-	  if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == 0 ) processStandardRequest();	 
+	       if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (0<<5) ) processStandardRequest();	 
 	  else if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (1<<5) ) processClassRequest();
 	  else USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags	    
 	}
@@ -349,7 +355,7 @@ static void processGetDescriptorRequest()
       break;
       
     case 0x0200://get CONFIGURATION descriptor request, index = 0
-      if(EnumerationMode == 0x00)//if default MSD+HID mode is set
+      if(ControlInfo.EnumerationMode == 0x00)//if default MSD+HID mode is set
 	{
 	  descriptorAddress = &GetConfigResponse_default;
 	  descriptorSize = sizeof(GetConfigResponse_default_TypeDef);

@@ -65,7 +65,7 @@ static GetConfigResponse_default_TypeDef GetConfigResponse_default __attribute__
     .bConfigurationValue    = 1,//configuration number is 1
     .iConfiguration         = 0,//no symbolic name reserved in string descriptor
     .bmAttributes           = 0x80,//not self-powered, no remote wakeup support
-    .bMaxPower              = 40//80mA max current consumption
+    .bMaxPower              = 20//40mA max current consumption
   },
   .InterfaceDescriptor_0 =
   {
@@ -142,7 +142,7 @@ static GetConfigResponse_HIDonly_TypeDef GetConfigResponse_HIDonly __attribute__
     .bConfigurationValue    = 1,//configuration number is 1
     .iConfiguration         = 0,//no symbolic name reserved in string descriptor
     .bmAttributes           = 0x80,//not self-powered, no remote wakeup support
-    .bMaxPower              = 40//80mA max current consumption
+    .bMaxPower              = 20//40mA max current consumption
   },
   .InterfaceDescriptor_0 =
   {
@@ -189,7 +189,7 @@ static GetConfigResponse_MSDonly_TypeDef GetConfigResponse_MSDonly __attribute__
     .bConfigurationValue    = 1,//configuration number is 1
     .iConfiguration         = 0,//no symbolic name reserved in string descriptor
     .bmAttributes           = 0x80,//not self-powered, no remote wakeup support
-    .bMaxPower              = 40//80mA max current consumption
+    .bMaxPower              = 20//40mA max current consumption
   },
   .InterfaceDescriptor_1 =
   {

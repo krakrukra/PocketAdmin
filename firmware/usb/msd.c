@@ -2,7 +2,8 @@
 #include "msd_rodata.h"
 #include "../fatfs/diskio.h"
 
-//macros for first and last accessible byte addresses on the device (not next available address)
+//external flash memory is mapped to address 0xA0000000 in MCU memory space. these macros are for
+//first and last accessible byte addresses of the mapped flash memory area (not next available address)
 #define MSD_FIRSTADDR 0xA0000000U
 #define MSD_LASTADDR  0xA1FFFFFFU
 
@@ -14,6 +15,7 @@ static void processNewCBW();
 static void processInquiryCommand_6();
 static void processReadCapacityCommand_10();
 static void processTestUnitReadyCommand_6();
+static void processStartStopUnitCommand_6();
 static void processPreventAllowMediumRemovalCommand_6();
 static void processModeSenseCommand_6();
 static void processReadCommand_10();
@@ -160,6 +162,10 @@ static void processNewCBW()
     case 0x1A://MODE SENSE (6) command
       processModeSenseCommand_6();
       break;      
+
+    case 0x1B://START STOP UNIT command
+      processStartStopUnitCommand_6();
+      break;
       
     case 0x1E://PREVENT ALLOW MEDIUM REMOVAL command
       processPreventAllowMediumRemovalCommand_6();
@@ -237,6 +243,18 @@ static void processTestUnitReadyCommand_6()
 
   sendCSW(0);//return good status
 
+  USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  
+  return;
+}
+
+static void processStartStopUnitCommand_6()
+{
+  //do nothing, since no special load/eject or low power modes are necessary
+  
+  sendCSW(0);//return good status
+  
   USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
   

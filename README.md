@@ -8,22 +8,24 @@ in penetration testing applications.
 ![1.jpg](extra/pictures/1.jpg)  
 ![2.jpg](extra/pictures/2.jpg)  
 
-The device here is intended to be an improved verison of USB rubber ducky, namely:  
+The device here is intended to be a much improved verison of USB rubber ducky, namely:  
 
-1. made from inexpensive off-the-shelf parts, with not only open source firmware,  
-but hardware design files as well (allows you to make these yourself).  
+1. Made from inexpensive off-the-shelf parts, with not only open source firmware,  
+but hardware design files as well. This allows the user to do substantial  
+modifications to the design, as well as provides an option to build these yourself.  
 
-2. has a built-in interpreter (compatible with existing ducky script) which takes text files directly,  
+2. Has a built-in interpreter (compatible with existing ducky script) which takes text files directly,  
 so you never have to install any encoder software and keep converting payload.txt to inject.bin.  
 
-3. can act as both keyboard and USB disk, allowing for better payloads; the memory chip is integrated,  
+3. Can act as both keyboard and USB disk, allowing for better payloads; the memory chip is integrated,  
 so there is no need to keep sticking SD card in/out of various devices while developing payloads.  
 
-4. extended set of commands:  
-without doing any firmware update, the user can set which VID / PID values to use, as well as  
+4. Has an OS detection mechanism, which allows you to store multiple payloads simultaneously and  
+have the device automatically pick the correct payload to run.  
+
+5. Extended set of commands for extra functionality; for example:  
+without doing any firmware update the user can set which VID / PID values to use, or  
 configure how the device should show up (keyboard only / flash disk only / keyboard+disk);  
-"DELAY " command can wait extra time for driver install, so that payloads run at very first insertion;  
-"REPEAT " command can repeat a block of several commands, instead of only 1;  
 
 ---
 
@@ -38,7 +40,12 @@ you can use single pin male-female jumpers or a 1x5pin jumper cable
 make sure to plug the programming cable into the header the right way  
 
 based on full-speed (12Mbit/s) USB2.0 peripheral, uses on-board 32MiB flash memory chip for data storage;  
-measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.  
+measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s. While not very fast, it is enough  
+for most badusb applications.  
+
+The pushbutton on the device will be referred to as MSD-only button. Normally the payload is run  
+whenever you plug the device into a PC. But if you press and hold this button while inserting the  
+device, it prevents any keystrokes from being typed in.  
 
 ## firmware
 
@@ -47,7 +54,7 @@ firmware (written in C) was developed on debian 9.7 system, using gcc-arm-none-e
 was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
 
 flashing software used = openocd  
-IDE used = emacs text editor + Makefile  (you will need to have make utility installed)  
+IDE used = emacs text editor + Makefile  
 depends on libgcc.a, which together with the linker script, startup code  
 and openocd configuration files is included in this repository.  
 
@@ -65,39 +72,69 @@ connect ST-LINKv2 programmer to the board, then to computer and type:
 
 > make upload  
 
+for your convenience, a pre-built binary firmware image is available in /extra/ directory.  
+
 ## usage
 
-By default PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
-For any keystrokes to be injected, the USB flash drive must have a FAT filesystem on the first partition  
-of the disk, with a text file named payload.txt in the root directory. After that the built-in interpreter  
-will run commands directly from that file, which are mostly the same as in existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
+By default, PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
+For the most basic use, there must be a FAT filesystem on the first partition, and in the root directory  
+there must be a payload.txt file, which contains the commands that the device should run at every insertion.  
+Optionally, alongside the payload.txt you can have a config.txt file. If this file if present, the device  
+first runs pre-configuration commands from there, and then moves on to running some payload file.  
 
+If "USE_FINGERPRINTER" pre-configuration command is present, the device will ignore payload.txt and  
+instead choose a payload file from /fgscript/ directory. Available choises are: /fgscript/linux.txt,  
+/fgscript/windows.txt, /fgscript/mac.txt or /fgscript/other.txt (if OS could not be determined);  
+The OS detection works by comparing current OS fingerprint with a database stored in /fingerdb/ directory.  
+First, the device will create /fingerdb/current.fgp file, which contains OS fingerprint of the machine it  
+is currently plugged into, and then it will search directories /fingerdb/linux/, /fingerdb/windows/,  
+/fingerdb/mac/ for a matching fingerprint file. The right script is chosen based on what directory the  
+matching file was found in, or set to /fgscript/other.txt if no matching fingerprint was found at all.  
+
+Fingerprint files are based on how a given USB driver reacts to PocketAdmin being inserted. That means  
+fingerprints can be different for different versions of some particular OS, and can change with time.  
+For example, if your windows 10 machine had an update which modified it's USB driver the fingerprint  
+will possibly change too, so a new .fgp file has to be added into the database. To do that, you plug  
+the device in and then copy /fingerdb/current.fgp into an appropriate /fingerdb/osname/ directory.  
+Make sure that the file keeps .fgp extention and the new name is no longer than 8 characters (without .fgp);  
+Once the fingerprint file is present in /fingerdb/ your OS should be correctly detected.  
+
+There is an OS fingerprint database included in this repository ( in /extra/fingerdb/ );  
+If you have collected more fingerprints, I welcome you to share them, so they can be  
+included here for everybody else's use.  
+
+## commands
+
+The commands in payload files are mostly the same as in existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
 There are however, some differences/extentions to ducky script:  
 
-1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID ".  
-With "VID ", "PID " commands user can change VID / PID values used for enumeration (they take **decimal**  
-numbers as argument). With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or  
-in MSD-only mode (if MSD-only button is pressed); if such command is not present device enumerates in  
+1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID ", "USE_FINGERPRINTER".  
+With "VID ", "PID " commands user can change VID / PID values used for enumeration. They take hex  
+numbers as argument, and 0x prefix is mandatory (eg. "VID 0x046D" or "PID 0xC228").  
+With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or in MSD-only mode  
+(if MSD-only button is pressed); if such command is not present device enumerates in  
 HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
 
-2. Pre-configuration commands (if present) must be placed at the very start of payload.txt and come as  
-one contiguous block of up to 3 commands (no other types of commands are allowed in between these)  
+2. Pre-configuration commands (if present) must be placed separately in the config.txt file and come  
+as one contiguous block of up to 4 commands (no other types of commands are allowed in config.txt)  
 For example:  
 "HID\_ONLY\_MODE"  
-"VID 2385"  
-"PID 5635"  
-... all other commands here ...  
+"VID 0x2385"  
+"PID 0x5635"  
 
 3. "DELAY " command first waits extra time until host had sent at least 1 read command to MSD interface  
 (in MSD+HID configuration) and received at least 1 report from HID interface (all configurations),  
-and only then waits for a specified number of milliseconds.  
-that is to make sure host has done its initializations (e.g. installed drivers) and you are only waiting  
-for GUI elements to update  
+and only then waits for a specified number of milliseconds. This is done to help payloads run at the  
+very first insertion, even into a completely new machine. The problem is, it might take many seconds  
+before host will do its initializations (e.g. install drivers). This way you dont have to put huge  
+delays at the start of the payload, since the "DELAY " command only waits for GUI elements to update.  
 
 4. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
-If you want to use a different language, switch GUI settings and then use ASCII symbols that are bound  
-to the same physical key as the symbol you are trying to print. For example, if GUI is configured  
-to use RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
+If you want to type a string in a different language, make sure that target machine's GUI is set to your  
+desired language and then use "STRING " command with ASCII symbols that are bound to the same physical  
+keys as the symbols you are trying to print. For example, if GUI is configured to use RU layout,  
+"STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
+(because you have to press the same key to type 'l' or 'д', same key for 'k' or 'л', etc)  
 
 5. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
 (unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands  
@@ -112,9 +149,9 @@ Modifier key commands only work if followed by a press key command or newline, f
 7. If you want a modifier key pressed (CTRL, SHIFT, ALT, GUI), but no keycode sent along with it,  
 always keep a spacebar after the keyword, such as "CTRL ", "ALT " instead of "CTRL", "ALT"  
 
-8. Commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ", "VID ", "PID "  
-take numeric arguments (decimal number string). Length of these decimal strings can not be more  
-than 6 symbols. That means "DELAY 1234567" is not valid, but "DELAY 123456" is.  
+8. Commands "DEFAULT\_DELAY", "DEFAULTDELAY", "DELAY ", "REPEAT\_SIZE ", "REPEAT ",  
+take numeric arguments (decimal number string). Length of these decimal strings can not  
+be more than 6 symbols. That means "DELAY 1234567" is not valid, but "DELAY 123456" is.  
 
 9. "REPEAT " command can repeat a block of commands (max block size = 400 characters). "REPEAT\_SIZE "  
 command specifies the number of commands in this block, for example the following script will execute  
@@ -163,9 +200,16 @@ it can do anything that your keyboard can (even more than that, actiually)
 
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
-#### /extra/ -------------------  contains pictures, pdf version of schematic, various extra documents, etc.  
+#### /extra/ -------------------  contains pictures, various extra documents, etc.  
 
-/extra/firmware_rev1.1 ----------- precompiled firmware image for pocketadmin revision 1.1
+/extra/examplePayloads/ ----------- contains some example PocketAdmin payloads  
+/extra/pictures/ ------------------ contains device photos  
+/extra/mechanicalDrawings/ -------- contains info for various mechanical parts  
+
+/extra/pocketadmin.pdf ----------- pdf version of schematic  
+/extra/firmware_rev1.1 ----------- precompiled firmware image for pocketadmin revision 1.1  
+/extra/listOfKeywords.txt -------- list of available payload commands  
+
 
 ## contact info
 

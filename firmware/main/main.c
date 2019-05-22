@@ -4,17 +4,20 @@
 #include "../fatfs/ff.h"
 #include "../fatfs/diskio.h"
 
-extern volatile unsigned char EnumerationMode;
+extern ControlInfo_TypeDef ControlInfo;
 extern DeviceDescriptor_TypeDef DeviceDescriptor;
-char PayloadBuffer[1024];
-FATFS FATFSinfo;//holds info about filesystem on the medium
-FIL openedFileInfo;//holds info related to an opened file
-unsigned int BytesRead;//holds the number of bytes that were successfully read with f_read()
+
+static char PayloadBuffer[1024];//holds duckyscript commands to execute
+static FATFS FATFSinfo;//holds info about filesystem on the medium
+static FIL openedFileInfo;//holds info related to an opened file
+static unsigned int BytesRead;//holds the number of bytes that were successfully read with f_read()
+static FRESULT FATFSresult;//holds return values of FATFS related funtions
 
 static unsigned int runDuckyCommand();
 static void repeatDuckyCommand(unsigned int count);
 static char checkKeyword(char* referenceString);
-static unsigned int checkValue();
+static unsigned int checkDecValue();
+static unsigned int checkHexValue();
 static void sendKeystroke(unsigned char modifiers, unsigned char key);
 static void sendString(char* stringStart);
 static void skipString();
@@ -23,14 +26,17 @@ static void autodelay();
 static inline void delay_us(unsigned int delay) __attribute__((always_inline));
 static void delay_ms(unsigned int delay);
 
+static unsigned char checkOSfingerprint(char* directoryName);
+
 PayloadInfo_TypeDef PayloadInfo =
   {
     .DefaultDelay = 0,//if DEFAULT_DELAY is not used wait 0ms before every command
     .PayloadPointer = (char*) &PayloadBuffer,//start interpreting commands at the beginning of PayloadBuffer
     .BytesLeft = 0,//nothing was saved in PayloadBuffer yet
     .ActiveBuffer = 0,//first 512 bytes of PayloadBuffer are being executed
-    .FirstRead = 0,//first read command was not received yet
-    .RepeatSize = 1//by default REPEAT command is applied only to 1 last command
+    .FirstRead = 0,//first MSD read command was not received yet
+    .RepeatSize = 1,//by default REPEAT command is applied only to 1 last command
+    .UseFingerprinter = 0//do not try to detect OS unless USE_FINGERPRINTER command is present
   };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,41 +52,73 @@ int main()
   //initialize W25Q256FVFG flash memory chip, mount filesystem on the first partition, open and read payload.txt
   delay_ms(5);//wait until W25Q256FVFG startup delay is over and it is able to accept commands
   if ( f_mount(&FATFSinfo, "0:", 1) ) disk_initialize(0);//initialize flash memory for MSD use, in case no valid FAT is found ( f_mount() fails in this case )
-  if( !f_open(&openedFileInfo, "0:/payload.txt", FA_READ) ) f_read(&openedFileInfo, (char*) &PayloadBuffer, 1024, &BytesRead );
-  PayloadInfo.BytesLeft = BytesRead;
-  
-  //run pre-configuration commands
-  for(i=0; i<3; i++)//run up to 3 commands at the very start of payload.txt
+
+  //try to get pre-configuration commands from config.txt 
+  if( !f_open(&openedFileInfo, "0:/config.txt", FA_READ) )
     {
-           if( checkKeyword("HID_ONLY_MODE") ) { EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter	
-      else if( checkKeyword("VID ") )          DeviceDescriptor.idVendor  = (unsigned short) checkValue();
-      else if( checkKeyword("PID ") )          DeviceDescriptor.idProduct = (unsigned short) checkValue();
+      f_read(&openedFileInfo, (char*) &PayloadBuffer, 512, &BytesRead );
+      f_close(&openedFileInfo);
+    }
+  
+  //run up to 4 pre-configuration commands from config.txt
+  for(i=0; i<4; i++)
+    {
+           if( checkKeyword("HID_ONLY_MODE") )   { ControlInfo.EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter
+      else if( checkKeyword("USE_FINGERPRINTER") ) PayloadInfo.UseFingerprinter = 1;
+      else if( checkKeyword("VID 0x") )            DeviceDescriptor.idVendor  = (unsigned short) checkHexValue();
+      else if( checkKeyword("PID 0x") )            DeviceDescriptor.idProduct = (unsigned short) checkHexValue();
       else break;//stop if no pre-configuration command was found
 	   
-      //go to next line in the ducky script
+      //go to the next line
       if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
-      else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
-        
+      else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;        
     }
-  //keep PayloadPointer at the start
-  PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
   
   usb_init();//initialize USB
-  __enable_irq();//enable interrupts globally
-  delay_us(10);
-  NVIC_EnableIRQ(31);//enable usb interrupt
-
-  //if MSD-only button is not pressed and payload.txt exists, run ducky interpreter
-  if(GPIOA->IDR & (1<<2))
+  __enable_irq();//enable interrupts globally  
+  
+  if(PayloadInfo.UseFingerprinter)//if there is a USE_FINGERPRINTER command in config.txt    
     {
-      while(PayloadInfo.BytesLeft)//keep going until end of file is reached
+      NVIC_EnableIRQ(31);//enable usb interrupt, so fingerprint can be collected
+      while(ControlInfo.OSfingerprintCounter < 10);//wait until OS fingerprint is collected
+      NVIC_DisableIRQ(31);//disable usb interrupt, so that MSD access and f_open() + f_write() do not collide
+
+      //save current OS fingerprint into a file
+      f_mkdir("0:/fgscript");
+      f_mkdir("0:/fingerdb");
+      if( !f_open(&openedFileInfo,  "0:/fingerdb/current.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
+	{	  
+	  f_write( &openedFileInfo, (unsigned char*) &ControlInfo.OSfingerprintData, 40, &BytesRead );
+	  f_close( &openedFileInfo );
+	}
+
+      //compare current OS fingerprint with a database, choose appropriate payload file
+           if( checkOSfingerprint("0:/fingerdb/windows") ) FATFSresult = f_open(&openedFileInfo, "0:/fgscript/windows.txt", FA_READ);
+      else if( checkOSfingerprint("0:/fingerdb/linux") )   FATFSresult = f_open(&openedFileInfo, "0:/fgscript/linux.txt", FA_READ);
+      else if( checkOSfingerprint("0:/fingerdb/mac") )     FATFSresult = f_open(&openedFileInfo, "0:/fgscript/mac.txt", FA_READ);
+      else                                                 FATFSresult = f_open(&openedFileInfo, "0:/fgscript/other.txt", FA_READ);       	   
+    }
+  //if USE_FINGERPRINTER command is not present
+  else FATFSresult = f_open(&openedFileInfo, "0:/payload.txt", FA_READ);  
+
+  
+  //if MSD-only button is not pressed and appropriate payload file exists, run ducky interpreter
+  if( !FATFSresult && (GPIOA->IDR & (1<<2)) )
+    {
+      f_read(&openedFileInfo, (char*) &PayloadBuffer, 1024, &BytesRead );
+      PayloadInfo.BytesLeft = BytesRead;
+      PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;//move PayloadPointer back to start
+      NVIC_EnableIRQ(31);//enable usb interrupt
+      
+      //keep executing commands until end of file is reached
+      while(PayloadInfo.BytesLeft)
 	{
 	  PayloadInfo.BytesLeft = PayloadInfo.BytesLeft - runDuckyCommand();//execute one line of ducky script, subtract number of executed bytes from BytesLeft
 	  
 	  //go to next line in the ducky script
 	  if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
 	  else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
-
+	  
 	  
 	  //if first 512 bytes of PayloadBuffer were processed and can now be replaced with new data
 	  if( (PayloadInfo.ActiveBuffer == 0) && (PayloadInfo.PayloadPointer >= ((char*) &PayloadBuffer + 512)) )
@@ -100,9 +138,11 @@ int main()
 	      PayloadInfo.BytesLeft = PayloadInfo.BytesLeft + BytesRead;
 	      NVIC_EnableIRQ(31);//enable usb interrupt again
 	    }
-	}
+	}      
     }
 
+  NVIC_EnableIRQ(31);//enable usb interrupt
+  
   while(1)
     {
       sendKeystroke(MOD_NONE, KB_Reserved);
@@ -131,15 +171,12 @@ static unsigned int runDuckyCommand()
 
       //search for specific keywords, take appropriate actions if found
       if     ( checkKeyword("REM ") )           skipString();
-      else if( checkKeyword("HID_ONLY_MODE") )  skipString();
-      else if( checkKeyword("VID ") )           skipString();
-      else if( checkKeyword("PID ") )           skipString();
-      else if( checkKeyword("REPEAT_SIZE ") )   PayloadInfo.RepeatSize = checkValue();
-      else if( checkKeyword("DEFAULT_DELAY ") ) PayloadInfo.DefaultDelay = checkValue();
-      else if( checkKeyword("DEFAULTDELAY ") )  PayloadInfo.DefaultDelay = checkValue();
-      else if( checkKeyword("DELAY ") )         autodelay( checkValue() );
+      else if( checkKeyword("REPEAT_SIZE ") )   PayloadInfo.RepeatSize = checkDecValue();
+      else if( checkKeyword("DEFAULT_DELAY ") ) PayloadInfo.DefaultDelay = checkDecValue();
+      else if( checkKeyword("DEFAULTDELAY ") )  PayloadInfo.DefaultDelay = checkDecValue();
+      else if( checkKeyword("DELAY ") )         autodelay( checkDecValue() );
       else if( checkKeyword("STRING ") )        sendString( PayloadInfo.PayloadPointer );
-      else if( checkKeyword("REPEAT ") )        repeatDuckyCommand( checkValue() );
+      else if( checkKeyword("REPEAT ") )        repeatDuckyCommand( checkDecValue() );
       
       else if( checkKeyword("GUI ") )        mod = mod | MOD_LGUI;
       else if( checkKeyword("WINDOWS ") )    mod = mod | MOD_LGUI;
@@ -295,23 +332,56 @@ static char checkKeyword(char* referenceString)
 }
 
 //convert decimal string at PayloadPointer to unsigned integer, move to the newline
-static unsigned int checkValue()
+static unsigned int checkDecValue()
 {
   int result = 0;
-  unsigned short limit = 6;//maximum number of symbols by which PayloadPointer is allowed to move
+  unsigned char digit = 0;
+  unsigned char limit = 6;//maximum number of digits in a string to be interpreted
   
-  while( ( *(PayloadInfo.PayloadPointer) > 47 ) && ( *(PayloadInfo.PayloadPointer) < 58 ) )
+  while(limit)
     {
-      if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
+      limit--;//one more digit is interpreted
+
+      //convert ASCII symbol to integer
+      if( ( *(PayloadInfo.PayloadPointer) > 47 ) && ( *(PayloadInfo.PayloadPointer) <  58 ) ) digit = *(PayloadInfo.PayloadPointer) - 48;
+      else break;            
 	    
-      result = result * 10 + ( *(PayloadInfo.PayloadPointer) - 48 );//convert ASCII symbol to integer
+      result = result * 10 + digit;//compute preliminary result
 
       //if the end of PayloadBuffer is reached, move pointer back to start of buffer
       if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
       else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
     }
 
+  skipString();//move to the end of line
+  
+  return result;
+}
+
+//convert hexadecimal string at PayloadPointer to unsigned integer, move to the newline
+static unsigned int checkHexValue()
+{
+  int result = 0;
+  unsigned char digit = 0;
+  unsigned char limit = 4;//maximum number of digits in a string to be interpreted
+  
+  while(limit)
+    {
+      limit--;//one more digit is interpreted
+
+      //convert ASCII symbol to integer
+           if( ( *(PayloadInfo.PayloadPointer) > 47 ) && ( *(PayloadInfo.PayloadPointer) <  58 ) ) digit = *(PayloadInfo.PayloadPointer) - 48;
+      else if( ( *(PayloadInfo.PayloadPointer) > 64 ) && ( *(PayloadInfo.PayloadPointer) <  71 ) ) digit = *(PayloadInfo.PayloadPointer) - 65 + 10;
+      else if( ( *(PayloadInfo.PayloadPointer) > 96 ) && ( *(PayloadInfo.PayloadPointer) < 103 ) ) digit = *(PayloadInfo.PayloadPointer) - 97 + 10;
+      else break;
+      
+      result = result * 16 + digit;//compute preliminary result
+      
+      //if the end of PayloadBuffer is reached, move pointer back to start of buffer
+      if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
+      else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
+    }
+  
   skipString();//move to the end of line
   
   return result;
@@ -399,9 +469,9 @@ static void skipString()
 //wait a specified time in milliseconds, but extend wait time if MSD or HID interfaces are not completely initialized by the host yet
 static void autodelay(unsigned int delay)
 {
-    while( !PayloadInfo.FirstRead );//wait until MSD interface received at least 1 read command
+    while( !PayloadInfo.FirstRead );//wait until MSD interface has received at least 1 read command since poweron
     sendKeystroke(MOD_NONE, KB_Reserved);//wait until host received at least 1 report from HID interface
-
+    
     delay_ms(delay);//wait a specified time after that
     
     return;
@@ -433,4 +503,45 @@ static void delay_ms(unsigned int delay)
     }
 
   return;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+//compare current OS fingerprint with those stored in the specified directory; return 1 on match, 0 otherwise
+static unsigned char checkOSfingerprint(char* directoryName)
+{
+  unsigned char* currentFingerprint = (unsigned char*) &(ControlInfo.OSfingerprintData[0]);
+  unsigned char i;
+
+  DIR fingerprintDirInfo;
+  FILINFO fingerprintFileInfo;
+
+  //go to the specified directory and search for any *.fgp files
+  f_chdir(directoryName);
+  FATFSresult = f_findfirst(&fingerprintDirInfo, &fingerprintFileInfo, directoryName, "*.fgp");
+
+  //keep searching until no more *.fgp files are found
+  while( !FATFSresult && fingerprintFileInfo.fname[0] )
+    {
+      //read the contents of *.fgp file
+      f_open( &openedFileInfo, &(fingerprintFileInfo.fname[0]), FA_READ );
+      f_read( &openedFileInfo, (char*) &PayloadBuffer, 40, &BytesRead );
+      f_close(&openedFileInfo);
+      
+      //compare current OS fingerprint with the data from *.fgp file
+      i = 0;
+      while(i < 40)
+	{
+	  if( currentFingerprint[i] != PayloadBuffer[i] ) break;
+	  
+	  //for every 4-byte fingerprint member check bytes 0, 1, 3; ignore byte 2
+	  if( (i % 4) == 1 ) i = i + 2;
+	  else i = i + 1;
+	}
+      if(i == 40) return 1;
+      
+      FATFSresult = f_findnext(&fingerprintDirInfo, &fingerprintFileInfo);
+    }
+  
+  return 0;
 }

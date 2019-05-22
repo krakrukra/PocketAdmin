@@ -228,10 +228,13 @@ typedef struct
   unsigned short BytesLeft;//how many bytes are yet to be transmitted in data stage
   unsigned char NewAddress;//address to assign to a device after STATUS_IN stage is completed
   unsigned char ConfigurationNumber;//current device configuration number
-  unsigned char ZLPneeded;//zero means there is no need for last packet to be ZLP in DATA_IN TransferStage, 1 = ZLP is needed
+  unsigned char ZLPneeded;//0 means there is no need for last packet to be ZLP in DATA_IN TransferStage, 1 = ZLP is needed
+  volatile unsigned char EnumerationMode;//0 means default HID+MSD enumeration, 1 means HID-only / MSD-only enumeration
   DeviceState_TypeDef DeviceState;//current device state
   TransferStage_TypeDef TransferStage;//current stage of control transfer
-  ControlRequest_TypeDef ControlRequest;//structure to hold the control request currently being processed
+  ControlRequest_TypeDef ControlRequest;//structure to hold the control request currently being processed  
+  unsigned int OSfingerprintData[10];//holds copies of bytes 0-3 from first 10 control requests after poweron
+  volatile unsigned char OSfingerprintCounter;//keeps track of how many control requests have been received after poweron
 } ControlInfo_TypeDef;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -287,6 +290,7 @@ typedef struct
   unsigned char ActiveBuffer;//0 means ducky commands are being read from bytes 0 to 511 in payloadBuffer. 1 means from 512 to 1023
   volatile unsigned char FirstRead;//intialized to 0, set to 1 when first read command is received by MSD interface
   unsigned int RepeatSize;//number of commands that should be re-run by REPEAT command
+  unsigned char UseFingerprinter;//0 means run script from payload.txt, 1 means run script based on which OS is detected
 } PayloadInfo_TypeDef;
 
 #endif //USB_H
