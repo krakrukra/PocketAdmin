@@ -55,6 +55,7 @@ was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1
 
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  
+
 depends on libgcc.a, which together with the linker script, startup code  
 and openocd configuration files is included in this repository.  
 
@@ -76,7 +77,7 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 
 ## usage
 
-By default, PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
+By default PocketAdmin shows up as a compound device with HID (keyboard) and MSD (flash drive) interfaces.  
 For the most basic use, there must be a FAT filesystem on the first partition, and in the root directory  
 there must be a payload.txt file, which contains the commands that the device should run at every insertion.  
 Optionally, alongside the payload.txt you can have a config.txt file. If this file if present, the device  
@@ -131,14 +132,14 @@ delays at the start of the payload, since the "DELAY " command only waits for GU
 
 4. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
 If you want to type a string in a different language, make sure that target machine's GUI is set to your  
-desired language and then use "STRING " command with ASCII symbols that are bound to the same physical  
-keys as the symbols you are trying to print. For example, if GUI is configured to use RU layout,  
-"STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
+desired language and then use "STRING " command with ASCII symbols that are bound to the same  
+physical keys as the symbols you are trying to print. For example, if GUI is configured to use  
+RU layout, "STRING Dtkjcbgtl CNTKC" command will result in "Велосипед СТЕЛС" string typed.  
 (because you have to press the same key to type 'l' or 'д', same key for 'k' or 'л', etc)  
 
-5. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used, that is,  
-(unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means that commands  
-such as "GUI r" or "GUI R" are the same.  
+5. Single ASCII-printable character commands are available, for which no SHIFT modifier will be used,  
+that is, (unlike in "STRING " command) both commands "M" and "m"  will type "m". This also means  
+that commands such as "GUI r" or "GUI R" are the same.  
 Any non ASCII-printable character causes the rest of the line to be ignored.  
 
 6. There can be multiple kewords on one line (up to 5), but only if modifier key commands are used.  
@@ -205,6 +206,7 @@ it can do anything that your keyboard can (even more than that, actiually)
 /extra/examplePayloads/ ----------- contains some example PocketAdmin payloads  
 /extra/pictures/ ------------------ contains device photos  
 /extra/mechanicalDrawings/ -------- contains info for various mechanical parts  
+/extra/fingerdb/ ------------------ contains OS fingerprint database  
 
 /extra/pocketadmin.pdf ----------- pdf version of schematic  
 /extra/firmware_rev1.1 ----------- precompiled firmware image for pocketadmin revision 1.1  
