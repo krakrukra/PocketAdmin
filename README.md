@@ -98,7 +98,7 @@ For example, if your windows 10 machine had an update which modified it's USB dr
 will possibly change too, so a new .fgp file has to be added into the database. To do that, you plug  
 the device in and then copy /fingerdb/current.fgp into an appropriate /fingerdb/osname/ directory.  
 Make sure that the file keeps .fgp extention and the new name is no longer than 8 characters (without .fgp);  
-Once the fingerprint file is present in /fingerdb/ your OS should be correctly detected.  
+Once the fingerprint file is present in /fingerdb/osname your OS should be correctly detected.  
 
 There is an OS fingerprint database included in this repository ( in /extra/fingerdb/ );  
 If you have collected more fingerprints, I welcome you to share them, so they can be  
@@ -111,9 +111,9 @@ There are however, some differences/extentions to ducky script:
 
 1. Pre-configuration commands are available: "HID\_ONLY\_MODE", "VID ", "PID ", "USE_FINGERPRINTER".  
 With "VID ", "PID " commands user can change VID / PID values used for enumeration. They take hex  
-numbers as argument, and 0x prefix is mandatory (eg. "VID 0x046D" or "PID 0xC228").  
+numbers as argument, and 0x prefix is mandatory (e.g. "VID 0x046D" or "PID 0xC228").  
 With "HID\_ONLY\_MODE" command, device will either enumerate in HID-only mode or in MSD-only mode  
-(if MSD-only button is pressed); if such command is not present device enumerates in  
+(depends if MSD-only button is pressed); if such command is not present device enumerates in  
 HID+MSD mode, but will not type any keystrokes if MSD-only button is pressed.  
 
 2. Pre-configuration commands (if present) must be placed separately in the config.txt file and come  
@@ -128,7 +128,7 @@ For example:
 and only then waits for a specified number of milliseconds. This is done to help payloads run at the  
 very first insertion, even into a completely new machine. The problem is, it might take many seconds  
 before host will do its initializations (e.g. install drivers). This way you dont have to put huge  
-delays at the start of the payload, since the "DELAY " command only waits for GUI elements to update.  
+delays at the start of the payload, and the "DELAY " command only waits for GUI elements to update.  
 
 4. "STRING " command only accepts ASCII-printable characters, max length of the string is 400 characters.  
 If you want to type a string in a different language, make sure that target machine's GUI is set to your  
