@@ -14,7 +14,7 @@
 #define MOD_RALT   0b01000000
 #define MOD_RGUI   0b10000000
 
-//macros for key codes
+//macros for key codes (for US-compatible layouts)
 #define KB_Reserved 0
 #define KB_ErrorRollOver 1
 #define KB_POSTfail 2
@@ -123,104 +123,119 @@
 //Here ASCII encoded characters are mapped to HID class key codes
 //here is how: HID key code = 7 least significant bits of Keymap[ASCII_code - 32]
 //the Most Significant bit of Keymap[ASCII_code - 32] is set to 1 if SHIFT modifier key has to be pressed, 0 otherwise
-//to set SHIFT modifier bit add 128 to HID keycode value
-static unsigned char Keymap[95] __attribute__(( section(".rodata,\"a\",%progbits@") )) =
+//to set SHIFT modifier add this: | 0x80
+unsigned char Keymap[107] = //__attribute__(( section(".rodata,\"a\",%progbits@") )) =
   {
-    KB_SPACEBAR,// space
-    KB_1 + 128,// !
-    KB_APOSTROPHE + 128,// "
-    KB_3 + 128,// #
-    KB_4 + 128,// $
-    KB_5 + 128,// %
-    KB_7 + 128,// &
-    KB_APOSTROPHE, // '
-    KB_9 + 128,// (
-    KB_0 + 128,// )
-    KB_8 + 128,// *
-    KB_EQUALS + 128,// +
-    KB_COMMA,// ,
-    KB_MINUS,// -
-    KB_PERIOD,// .
-    KB_SLASH,// /
-    KB_0,// 0
-    KB_1,// 1
-    KB_2,// 2
-    KB_3,// 3
-    KB_4,// 4
-    KB_5,// 5
-    KB_6,// 6
-    KB_7,// 7
-    KB_8,// 8
-    KB_9,// 9
-    KB_SEMICOLON + 128,// :
-    KB_SEMICOLON,// ;
-    KB_COMMA + 128,// <
-    KB_EQUALS,// =
-    KB_PERIOD + 128,// >
-    KB_SLASH + 128,// ?
-    KB_2 + 128,// @
-    KB_a + 128,// A
-    KB_b + 128,// B
-    KB_c + 128,// C
-    KB_d + 128,// D
-    KB_e + 128,// E
-    KB_f + 128,// F
-    KB_g + 128,// G
-    KB_h + 128,// H
-    KB_i + 128,// I
-    KB_j + 128,// J
-    KB_k + 128,// K
-    KB_l + 128,// L
-    KB_m + 128,// M
-    KB_n + 128,// N
-    KB_o + 128,// O
-    KB_p + 128,// P
-    KB_q + 128,// Q
-    KB_r + 128,// R
-    KB_s + 128,// S
-    KB_t + 128,// T
-    KB_u + 128,// U
-    KB_v + 128,// V
-    KB_w + 128,// W
-    KB_x + 128,// X
-    KB_y + 128,// Y
-    KB_z + 128,// Z
-    KB_startBRACKET,// [
-    KB_BACKSLASH,// \ .
-    KB_endBRACKET,// ]
-    KB_6 + 128,// ^
-    KB_MINUS + 128,// _
-    KB_GRAVE,// `
-    KB_a,// a
-    KB_b,// b
-    KB_c,// c
-    KB_d,// d
-    KB_e,// e
-    KB_f,// f
-    KB_g,// g
-    KB_h,// h
-    KB_i,// i
-    KB_j,// j
-    KB_k,// k
-    KB_l,// l
-    KB_m,// m
-    KB_n,// n
-    KB_o,// o
-    KB_p,// p
-    KB_q,// q
-    KB_r,// r
-    KB_s,// s
-    KB_t,// t
-    KB_u,// u
-    KB_v,// v
-    KB_w,// w
-    KB_x,// x
-    KB_y,// y
-    KB_z,// z
-    KB_startBRACKET + 128,// {
-    KB_BACKSLASH + 128,// |
-    KB_endBRACKET + 128,// }
-    KB_GRAVE + 128// ~
+   /* HID code,// ASCII symbol */
+   0x2C,       // space
+   0x1E | 0x80,// !
+   0x34 | 0x80,// "
+   0x20 | 0x80,// #
+   0x21 | 0x80,// $
+   0x22 | 0x80,// %
+   0x24 | 0x80,// &
+   0x34,       // '
+   0x26 | 0x80,// (
+   0x27 | 0x80,// )
+   0x25 | 0x80,// *
+   0x2E | 0x80,// +
+   0x36,       // ,
+   0x2D,       // -
+   0x37,       // .
+   0x38,       // /
+   0x27,       // 0
+   0x1E,       // 1
+   0x1F,       // 2
+   0x20,       // 3
+   0x21,       // 4
+   0x22,       // 5
+   0x23,       // 6
+   0x24,       // 7
+   0x25,       // 8
+   0x26,       // 9
+   0x33 | 0x80,// :
+   0x33,       // ;
+   0x36 | 0x80,// <
+   0x2E,       // =
+   0x37 | 0x80,// >
+   0x38 | 0x80,// ?
+   0x1F | 0x80,// @
+   0x04 | 0x80,// A
+   0x05 | 0x80,// B
+   0x06 | 0x80,// C
+   0x07 | 0x80,// D
+   0x08 | 0x80,// E
+   0x09 | 0x80,// F
+   0x0A | 0x80,// G
+   0x0B | 0x80,// H
+   0x0C | 0x80,// I
+   0x0D | 0x80,// J
+   0x0E | 0x80,// K
+   0x0F | 0x80,// L
+   0x10 | 0x80,// M
+   0x11 | 0x80,// N
+   0x12 | 0x80,// O
+   0x13 | 0x80,// P
+   0x14 | 0x80,// Q
+   0x15 | 0x80,// R
+   0x16 | 0x80,// S
+   0x17 | 0x80,// T
+   0x18 | 0x80,// U
+   0x19 | 0x80,// V
+   0x1A | 0x80,// W
+   0x1B | 0x80,// X
+   0x1C | 0x80,// Y
+   0x1D | 0x80,// Z
+   0x2F,       // [
+   0x31,       // backslash
+   0x30,       // ]
+   0x23 | 0x80,// ^
+   0x2D | 0x80,// _
+   0x35,       // `
+   0x04,       // a
+   0x05,       // b
+   0x06,       // c
+   0x07,       // d
+   0x08,       // e
+   0x09,       // f
+   0x0A,       // g
+   0x0B,       // h
+   0x0C,       // i
+   0x0D,       // j
+   0x0E,       // k
+   0x0F,       // l
+   0x10,       // m
+   0x11,       // n
+   0x12,       // o
+   0x13,       // p
+   0x14,       // q
+   0x15,       // r
+   0x16,       // s
+   0x17,       // t
+   0x18,       // u
+   0x19,       // v
+   0x1A,       // w
+   0x1B,       // x
+   0x1C,       // y
+   0x1D,       // z
+   0x2F | 0x80,// {
+   0x31 | 0x80,// |
+   0x30 | 0x80,// }
+   0x35 | 0x80,// ~
+   
+   //AltGr bits start here at Keymap[95] until the end
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000,
+   0b00000000
   };
 
 #endif// HID_RODATA_H

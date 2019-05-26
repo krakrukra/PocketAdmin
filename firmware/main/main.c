@@ -18,9 +18,11 @@ static void repeatDuckyCommand(unsigned int count);
 static char checkKeyword(char* referenceString);
 static unsigned int checkDecValue();
 static unsigned int checkHexValue();
-static void sendKeystroke(unsigned char modifiers, unsigned char key);
-static void sendString(char* stringStart);
-static void skipString();
+static void checkFilename();
+static void sendString(char* stringStart);//prints out ASCII-printable string
+static void sendKeycode(unsigned char modifiers, unsigned char keycode);//send host a report with specified HID keycode and modifier byte
+
+static void skipString();//move PayloadPointer to the next newline character (not to the next symbol after)
 static void autodelay();
 
 static inline void delay_us(unsigned int delay) __attribute__((always_inline));
@@ -36,6 +38,7 @@ PayloadInfo_TypeDef PayloadInfo =
     .ActiveBuffer = 0,//first 512 bytes of PayloadBuffer are being executed
     .FirstRead = 0,//first MSD read command was not received yet
     .RepeatSize = 1,//by default REPEAT command is applied only to 1 last command
+    .LayoutFilename = {0x00},//use US keyboard layout as default
     .UseFingerprinter = 0//do not try to detect OS unless USE_FINGERPRINTER command is present
   };
 
@@ -60,11 +63,12 @@ int main()
       f_close(&openedFileInfo);
     }
   
-  //run up to 4 pre-configuration commands from config.txt
-  for(i=0; i<4; i++)
+  //run up to 5 pre-configuration commands from config.txt
+  for(i=0; i<5; i++)
     {
-           if( checkKeyword("HID_ONLY_MODE") )   { ControlInfo.EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter
-      else if( checkKeyword("USE_FINGERPRINTER") ) PayloadInfo.UseFingerprinter = 1;
+           if( checkKeyword("HID_ONLY_MODE") )     { ControlInfo.EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter
+      else if( checkKeyword("USE_FINGERPRINTER") ) { PayloadInfo.UseFingerprinter = 1; skipString(); }
+      else if( checkKeyword("USE_LAYOUT ") )       checkFilename();
       else if( checkKeyword("VID 0x") )            DeviceDescriptor.idVendor  = (unsigned short) checkHexValue();
       else if( checkKeyword("PID 0x") )            DeviceDescriptor.idProduct = (unsigned short) checkHexValue();
       else break;//stop if no pre-configuration command was found
@@ -72,6 +76,18 @@ int main()
       //go to the next line
       if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
       else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;        
+    }
+
+  if(PayloadInfo.LayoutFilename[0])//if there is a USE_LAYOUT command in config.txt
+    {
+      f_chdir("0:/kblayout");//go to /kblayout/ directory
+      
+      //load new keymap from the specified file
+      if( !f_open(&openedFileInfo, (char*) &(PayloadInfo.LayoutFilename), FA_READ) )
+	{
+	  f_read(&openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
+	  f_close( &openedFileInfo );
+	}      
     }
   
   usb_init();//initialize USB
@@ -87,7 +103,7 @@ int main()
       f_mkdir("0:/fgscript");
       f_mkdir("0:/fingerdb");
       if( !f_open(&openedFileInfo,  "0:/fingerdb/current.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
-	{	  
+	{
 	  f_write( &openedFileInfo, (unsigned char*) &ControlInfo.OSfingerprintData, 40, &BytesRead );
 	  f_close( &openedFileInfo );
 	}
@@ -140,12 +156,12 @@ int main()
 	    }
 	}      
     }
-
-  NVIC_EnableIRQ(31);//enable usb interrupt
   
+  NVIC_EnableIRQ(31);//enable usb interrupt
+
   while(1)
     {
-      sendKeystroke(MOD_NONE, KB_Reserved);
+      sendKeycode(MOD_NONE, KB_Reserved);
       delay_ms(100);
     }
   
@@ -158,17 +174,17 @@ int main()
 static unsigned int runDuckyCommand()
 {
   unsigned char mod = MOD_NONE;//modifier byte to send in a next report
-  unsigned char key = KB_Reserved;//HID key code to send in a next report
+  unsigned char keycode = KB_Reserved;//HID keycode to send in a next report
   unsigned short limit = 5;//maximum number of keywords allowed to be in one line of ducky script
   unsigned int commandStart = (unsigned int) PayloadInfo.PayloadPointer;//remember where start of command is
   
   delay_ms(PayloadInfo.DefaultDelay);//wait for a default time. if ducky script does not use DEFAULT_DELAY wait 0ms
   
-  while( *(PayloadInfo.PayloadPointer) != 0x0A )//keep searching for keywords until the end of command is found
+  while( *(PayloadInfo.PayloadPointer) != 0x0A )//keep searching for keywords until the end of line is found
     {
       if(limit) limit--;//if limit of keywords is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
-
+      else while(1) sendKeycode(MOD_NONE, KB_Reserved);
+      
       //search for specific keywords, take appropriate actions if found
       if     ( checkKeyword("REM ") )           skipString();
       else if( checkKeyword("REPEAT_SIZE ") )   PayloadInfo.RepeatSize = checkDecValue();
@@ -184,60 +200,71 @@ static unsigned int runDuckyCommand()
       else if( checkKeyword("CONTROL ") )    mod = mod | MOD_LCTRL;
       else if( checkKeyword("SHIFT ") )      mod = mod | MOD_LSHIFT;
       else if( checkKeyword("ALT ") )        mod = mod | MOD_LALT;
-      
-      else if( checkKeyword("MENU") )        key = KB_COMPOSE;
-      else if( checkKeyword("APP") )         key = KB_COMPOSE;
-      else if( checkKeyword("ENTER") )       key = KB_RETURN;
-      else if( checkKeyword("RETURN") )      key = KB_RETURN;
-      else if( checkKeyword("DOWN") )        key = KB_DOWNARROW;
-      else if( checkKeyword("LEFT") )        key = KB_LEFTARROW;
-      else if( checkKeyword("RIGHT") )       key = KB_RIGHTARROW;
-      else if( checkKeyword("UP") )          key = KB_UPARROW;
-      else if( checkKeyword("DOWNARROW") )   key = KB_DOWNARROW;
-      else if( checkKeyword("LEFTARROW") )   key = KB_LEFTARROW;
-      else if( checkKeyword("RIGHTARROW") )  key = KB_RIGHTARROW;
-      else if( checkKeyword("UPARROW") )     key = KB_UPARROW;
-      else if( checkKeyword("PAUSE") )       key = KB_PAUSE;
-      else if( checkKeyword("BREAK") )       key = KB_PAUSE;
-      else if( checkKeyword("CAPSLOCK") )    key = KB_CAPSLOCK;
-      else if( checkKeyword("DELETE") )      key = KB_DELETE;
-      else if( checkKeyword("END")  )        key = KB_END;
-      else if( checkKeyword("ESC") )         key = KB_ESCAPE;
-      else if( checkKeyword("ESCAPE") )      key = KB_ESCAPE;
-      else if( checkKeyword("HOME") )        key = KB_HOME;
-      else if( checkKeyword("INSERT") )      key = KB_INSERT;
-      else if( checkKeyword("NUMLOCK") )     key = KP_NUMLOCK;
-      else if( checkKeyword("PAGEUP") )      key = KB_PAGEUP;
-      else if( checkKeyword("PAGEDOWN") )    key = KB_PAGEDOWN;
-      else if( checkKeyword("PRINTSCREEN") ) key = KB_PRINTSCREEN;
-      else if( checkKeyword("SCROLLLOCK") )  key = KB_SCROLLLOCK;
-      else if( checkKeyword("SPACE") )       key = KB_SPACEBAR;
-      else if( checkKeyword("SPACEBAR") )    key = KB_SPACEBAR;
-      else if( checkKeyword("TAB") )         key = KB_TAB;
-      else if( checkKeyword("F1") )          key = KB_F1;
-      else if( checkKeyword("F2") )          key = KB_F2;
-      else if( checkKeyword("F3") )          key = KB_F3;
-      else if( checkKeyword("F4") )          key = KB_F4;
-      else if( checkKeyword("F5") )          key = KB_F5;
-      else if( checkKeyword("F6") )          key = KB_F6;
-      else if( checkKeyword("F7") )          key = KB_F7;
-      else if( checkKeyword("F8") )          key = KB_F8;
-      else if( checkKeyword("F9") )          key = KB_F9;
-      else if( checkKeyword("F10") )         key = KB_F10;
-      else if( checkKeyword("F11") )         key = KB_F11;
-      else if( checkKeyword("F12") )         key = KB_F12;      
+      else if( checkKeyword("RGUI ") )       mod = mod | MOD_RGUI;
+      else if( checkKeyword("RCTRL ") )      mod = mod | MOD_RCTRL;
+      else if( checkKeyword("RSHIFT ") )     mod = mod | MOD_RSHIFT;
+      else if( checkKeyword("RALT ") )       mod = mod | MOD_RALT;
+
+      else if( checkKeyword("KEYCODE 0x") )  keycode = checkHexValue();
+      else if( checkKeyword("KEYCODE ") )    keycode = checkDecValue();
+      else if( checkKeyword("MENU") )        keycode = KB_COMPOSE;
+      else if( checkKeyword("APP") )         keycode = KB_COMPOSE;
+      else if( checkKeyword("ENTER") )       keycode = KB_RETURN;
+      else if( checkKeyword("RETURN") )      keycode = KB_RETURN;
+      else if( checkKeyword("DOWN") )        keycode = KB_DOWNARROW;
+      else if( checkKeyword("LEFT") )        keycode = KB_LEFTARROW;
+      else if( checkKeyword("RIGHT") )       keycode = KB_RIGHTARROW;
+      else if( checkKeyword("UP") )          keycode = KB_UPARROW;
+      else if( checkKeyword("DOWNARROW") )   keycode = KB_DOWNARROW;
+      else if( checkKeyword("LEFTARROW") )   keycode = KB_LEFTARROW;
+      else if( checkKeyword("RIGHTARROW") )  keycode = KB_RIGHTARROW;
+      else if( checkKeyword("UPARROW") )     keycode = KB_UPARROW;
+      else if( checkKeyword("PAUSE") )       keycode = KB_PAUSE;
+      else if( checkKeyword("BREAK") )       keycode = KB_PAUSE;
+      else if( checkKeyword("CAPSLOCK") )    keycode = KB_CAPSLOCK;
+      else if( checkKeyword("DELETE") )      keycode = KB_DELETE;
+      else if( checkKeyword("END")  )        keycode = KB_END;
+      else if( checkKeyword("ESC") )         keycode = KB_ESCAPE;
+      else if( checkKeyword("ESCAPE") )      keycode = KB_ESCAPE;
+      else if( checkKeyword("HOME") )        keycode = KB_HOME;
+      else if( checkKeyword("INSERT") )      keycode = KB_INSERT;
+      else if( checkKeyword("NUMLOCK") )     keycode = KP_NUMLOCK;
+      else if( checkKeyword("PAGEUP") )      keycode = KB_PAGEUP;
+      else if( checkKeyword("PAGEDOWN") )    keycode = KB_PAGEDOWN;
+      else if( checkKeyword("PRINTSCREEN") ) keycode = KB_PRINTSCREEN;
+      else if( checkKeyword("SCROLLLOCK") )  keycode = KB_SCROLLLOCK;
+      else if( checkKeyword("SPACE") )       keycode = KB_SPACEBAR;
+      else if( checkKeyword("SPACEBAR") )    keycode = KB_SPACEBAR;
+      else if( checkKeyword("TAB") )         keycode = KB_TAB;
+      else if( checkKeyword("F1") )          keycode = KB_F1;
+      else if( checkKeyword("F2") )          keycode = KB_F2;
+      else if( checkKeyword("F3") )          keycode = KB_F3;
+      else if( checkKeyword("F4") )          keycode = KB_F4;
+      else if( checkKeyword("F5") )          keycode = KB_F5;
+      else if( checkKeyword("F6") )          keycode = KB_F6;
+      else if( checkKeyword("F7") )          keycode = KB_F7;
+      else if( checkKeyword("F8") )          keycode = KB_F8;
+      else if( checkKeyword("F9") )          keycode = KB_F9;
+      else if( checkKeyword("F10") )         keycode = KB_F10;
+      else if( checkKeyword("F11") )         keycode = KB_F11;
+      else if( checkKeyword("F12") )         keycode = KB_F12;
       //if keyword is not recognized, but PayloadPointer is at some ASCII printable character
-      else if( ( *(PayloadInfo.PayloadPointer) > 31 ) && ( *(PayloadInfo.PayloadPointer) < 127 ) ) key = Keymap[ *(PayloadInfo.PayloadPointer) - 32 ];
+      else if( ( *(PayloadInfo.PayloadPointer) > 31 ) && ( *(PayloadInfo.PayloadPointer) < 127 ) )
+	{
+	  keycode = Keymap[ *(PayloadInfo.PayloadPointer) - 32 ];//map ascii symbol to HID keycode + LSHIFT indicator bit
+	  if( keycode & (1<<7) ) mod = mod | MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
+	  if( Keymap[ (*PayloadInfo.PayloadPointer - 32) / 8 + 95 ] & (1 << (*PayloadInfo.PayloadPointer % 8)) ) mod = mod | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
+	}
       //if keyword is not recognized and PayloadPointer is at some nonprintable character
       else skipString();
-
+      
       //even if line is not over, but some keystroke was already specified ignore the rest of the line
-      if(key != KB_Reserved) skipString();
+      if(keycode != KB_Reserved) skipString();
     }
-
-  sendKeystroke(MOD_NONE, KB_Reserved);//release all buttons
-  sendKeystroke(mod, key);//send keystroke corresponding to current ducky command
-  sendKeystroke(MOD_NONE, KB_Reserved);//release all buttons
+  
+  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
+  sendKeycode(mod, keycode);//send keystroke corresponding to current ducky command
+  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
 
   if( (unsigned int) PayloadInfo.PayloadPointer >= commandStart) return (unsigned int) PayloadInfo.PayloadPointer - commandStart + 1;
   else                                                           return (unsigned int) PayloadInfo.PayloadPointer - commandStart + 1 + 1024;
@@ -252,7 +279,7 @@ static void repeatDuckyCommand(unsigned int count)
   do
     {
       if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
+      else while(1) sendKeycode(MOD_NONE, KB_Reserved);
       
       //go to previous character in a string. if the start of PayloadBuffer is reached, move pointer back to end of buffer
       if( PayloadInfo.PayloadPointer > (char*) &PayloadBuffer ) PayloadInfo.PayloadPointer--;
@@ -272,7 +299,7 @@ static void repeatDuckyCommand(unsigned int count)
 	  do
 	    {
 	      if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-	      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
+	      else while(1) sendKeycode(MOD_NONE, KB_Reserved);
 	      
 	      //go to previous character in a string. if the start of PayloadBuffer is reached, move pointer back to end of buffer
 	      if( PayloadInfo.PayloadPointer > (char*) &PayloadBuffer ) PayloadInfo.PayloadPointer--;
@@ -387,63 +414,89 @@ static unsigned int checkHexValue()
   return result;
 }
 
-static void sendKeystroke(unsigned char modifiers, unsigned char key)
-{ 
-  BTABLE->COUNT1_TX = 8;//data payload size for next IN transaction = 8 bytes
+static void checkFilename()
+{
+  unsigned char limit = 8;//maximum number of symbols in a string to be interpreted
 
-  key = key & 0x7F;//only use 7 least significant bits as key code
-  if(key > 101) key = KB_Reserved;//if keycode is not recognized send no keystroke
+  while(limit)
+    {            
+      //allow only alphanumeric characters and underscores in the filename
+           if(   *(PayloadInfo.PayloadPointer) == 95 )                                             PayloadInfo.LayoutFilename[8 - limit] = *(PayloadInfo.PayloadPointer);
+      else if( ( *(PayloadInfo.PayloadPointer) > 47 ) && ( *(PayloadInfo.PayloadPointer) <  58 ) ) PayloadInfo.LayoutFilename[8 - limit] = *(PayloadInfo.PayloadPointer);
+      else if( ( *(PayloadInfo.PayloadPointer) > 64 ) && ( *(PayloadInfo.PayloadPointer) <  91 ) ) PayloadInfo.LayoutFilename[8 - limit] = *(PayloadInfo.PayloadPointer);
+      else if( ( *(PayloadInfo.PayloadPointer) > 96 ) && ( *(PayloadInfo.PayloadPointer) < 123 ) ) PayloadInfo.LayoutFilename[8 - limit] = *(PayloadInfo.PayloadPointer);
+      else break;
 
-  //copy data from device descriptor in RAM to PMA buffer EP1_TX
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 0) ) = modifiers;
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 2) ) = key;
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 4) ) = 0;
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 6) ) = 0;
+      limit--;//one more symbol is interpreted
+	   
+      //if the end of PayloadBuffer is reached, move pointer back to start of buffer
+      if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
+      else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
+    }
   
-  USB->EP1R = (1<<10)|(1<<9)|(1<<4)|(1<<0);//respond with data to next IN transaction
-  delay_us(1);//give USB peripheral time to update EP1R register
-  while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK
+  skipString();//move to the end of line
   
   return;
 }
 
-//sends host the string located at stringStart. if PayloadPointer was used as argument, move PayloadPointer to the end of string
-//accepts only ASCII printable characters, other symbols act as string terminators
+//prints out a string of ASCII printable characters, other symbols act as string terminators
+//if PayloadPointer was used as argument ( as opposed to sendString("literal string"); ), use data from PayloadBuffer
 static void sendString(char* stringStart)
 {
-  unsigned char mod;//modifier byte to send in a next report
-  unsigned char key;//HID key code to send in a next report
+  unsigned char mod = MOD_NONE;//modifier byte to send in a report
+  unsigned char keycode = KB_Reserved;//HID keycode to send in a report
   unsigned short limit = 400;//maximum number of symbols by which PayloadPointer is allowed to move
   
-  sendKeystroke(MOD_NONE, KB_Reserved);//send an empty report to make sure next keystroke is registered as new
+  sendKeycode(MOD_NONE, KB_Reserved);//send an empty report to make sure next keystroke is registered as new
   
   while( ( *stringStart > 31 ) && ( *stringStart < 127 ) )//continue until first unsupported character is encountered
     {
       if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
+      else while(1) sendKeycode(MOD_NONE, KB_Reserved);
       
-      //convert ASCII to HID keycode + set appropriate modifier byte      
-      key = Keymap[ *stringStart - 32 ];//only 7 least significant bits will be used as key code
-      if( Keymap[ *stringStart - 32 ] & (1<<7) ) mod = MOD_LSHIFT;//use most significant bit to set modifier byte
+      keycode = Keymap[*stringStart - 32];//map ASCII symbol into HID keycode + LSHIFT indicator bit
+      if( keycode & (1<<7) ) mod = MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
       else mod = MOD_NONE;
-
-      sendKeystroke(mod, key);//send the keystroke
-      sendKeystroke(MOD_NONE, KB_Reserved);//release all buttons
-
-      //if argument to this fuction was PayloadInfo.PayloadPointer, move pointer by the number of symbols sent
+      if( Keymap[ (*stringStart - 32) / 8 + 95 ] & (1 << (*stringStart % 8)) ) mod = mod | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
+      
+      sendKeycode(mod, keycode);//send specified keycode
+      sendKeycode(MOD_NONE, KB_Reserved);//release all buttons      
+      
+      //if argument to this fuction was PayloadInfo.PayloadPointer, move it to the next symbol
       if( stringStart == PayloadInfo.PayloadPointer)
 	{
 	  //go to next character in a string. if the end of PayloadBuffer is reached, move pointer back to start of buffer
 	  if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
-	  else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;	  
+	  else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
 	  stringStart = PayloadInfo.PayloadPointer;
 	}
       //if argument was a literal string, go to the next symbol
       else stringStart++;
     }
 
-  sendKeystroke(MOD_NONE, KB_Reserved);//release all buttons
+  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
   skipString();//move to the end of line, if not there already
+  
+  return;
+}
+
+//only accepts keycodes 0 to 101, other values are ignored
+static void sendKeycode(unsigned char modifiers, unsigned char keycode)
+{ 
+  BTABLE->COUNT1_TX = 8;//data payload size for next IN transaction = 8 bytes
+
+  keycode = keycode & 0x7F;//only use 7 least significant bits as keycode
+  if(keycode > 101) keycode = KB_Reserved;//if keycode is not recognized send no keystroke
+
+  //copy data from device descriptor in RAM to PMA buffer EP1_TX
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 0) ) = modifiers;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 2) ) = keycode;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 4) ) = 0;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 6) ) = 0;
+  
+  USB->EP1R = (1<<10)|(1<<9)|(1<<4)|(1<<0);//respond with data to next IN transaction
+  delay_us(1);//give USB peripheral time to update EP1R register
+  while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)
   
   return;
 }
@@ -456,7 +509,7 @@ static void skipString()
   while( *(PayloadInfo.PayloadPointer) != 0x0A )
     {
       if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKeystroke(MOD_NONE, KB_Reserved);
+      else while(1) sendKeycode(MOD_NONE, KB_Reserved);
       
       //go to next character in a string. if the end of PayloadBuffer is reached, move pointer back to start of buffer
       if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
@@ -470,7 +523,7 @@ static void skipString()
 static void autodelay(unsigned int delay)
 {
     while( !PayloadInfo.FirstRead );//wait until MSD interface has received at least 1 read command since poweron
-    sendKeystroke(MOD_NONE, KB_Reserved);//wait until host received at least 1 report from HID interface
+    sendKeycode(MOD_NONE, KB_Reserved);//wait until host received at least 1 report from HID interface
     
     delay_ms(delay);//wait a specified time after that
     

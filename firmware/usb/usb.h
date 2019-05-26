@@ -290,6 +290,7 @@ typedef struct
   unsigned char ActiveBuffer;//0 means ducky commands are being read from bytes 0 to 511 in payloadBuffer. 1 means from 512 to 1023
   volatile unsigned char FirstRead;//intialized to 0, set to 1 when first read command is received by MSD interface
   unsigned int RepeatSize;//number of commands that should be re-run by REPEAT command
+  char LayoutFilename[13];//holds the name of the file with an alternative ASCII-to-HIDcode mapping 
   unsigned char UseFingerprinter;//0 means run script from payload.txt, 1 means run script based on which OS is detected
 } PayloadInfo_TypeDef;
 
