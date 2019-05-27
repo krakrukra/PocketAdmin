@@ -38,6 +38,8 @@ PayloadInfo_TypeDef PayloadInfo =
     .ActiveBuffer = 0,//first 512 bytes of PayloadBuffer are being executed
     .FirstRead = 0,//first MSD read command was not received yet
     .RepeatSize = 1,//by default REPEAT command is applied only to 1 last command
+    .HoldFlag = 0,//no need to update hold modifiers
+    .HoldModifiers = 0,//no modifiers are applied
     .LayoutFilename = {0x00},//use US keyboard layout as default
     .UseFingerprinter = 0//do not try to detect OS unless USE_FINGERPRINTER command is present
   };
@@ -173,7 +175,7 @@ int main()
 //run next command from PayloadBuffer, move PayloadPointer to the end of line, return length of executed command in bytes (including newline termination)
 static unsigned int runDuckyCommand()
 {
-  unsigned char mod = MOD_NONE;//modifier byte to send in a next report
+  unsigned char modbyte = MOD_NONE;//modifier byte to send in a next report
   unsigned char keycode = KB_Reserved;//HID keycode to send in a next report
   unsigned short limit = 5;//maximum number of keywords allowed to be in one line of ducky script
   unsigned int commandStart = (unsigned int) PayloadInfo.PayloadPointer;//remember where start of command is
@@ -193,18 +195,20 @@ static unsigned int runDuckyCommand()
       else if( checkKeyword("DELAY ") )         autodelay( checkDecValue() );
       else if( checkKeyword("STRING ") )        sendString( PayloadInfo.PayloadPointer );
       else if( checkKeyword("REPEAT ") )        repeatDuckyCommand( checkDecValue() );
+      else if( checkKeyword("HOLD ") )          PayloadInfo.HoldFlag = 1;
+      else if( checkKeyword("RELEASE") )        PayloadInfo.HoldModifiers = 0x00;
       
-      else if( checkKeyword("GUI ") )        mod = mod | MOD_LGUI;
-      else if( checkKeyword("WINDOWS ") )    mod = mod | MOD_LGUI;
-      else if( checkKeyword("CTRL ") )       mod = mod | MOD_LCTRL;
-      else if( checkKeyword("CONTROL ") )    mod = mod | MOD_LCTRL;
-      else if( checkKeyword("SHIFT ") )      mod = mod | MOD_LSHIFT;
-      else if( checkKeyword("ALT ") )        mod = mod | MOD_LALT;
-      else if( checkKeyword("RGUI ") )       mod = mod | MOD_RGUI;
-      else if( checkKeyword("RCTRL ") )      mod = mod | MOD_RCTRL;
-      else if( checkKeyword("RSHIFT ") )     mod = mod | MOD_RSHIFT;
-      else if( checkKeyword("RALT ") )       mod = mod | MOD_RALT;
-
+      else if( checkKeyword("GUI ") )        modbyte = modbyte | MOD_LGUI;
+      else if( checkKeyword("WINDOWS ") )    modbyte = modbyte | MOD_LGUI;
+      else if( checkKeyword("CTRL ") )       modbyte = modbyte | MOD_LCTRL;
+      else if( checkKeyword("CONTROL ") )    modbyte = modbyte | MOD_LCTRL;
+      else if( checkKeyword("SHIFT ") )      modbyte = modbyte | MOD_LSHIFT;
+      else if( checkKeyword("ALT ") )        modbyte = modbyte | MOD_LALT;
+      else if( checkKeyword("RGUI ") )       modbyte = modbyte | MOD_RGUI;
+      else if( checkKeyword("RCTRL ") )      modbyte = modbyte | MOD_RCTRL;
+      else if( checkKeyword("RSHIFT ") )     modbyte = modbyte | MOD_RSHIFT;
+      else if( checkKeyword("RALT ") )       modbyte = modbyte | MOD_RALT;
+      
       else if( checkKeyword("KEYCODE 0x") )  keycode = checkHexValue();
       else if( checkKeyword("KEYCODE ") )    keycode = checkDecValue();
       else if( checkKeyword("MENU") )        keycode = KB_COMPOSE;
@@ -252,8 +256,8 @@ static unsigned int runDuckyCommand()
       else if( ( *(PayloadInfo.PayloadPointer) > 31 ) && ( *(PayloadInfo.PayloadPointer) < 127 ) )
 	{
 	  keycode = Keymap[ *(PayloadInfo.PayloadPointer) - 32 ];//map ascii symbol to HID keycode + LSHIFT indicator bit
-	  if( keycode & (1<<7) ) mod = mod | MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
-	  if( Keymap[ (*PayloadInfo.PayloadPointer - 32) / 8 + 95 ] & (1 << (*PayloadInfo.PayloadPointer % 8)) ) mod = mod | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
+	  if( keycode & (1<<7) ) modbyte = modbyte | MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
+	  if( Keymap[ (*PayloadInfo.PayloadPointer - 32) / 8 + 95 ] & (1 << (*PayloadInfo.PayloadPointer % 8)) ) modbyte = modbyte | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
 	}
       //if keyword is not recognized and PayloadPointer is at some nonprintable character
       else skipString();
@@ -262,9 +266,16 @@ static unsigned int runDuckyCommand()
       if(keycode != KB_Reserved) skipString();
     }
   
-  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
-  sendKeycode(mod, keycode);//send keystroke corresponding to current ducky command
-  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
+  //if HOLD command was executed, save the specified modifiers for next commands
+  if(PayloadInfo.HoldFlag)
+    {
+      PayloadInfo.HoldFlag = 0;
+      PayloadInfo.HoldModifiers = modbyte;
+    }
+  
+  sendKeycode(MOD_NONE | PayloadInfo.HoldModifiers, KB_Reserved);//release all buttons, hold some modifiers if necessary
+  sendKeycode(modbyte  | PayloadInfo.HoldModifiers, keycode);//send keystroke corresponding to current ducky command
+  sendKeycode(MOD_NONE | PayloadInfo.HoldModifiers, KB_Reserved);//release all buttons, hold some modifiers if necessary
 
   if( (unsigned int) PayloadInfo.PayloadPointer >= commandStart) return (unsigned int) PayloadInfo.PayloadPointer - commandStart + 1;
   else                                                           return (unsigned int) PayloadInfo.PayloadPointer - commandStart + 1 + 1024;
@@ -443,11 +454,11 @@ static void checkFilename()
 //if PayloadPointer was used as argument ( as opposed to sendString("literal string"); ), use data from PayloadBuffer
 static void sendString(char* stringStart)
 {
-  unsigned char mod = MOD_NONE;//modifier byte to send in a report
+  unsigned char modbyte = MOD_NONE;//modifier byte to send in a report
   unsigned char keycode = KB_Reserved;//HID keycode to send in a report
   unsigned short limit = 400;//maximum number of symbols by which PayloadPointer is allowed to move
   
-  sendKeycode(MOD_NONE, KB_Reserved);//send an empty report to make sure next keystroke is registered as new
+  sendKeycode(MOD_NONE | PayloadInfo.HoldModifiers, KB_Reserved);//send keycode 0x00 to make sure next keystroke is registered as new
   
   while( ( *stringStart > 31 ) && ( *stringStart < 127 ) )//continue until first unsupported character is encountered
     {
@@ -455,12 +466,12 @@ static void sendString(char* stringStart)
       else while(1) sendKeycode(MOD_NONE, KB_Reserved);
       
       keycode = Keymap[*stringStart - 32];//map ASCII symbol into HID keycode + LSHIFT indicator bit
-      if( keycode & (1<<7) ) mod = MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
-      else mod = MOD_NONE;
-      if( Keymap[ (*stringStart - 32) / 8 + 95 ] & (1 << (*stringStart % 8)) ) mod = mod | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
+      if( keycode & (1<<7) ) modbyte = MOD_LSHIFT;//if most significant bit is set use LSHIFT modifier
+      else modbyte = MOD_NONE;
+      if( Keymap[ (*stringStart - 32) / 8 + 95 ] & (1 << (*stringStart % 8)) ) modbyte = modbyte | MOD_RALT;//if corresponding AltGr bit is set, use RALT modifier
       
-      sendKeycode(mod, keycode);//send specified keycode
-      sendKeycode(MOD_NONE, KB_Reserved);//release all buttons      
+      sendKeycode(modbyte  | PayloadInfo.HoldModifiers, keycode);//send specified keycode (but keep HOLD modifiers, if present)
+      sendKeycode(MOD_NONE | PayloadInfo.HoldModifiers, KB_Reserved);//release all buttons (but keep HOLD modifiers, if present)      
       
       //if argument to this fuction was PayloadInfo.PayloadPointer, move it to the next symbol
       if( stringStart == PayloadInfo.PayloadPointer)
@@ -474,7 +485,7 @@ static void sendString(char* stringStart)
       else stringStart++;
     }
 
-  sendKeycode(MOD_NONE, KB_Reserved);//release all buttons
+  sendKeycode(MOD_NONE | PayloadInfo.HoldModifiers, KB_Reserved);//release all buttons (but keep HOLD modifiers, if present)
   skipString();//move to the end of line, if not there already
   
   return;

@@ -33,6 +33,8 @@ of a hex argument 4 symbols, of string 400 symbols.
 * "DELAY **n**"   --- waits a specified number of milliseconds  
 * "STRING **s**"   --- types in an ASCII-printable character string  
 * "REPEAT **n**"   --- repeats previous command block for a specified number of times  
+* "HOLD **s**"   --- keeps specified modifier keys pressed  
+* "RELEASE"   --- releases modifiers set by "HOLD **s**" command  
   
 #### modifier key commands:  
 * "GUI **s**"   --- applies left GUI modifier  
@@ -144,7 +146,15 @@ If you want a modifier key pressed, but no keycode sent along with it, always
 keep a spacebar after the keyword, such as "CTRL ", "ALT " (not "CTRL", "ALT")  
 examples: "CTRL RALT DELETE", "CONTROL SHIFT t", "ALT "  
 
-6. "REPEAT **n**" command can repeat a block of commands (max block  
+6. "HOLD **s**" command only holds modifier keys and no others. It can be  
+used when you need some modifier keys continuously pressed (e.g. while in  
+windows 10 language selection menu, opened with GUI + SPACE keys)  
+This command affects output of single-key commands and "STRING **s**" command.  
+Again, always keep the spacebar after the modifiers, like this: "HOLD CTRL ",  
+"HOLD RGUI SHIFT " instead of "HOLD CTRL", "HOLD RGUI SHIFT". To release  
+the modifiers use "RELEASE" command.  
+
+7. "REPEAT **n**" command can repeat a block of commands (max block  
 size = 400 characters). "REPEAT\_SIZE **n**" command specifies the number  
 of commands in this block (at poweron REPEAT_SIZE is set to 1).  
 The following script will run 3 commands right before REPEAT for  
@@ -155,22 +165,22 @@ The following script will run 3 commands right before REPEAT for
 "DELAY 300"  
 "REPEAT 10"  
 
-7. Pre-configuration commands (if present) must be placed separately  
+8. Pre-configuration commands (if present) must be placed separately  
 in the config.txt file and come as one contiguous block of up to 5  
 commands (no other types of commands are allowed in config.txt)  
 
-8. With "VID **x**", "PID **x**" commands user can change VID / PID values  
+9. With "VID **x**", "PID **x**" commands user can change VID / PID values  
 used for enumeration. (e.g. "VID 0x046D" or "PID 0xC228").  
 
-9. If "HID\_ONLY\_MODE" command is present, device will either enumerate  
+10. If "HID\_ONLY\_MODE" command is present, device will either enumerate  
 in HID-only mode (keyboard) if MSD-only button is released, or  
 in MSD-only mode (flash disk) if MSD-only button is pressed.  
 If such command is not present, device enumerates in HID+MSD mode,  
 but will not type any keys if MSD-only button is pressed.  
 
-10. "USE_FINGERPRINTER" command enables target OS detection.  
+11. "USE_FINGERPRINTER" command enables target OS detection.  
 For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/fingerprinter)  
 
-11. "USE_LAYOUT **s**" command replaces the default  
+12. "USE_LAYOUT **s**" command replaces the default  
 ASCII-to-HIDkeycode mapping with a new one.  
 For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/layouts)  
