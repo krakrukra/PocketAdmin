@@ -1,12 +1,13 @@
 EESchema Schematic File Version 4
+LIBS:PocketAdmin-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "2019-01-31"
-Rev "1.1"
+Date "2019-05-30"
+Rev "1.2"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -403,14 +404,11 @@ Wire Wire Line
 Text GLabel 2300 3550 2    50   Input ~ 0
 3.3V
 NoConn ~ 2100 3650
-NoConn ~ 5800 3250
 NoConn ~ 5800 3350
 NoConn ~ 5800 3650
 NoConn ~ 5800 3750
 NoConn ~ 5800 3850
-NoConn ~ 5800 3950
 NoConn ~ 5800 4050
-NoConn ~ 5800 4150
 NoConn ~ 5800 4250
 NoConn ~ 5800 4350
 NoConn ~ 5800 4450
@@ -419,9 +417,7 @@ NoConn ~ 5800 4650
 NoConn ~ 5800 4750
 NoConn ~ 5800 4850
 NoConn ~ 5800 5050
-NoConn ~ 5800 5150
 NoConn ~ 7100 4450
-NoConn ~ 7100 4550
 NoConn ~ 7100 3950
 NoConn ~ 7100 3750
 NoConn ~ 7100 3650
@@ -673,4 +669,59 @@ Wire Wire Line
 Wire Wire Line
 	9150 3900 9050 3900
 Connection ~ 9050 3900
+$Comp
+L power:GND #PWR0107
+U 1 1 5CEFA800
+P 5800 3250
+F 0 "#PWR0107" H 5800 3000 50  0001 C CNN
+F 1 "GND" V 5805 3122 50  0000 R CNN
+F 2 "" H 5800 3250 50  0001 C CNN
+F 3 "" H 5800 3250 50  0001 C CNN
+	1    5800 3250
+	0    1    -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0108
+U 1 1 5CEFA926
+P 5800 3950
+F 0 "#PWR0108" H 5800 3700 50  0001 C CNN
+F 1 "GND" V 5805 3822 50  0000 R CNN
+F 2 "" H 5800 3950 50  0001 C CNN
+F 3 "" H 5800 3950 50  0001 C CNN
+	1    5800 3950
+	0    1    -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0109
+U 1 1 5CEFA970
+P 5800 4150
+F 0 "#PWR0109" H 5800 3900 50  0001 C CNN
+F 1 "GND" V 5805 4022 50  0000 R CNN
+F 2 "" H 5800 4150 50  0001 C CNN
+F 3 "" H 5800 4150 50  0001 C CNN
+	1    5800 4150
+	0    1    -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0110
+U 1 1 5CEFA9BA
+P 7100 4550
+F 0 "#PWR0110" H 7100 4300 50  0001 C CNN
+F 1 "GND" V 7105 4422 50  0000 R CNN
+F 2 "" H 7100 4550 50  0001 C CNN
+F 3 "" H 7100 4550 50  0001 C CNN
+	1    7100 4550
+	0    -1   1    0   
+$EndComp
+$Comp
+L power:GND #PWR0111
+U 1 1 5CEFAA04
+P 5800 5150
+F 0 "#PWR0111" H 5800 4900 50  0001 C CNN
+F 1 "GND" V 5805 5022 50  0000 R CNN
+F 2 "" H 5800 5150 50  0001 C CNN
+F 3 "" H 5800 5150 50  0001 C CNN
+	1    5800 5150
+	0    1    -1   0   
+$EndComp
 $EndSCHEMATC
