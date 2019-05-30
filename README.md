@@ -1,4 +1,4 @@
-# PocketAdmin (rev 1.1)  
+# PocketAdmin (rev 1.2)  
 
 This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
@@ -112,8 +112,8 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 /extra/kblayout/ ------------------ contains alternative keyboard layout files  
 /extra/wikiPages/ ------------------ contains github wiki pages  
 
-/extra/pocketadmin.pdf ----------- pdf version of schematic  
-/extra/firmware_rev1.1 ----------- precompiled firmware image for pocketadmin revision 1.1  
+/extra/schematic_rev1_2.pdf ----------- pdf version of schematic  
+/extra/firmware_rev1_2 ----------- precompiled firmware image for pocketadmin revision 1.2  
 
 ## contact info
 
