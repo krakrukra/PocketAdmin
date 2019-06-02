@@ -111,22 +111,18 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 /extra/fingerdb/ ------------------ contains OS fingerprint database  
 /extra/kblayout/ ------------------ contains alternative keyboard layout files  
 /extra/wikiPages/ ------------------ contains github wiki pages  
-
+  
 /extra/schematic_rev1_2.pdf ----------- pdf version of schematic  
 /extra/firmware_rev1_2 ----------- precompiled firmware image for pocketadmin revision 1.2  
-
+  
 ## contact info
-
+  
 if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
-use EEVBlog forum [post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-source-keystroke-injection-device-badusb/), dedicated to the project  
-also, you can check out my [youtube channel](https://www.youtube.com/channel/UCpx3VbcqgMQ-Zv4x2wwBbzA)  
+also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 #### if you want to buy:  
 openbazaar shop link (online whenever my PC is running):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
 or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
-
-tindie shop link:  
-ebay shop link:  
