@@ -37,17 +37,29 @@ of a hex argument 4 symbols, of string 400 symbols.
 * "RELEASE"   --- releases modifiers set by "HOLD **s**" command  
   
 #### modifier key commands:  
-* "GUI **s**"   --- applies left GUI modifier  
+* "GUI **s**"   --- applies left GUI modifier to a keystroke  
 * "WINDOWS **s**"   --- same as "GUI **s**"  
-* "CTRL **s**"   --- applies left CTRL modifier  
+* "CTRL **s**"   --- applies left CTRL modifier to a keystroke  
 * "CONTROL **s**"   --- same as "CTRL **s**"  
-* "SHIFT **s**"   --- applies left SHIFT modifier  
-* "ALT **s**"   --- applies left ALT modifier  
-* "RGUI **s**"   --- applies right GUI modifier  
-* "RCTRL **s**"   --- applies right CTRL modifier  
-* "RSHIFT **s**"   --- applies right SHIFT modifier  
-* "RALT **s**"   --- applies right ALT modifier  
+* "SHIFT **s**"   --- applies left SHIFT modifier to a keystroke  
+* "ALT **s**"   --- applies left ALT modifier to a keystroke  
+* "RGUI **s**"   --- applies right GUI modifier to a keystroke  
+* "RCTRL **s**"   --- applies right CTRL modifier to a keystroke  
+* "RSHIFT **s**"   --- applies right SHIFT modifier to a keystroke  
+* "RALT **s**"   --- applies right ALT modifier to a keystroke  
   
+#### single modifier key commands  
+* "GUI"   --- sends left GUI modifier without keycode  
+* "WINDOWS"   --- same as "GUI"  
+* "CTRL"   --- sends left CTRL modifier without keycode  
+* "CONTROL"   --- same as "CTRL"  
+* "SHIFT"   --- sends left SHIFT modifier without keycode  
+* "ALT"   --- sends left ALT modifier without keycode  
+* "RGUI"   --- sends right GUI modifier without keycode  
+* "RCTRL"   --- sends right CTRL modifier without keycode  
+* "RSHIFT"   --- sends right SHIFT modifier without keycode  
+* "RALT"   --- sends right ALT modifier without keycode  
+
 #### press key commands:  
 * "KEYCODE **n**"   --- sends a key by HID keycode (decimal)  
 * "KEYCODE **x**"   --- sends a key by HID keycode (hex)  
@@ -142,17 +154,15 @@ It is possible to use modifier keys with it, for example: "CTRL SHIFT KEYCODE 23
 5. You can use up to 4 modifier key commands on one line, but they only take  
 effect if followed by a a press key command or newline. Separate keywords  
 for left or right modifier keys are available.  
-If you want a modifier key pressed, but no keycode sent along with it, always  
-keep a spacebar after the keyword, such as "CTRL ", "ALT " (not "CTRL", "ALT")  
-examples: "CTRL RALT DELETE", "CONTROL SHIFT t", "ALT "  
+You can have a modifier key pressed, without a keycode sent along with it.  
+examples: "CTRL RALT DELETE", "CONTROL SHIFT t", "ALT"  
 
 6. "HOLD **s**" command only holds modifier keys and no others. It can be  
 used when you need some modifier keys continuously pressed (e.g. while in  
 windows 10 language selection menu, opened with GUI + SPACE keys)  
 This command affects output of single-key commands and "STRING **s**" command.  
-Again, always keep the spacebar after the modifiers, like this: "HOLD CTRL ",  
-"HOLD RGUI SHIFT " instead of "HOLD CTRL", "HOLD RGUI SHIFT". To release  
-the modifiers use "RELEASE" command.  
+examples: "HOLD RGUI SHIFT", "HOLD CTRL", "HOLD GUI"  
+To release the "HOLD **s**" modifier keys use "RELEASE" command.  
 
 7. "REPEAT **n**" command can repeat a block of commands (max block  
 size = 400 characters). "REPEAT\_SIZE **n**" command specifies the number  

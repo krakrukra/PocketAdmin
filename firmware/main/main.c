@@ -209,6 +209,17 @@ static unsigned int runDuckyCommand()
       else if( checkKeyword("RSHIFT ") )     modbyte = modbyte | MOD_RSHIFT;
       else if( checkKeyword("RALT ") )       modbyte = modbyte | MOD_RALT;
       
+      else if( checkKeyword("GUI") )        {modbyte = modbyte | MOD_LGUI;   skipString();}
+      else if( checkKeyword("WINDOWS") )    {modbyte = modbyte | MOD_LGUI;   skipString();}
+      else if( checkKeyword("CTRL") )       {modbyte = modbyte | MOD_LCTRL;  skipString();}
+      else if( checkKeyword("CONTROL") )    {modbyte = modbyte | MOD_LCTRL;  skipString();}
+      else if( checkKeyword("SHIFT") )      {modbyte = modbyte | MOD_LSHIFT; skipString();}
+      else if( checkKeyword("ALT") )        {modbyte = modbyte | MOD_LALT;   skipString();}
+      else if( checkKeyword("RGUI") )       {modbyte = modbyte | MOD_RGUI;   skipString();}
+      else if( checkKeyword("RCTRL") )      {modbyte = modbyte | MOD_RCTRL;  skipString();}
+      else if( checkKeyword("RSHIFT") )     {modbyte = modbyte | MOD_RSHIFT; skipString();}
+      else if( checkKeyword("RALT") )       {modbyte = modbyte | MOD_RALT;   skipString();}
+      
       else if( checkKeyword("KEYCODE 0x") )  keycode = checkHexValue();
       else if( checkKeyword("KEYCODE ") )    keycode = checkDecValue();
       else if( checkKeyword("MENU") )        keycode = KB_COMPOSE;

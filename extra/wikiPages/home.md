@@ -13,3 +13,6 @@ from there, and then moves on to running some payload file.
 * [OS fingerprinter](https://github.com/krakrukra/PocketAdmin/wiki/fingerprinter)  
 * [keyboard layouts](https://github.com/krakrukra/PocketAdmin/wiki/layouts)  
 * [example payloads](https://github.com/krakrukra/PocketAdmin/wiki/examples)  
+  
+#### Some videos are available on my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
+  
