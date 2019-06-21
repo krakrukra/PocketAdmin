@@ -1,4 +1,4 @@
-AutoKeys_rev1.1 ----------------------- 13.02.2019 (dd.mm.yyyy)
+PocketAdmin_rev1.2 ----------------------- 21.06.2019 (dd.mm.yyyy)
 
 all components, including mechanical ones are available on aliexpress.
 example links to these items are for information purposes, check

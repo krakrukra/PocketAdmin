@@ -36,7 +36,10 @@ the user can set which VID / PID values to use, configure how the device should 
 project is designed using KiCad 5.0.2  
 check KiCad pcb file for PCB manufacturing info  
 check KiCad sch file + BOM.txt for component info  
-
+  
+dimentions: 59x18x9mm  
+weight: 8g  
+  
 programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
 you can use single pin male-female jumpers or a 1x5pin jumper cable  
 make sure to plug the programming cable into the header the right way  
@@ -120,9 +123,14 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
+go to hackaday [project page](https://hackaday.io/project/165926-pocketadmin)  
+go to my EEVblog [forum post](https://www.eevblog.com/forum/oshw/pocketadmin-an-open-source-keystroke-injection-device-badusb/)  
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 #### if you want to buy:  
 openbazaar shop link (online whenever my PC is running):  
 ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
 or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
+  
+tindie shop link: https://www.tindie.com/products/17300/  
+  
