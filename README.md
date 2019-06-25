@@ -44,9 +44,10 @@ programmer device used in this project is [ST-Link V2](https://www.aliexpress.co
 you can use single pin male-female jumpers or a 1x5pin jumper cable  
 make sure to plug the programming cable into the header the right way  
 
-based on full-speed (12Mbit/s) USB2.0 peripheral, uses on-board 32MiB flash memory chip for data storage;  
-measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s. While not very fast, it is enough  
-for most badusb applications.  
+based on full-speed (12Mbit/s) USB2.0 peripheral,  
+uses on-board 32MiB flash memory chip for data storage;  
+measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.  
+While not very fast, it is enough for most badusb applications.  
 
 The pushbutton on the device is referred to as MSD-only button. Normally the payload is run  
 whenever you plug the device into a PC. But if you press and hold this button while inserting  
