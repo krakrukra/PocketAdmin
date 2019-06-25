@@ -48,9 +48,12 @@ based on full-speed (12Mbit/s) USB2.0 peripheral, uses on-board 32MiB flash memo
 measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s. While not very fast, it is enough  
 for most badusb applications.  
 
-The pushbutton on the device will be referred to as MSD-only button. Normally the payload is run  
-whenever you plug the device into a PC. But if you press and hold this button while inserting the  
-device, it prevents any keystrokes from being typed in.  
+The pushbutton on the device is referred to as MSD-only button. Normally the payload is run  
+whenever you plug the device into a PC. But if you press and hold this button while inserting  
+the device, it prevents any keystrokes from being typed in.  
+
+When opening up the case, be careful no to break the plastic studs near  
+the USB connector and at the opposite from USB end of enclosure.  
 
 ## firmware
 
