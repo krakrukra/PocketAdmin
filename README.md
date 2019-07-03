@@ -54,7 +54,7 @@ whenever you plug the device into a PC. But if you press and hold this button wh
 the device, it prevents any keystrokes from being typed in.  
 
 When opening up the case, be careful no to break the plastic studs near  
-the USB connector and at the opposite from USB end of enclosure.  
+the USB connector and at the opposite (from USB) end of enclosure.  
 
 ## firmware
 

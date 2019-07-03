@@ -15,11 +15,11 @@ IP4220CZ6 USB transient protection diode --- 1pcs
 
 MCP1700-3302E 3.3V LDO linear regulator --- 1pcs
 
-0805 (2012 metric) 20% 6.3V 10uF tantalum capacitors --- 3pcs
+0805 (2012 metric) 10% 10V X5R 10uF ceramic capacitors --- 3pcs
 
-0603 (1608 metric) 10% 50V C0G 20pF ceramic capacitors --- 4pcs
+0603 (1608 metric) 10% 50V C0G 18pF ceramic capacitors --- 3pcs
 
-0603 (1608 metric) 20% 50V X7R 100nF ceramic capacitors --- 4pcs
+0603 (1608 metric) 20% 50V X7R 100nF ceramic capacitors --- 5pcs
 
 0603 (1608 metric) 5% 33ohm resistors --- 2pcs
 
