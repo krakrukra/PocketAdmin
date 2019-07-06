@@ -108,6 +108,8 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 
 /hardware/PocketAdmin.pretty/ --- project specific footprint library  
 
+/hardware/PocketAdmin.panel/ ---  files for panelised version of PCB
+
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
 #### /extra/ -------------------  contains pictures, various extra documents, etc.  
@@ -120,7 +122,7 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 /extra/wikiPages/ ------------------ contains github wiki pages  
   
 /extra/schematic_rev1_2.pdf ----------- pdf version of schematic  
-/extra/firmware_rev1_2 ----------- precompiled firmware image for pocketadmin revision 1.2  
+/extra/firmware_rev1_2 ----------- precompiled firmware image for PocketAdmin revision 1.2  
   
 ## contact info
   
