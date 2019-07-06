@@ -175,7 +175,7 @@ L Regulator_Linear:MCP1700-3302E_SOT23 U2
 U 1 1 5B92B686
 P 3900 2350
 F 0 "U2" H 3900 2592 50  0000 C CNN
-F 1 "MCP1700-3302E_SOT23" H 3900 2501 50  0000 C CNN
+F 1 "MCP1700-3302E/TT" H 3900 2501 50  0000 C CNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 3900 2575 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001826C.pdf" H 3900 2350 50  0001 C CNN
 	1    3900 2350
@@ -233,7 +233,7 @@ Text GLabel 5000 2350 0    50   Input ~ 0
 Text GLabel 2950 2350 0    50   Input ~ 0
 5V
 $Comp
-L Device:CP C2
+L Device:C C2
 U 1 1 5B92C8A7
 P 4350 2500
 F 0 "C2" H 4468 2546 50  0000 L CNN
@@ -244,7 +244,7 @@ F 3 "X5R 10% 10V" H 4350 2500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:CP C1
+L Device:C C1
 U 1 1 5B92CC88
 P 3450 2500
 F 0 "C1" H 3333 2546 50  0000 R CNN
@@ -456,7 +456,7 @@ Wire Wire Line
 NoConn ~ 7100 4650
 NoConn ~ 7100 4050
 $Comp
-L Device:CP C8
+L Device:C C8
 U 1 1 5BB94C3A
 P 2250 3750
 F 0 "C8" H 2368 3796 50  0000 L CNN
@@ -659,7 +659,7 @@ F 3 "" H 9250 4700 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	9250 4700 9250 4650
-Text Notes 4250 5100 0    50   ~ 0
+Text Notes 4200 5050 0    50   ~ 0
 PC15 and PB13 are connected \nto netnames only to ease PCB\nlayout, and are not used by MCU
 Wire Wire Line
 	9050 3900 9050 4150

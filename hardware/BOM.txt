@@ -13,7 +13,7 @@ W25Q256FVFG 32MiB flash memory chip --- 1pcs
 
 IP4220CZ6 USB transient protection diode --- 1pcs
 
-MCP1700-3302E 3.3V LDO linear regulator --- 1pcs
+MCP1700-3302E/TT 3.3V LDO linear regulator --- 1pcs
 
 0805 (2012 metric) 10% 10V X5R 10uF ceramic capacitors --- 3pcs
 
