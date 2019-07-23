@@ -57,39 +57,42 @@ int main()
   //initialize W25Q256FVFG flash memory chip, mount filesystem on the first partition, open and read payload.txt
   delay_ms(5);//wait until W25Q256FVFG startup delay is over and it is able to accept commands
   if ( f_mount(&FATFSinfo, "0:", 1) ) disk_initialize(0);//initialize flash memory for MSD use, in case no valid FAT is found ( f_mount() fails in this case )
-
+  
   //try to get pre-configuration commands from config.txt 
   if( !f_open(&openedFileInfo, "0:/config.txt", FA_READ) )
     {
       f_read(&openedFileInfo, (char*) &PayloadBuffer, 512, &BytesRead );
       f_close(&openedFileInfo);
-    }
-  
-  //run up to 5 pre-configuration commands from config.txt
-  for(i=0; i<5; i++)
-    {
-           if( checkKeyword("HID_ONLY_MODE") )     { ControlInfo.EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter
-      else if( checkKeyword("USE_FINGERPRINTER") ) { PayloadInfo.UseFingerprinter = 1; skipString(); }
-      else if( checkKeyword("USE_LAYOUT ") )       checkFilename();
-      else if( checkKeyword("VID 0x") )            DeviceDescriptor.idVendor  = (unsigned short) checkHexValue();
-      else if( checkKeyword("PID 0x") )            DeviceDescriptor.idProduct = (unsigned short) checkHexValue();
-      else break;//stop if no pre-configuration command was found
-	   
-      //go to the next line
-      if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
-      else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;        
-    }
 
-  if(PayloadInfo.LayoutFilename[0])//if there is a USE_LAYOUT command in config.txt
-    {
-      f_chdir("0:/kblayout");//go to /kblayout/ directory
+      //always append a newline after config.txt contents; that prevents bricking the device by skipString() if there is no newline in config.txt
+      PayloadBuffer[BytesRead] = 0x0A;
       
-      //load new keymap from the specified file
-      if( !f_open(&openedFileInfo, (char*) &(PayloadInfo.LayoutFilename), FA_READ) )
+      //run up to 5 pre-configuration commands from config.txt
+      for(i=0; i<5; i++)
 	{
-	  f_read(&openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
-	  f_close( &openedFileInfo );
-	}      
+	       if( checkKeyword("HID_ONLY_MODE") )     { ControlInfo.EnumerationMode = 1; PayloadInfo.FirstRead = 1; skipString(); }//set FirstRead to 1 so DELAY does not freeze the interpreter
+	  else if( checkKeyword("USE_FINGERPRINTER") ) { PayloadInfo.UseFingerprinter = 1; skipString(); }
+	  else if( checkKeyword("USE_LAYOUT ") )       checkFilename();
+	  else if( checkKeyword("VID 0x") )            DeviceDescriptor.idVendor  = (unsigned short) checkHexValue();
+	  else if( checkKeyword("PID 0x") )            DeviceDescriptor.idProduct = (unsigned short) checkHexValue();
+	  else break;//stop if no pre-configuration command was found
+	  
+	  //go to the next line
+	  if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 1023) ) PayloadInfo.PayloadPointer++;
+	  else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;        
+	}
+      
+      if(PayloadInfo.LayoutFilename[0])//if there is a USE_LAYOUT command in config.txt
+	{
+	  f_chdir("0:/kblayout");//go to /kblayout/ directory
+	  
+	  //load new keymap from the specified file
+	  if( !f_open(&openedFileInfo, (char*) &(PayloadInfo.LayoutFilename), FA_READ) )
+	    {
+	      f_read(&openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
+	      f_close( &openedFileInfo );
+	    }      
+	}
     }
   
   usb_init();//initialize USB
