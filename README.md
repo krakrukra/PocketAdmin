@@ -122,7 +122,8 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 /extra/wikiPages/ ------------------ contains github wiki pages  
   
 /extra/schematic_rev1_2.pdf ----------- pdf version of schematic  
-/extra/firmware_rev1_2 ----------- precompiled firmware image for PocketAdmin revision 1.2  
+/extra/firmware_rrnnnnnnnnnn ----------- precompiled firmware image for PocketAdmin (rr stands for board revision,  
+nnnnnnnnnn stands for firmware version. That is, firmware_120000000002 means board revision 1.2, firmware version 2)  
   
 ## contact info
   

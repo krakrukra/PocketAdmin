@@ -226,6 +226,6 @@ static GetConfigResponse_MSDonly_TypeDef GetConfigResponse_MSDonly __attribute__
 
 //string descriptors. only english (0x0409) is present in supported LANGID list
 static unsigned short StringDescriptor_0[2] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0304, 0x0409 };
-static unsigned short StringDescriptor_1[13] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x031A, '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C' };
+static unsigned short StringDescriptor_1[13] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x031A, '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2' };
 
 #endif //USB_RODATA_H
