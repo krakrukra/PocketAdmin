@@ -1,6 +1,9 @@
 #include "../cmsis/stm32f0xx.h"
 #include "diskio.h"
 
+#define CS_LOW  GPIOA->BSRR = (1<<31)
+#define CS_HIGH GPIOA->BSRR = (1<<15)
+
 unsigned char ReadBuffer[512] __attribute__(( aligned(2) ));
 unsigned char WriteBuffer[4096] __attribute__(( aligned(2) ));
 DSTATUS pdrv0_status = STA_NOINIT;//not yet initialized
@@ -15,10 +18,10 @@ DSTATUS disk_initialize (BYTE pdrv)
 {
   if(pdrv != 0) return STA_NOINIT;//only physical drive 0 is available
     
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0xB7);//Enter 4-Byte Address Mode command
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   pdrv0_status = 0;//physical drive 0 is now initialized
 
@@ -49,7 +52,7 @@ DRESULT disk_read (
   sector = sector * 512;//variable sector now contains byte address of requested sector
   count = count * 512;//variable count now contains number of bytes to read
 
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0x03);//Read Data command (4 byte address)
   spi_transfer(sector >> 24);
   spi_transfer(sector >> 16);
@@ -62,7 +65,7 @@ DRESULT disk_read (
   for(i=0; i<count; i++) *(buff + i) = spi_transfer(0x00);
   
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   return RES_OK;
 }
@@ -172,7 +175,7 @@ void write_pages(unsigned int startAddr)
       write_enable();
       
       //Page Program command (4 byte address)
-      GPIOA->BSRR = (1<<31);//pull CS pin low
+      CS_LOW;//pull CS pin low
       spi_transfer(0x02);
       spi_transfer( (startAddr + j * 256) >> 24 );
       spi_transfer( (startAddr + j * 256) >> 16 );
@@ -180,7 +183,7 @@ void write_pages(unsigned int startAddr)
       spi_transfer( (startAddr + j * 256) >> 0 );
       for(k=0; k<256; k++) spi_transfer( WriteBuffer[j * 256 + k] );
       while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-      GPIOA->BSRR = (1<<15);//pull CS pin high
+      CS_HIGH;//pull CS pin high
       
       wait_notbusy();
     }
@@ -195,14 +198,14 @@ void block_erase_4k(unsigned int startAddr)
   
   write_enable();
   
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0x20);//4 KiB Block Erase command (4 byte address)
   spi_transfer( startAddr >> 24 );
   spi_transfer( startAddr >> 16 );
   spi_transfer( startAddr >> 8 );
   spi_transfer( startAddr >> 0 );
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   wait_notbusy();
 
@@ -216,14 +219,14 @@ void block_erase_32k(unsigned int startAddr)
   
   write_enable();
    
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0x52);//32 KiB Block Erase command (4 byte address)
   spi_transfer( startAddr >> 24 );
   spi_transfer( startAddr >> 16 );
   spi_transfer( startAddr >> 8 );
   spi_transfer( startAddr >> 0 );
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   wait_notbusy();
 
@@ -237,14 +240,14 @@ void block_erase_64k(unsigned int startAddr)
   
   write_enable();
   
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0xD8);//64 KiB Block Erase command (4 byte address)
   spi_transfer( startAddr >> 24 );
   spi_transfer( startAddr >> 16 );
   spi_transfer( startAddr >> 8 );
   spi_transfer( startAddr >> 0 );
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   wait_notbusy();
   
@@ -253,15 +256,15 @@ void block_erase_64k(unsigned int startAddr)
 
 void device_reset()
 {
-  GPIOA->BSRR = (1<<31);//pull CS pin low  
+  CS_LOW;//pull CS pin low  
   spi_transfer(0x66);//Enable Reset command
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
 
-  GPIOA->BSRR = (1<<31);//pull CS pin low  
+  CS_LOW;//pull CS pin low  
   spi_transfer(0x99);//Reset Device command
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   return;
 }
@@ -280,22 +283,22 @@ static unsigned char spi_transfer(unsigned int txdata)
 
 static void write_enable()
 {
-  GPIOA->BSRR = (1<<31);//pull CS pin low  
+  CS_LOW;//pull CS pin low  
   spi_transfer(0x06);//Write Enable command
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   return;
 }
 
 static void wait_notbusy()
 {    
-  GPIOA->BSRR = (1<<31);//pull CS pin low
+  CS_LOW;//pull CS pin low
   spi_transfer(0x05);//Read Status Register 1 command
   while(SPI1->SR & (1<<7));//wait until SPI1 is no longer busy
   while( spi_transfer(0x00) & (1<<0) );//keep sending clock until flash memory busy flag is reset back to 0
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-  GPIOA->BSRR = (1<<15);//pull CS pin high
+  CS_HIGH;//pull CS pin high
   
   return;
 }

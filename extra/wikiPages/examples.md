@@ -32,5 +32,5 @@ system. There is an example payload for that, called "fingerprinterTest".
 To use it, you would copy /extra/fingerdb/, .../fingerprinterTest/config.txt  
 and .../fingerprinterTest/fgscript/ into PocketAdmin's root directory.  
   
-If you needed to use a different layout, you would to copy /extra/kblayout/ to  
-PocketAdmin and added, a new command to config.txt, like this: "USE_LAYOUT fr_FR"  
+If you needed to use a different layout, you would copy /extra/kblayout/ to  
+PocketAdmin and added a new command to config.txt, like this: "USE_LAYOUT fr_FR"  

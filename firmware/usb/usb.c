@@ -125,7 +125,7 @@ void usb_reset()
 //this function should be used as an ISR for USB interrupt request
 void usb_handler()
 {
-  if(USB->ISTR & (1<<15))//CTR    
+  if(USB->ISTR & (1<<15))//CTR
     {
       switch(USB->ISTR & 0x0F)//check what endpoint id caused CTR interrupt
 	{
@@ -175,9 +175,9 @@ void bufferCopy(unsigned short* whereFrom, unsigned short* whereTo, unsigned sho
   while(byteCount > 1)
     {
       *whereTo = *whereFrom;
-      whereFrom++;     
+      whereFrom++;
       whereTo++;
-      byteCount -= 2;      
+      byteCount -= 2;
     }
 
   //copy last byte in case ByteCount was an odd number
@@ -210,14 +210,14 @@ static void processControlTransaction()
 	  
 	  //reinitialize variables needed for control transfer handling
 	  ControlInfo.DataPointer = 0;
-	  ControlInfo.BytesLeft = 0;	  
+	  ControlInfo.BytesLeft = 0;
 	  ControlInfo.ZLPneeded = 0;
 	  ControlInfo.TransferStage = IDLE;
 
 	  //only process standard and class specific requests. respond with STALL to any other bmRequestType
-	       if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (0<<5) ) processStandardRequest();	 
+	       if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (0<<5) ) processStandardRequest();
 	  else if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (1<<5) ) processClassRequest();
-	  else USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags	    
+	  else USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
 	}
       else//in case of OUT transaction
 	processOUTtransaction_EP0();
