@@ -37,51 +37,40 @@ project is designed using KiCad 5.0.2
 check KiCad pcb file for PCB manufacturing info  
 check KiCad sch file + BOM.txt for component info  
   
-dimensions: 59x18x9mm  
-weight: 8g  
-  
-programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
-you can use single pin male-female jumpers or a 1x5pin jumper cable  
-make sure to plug the programming cable into the header the right way  
-
-based on full-speed (12Mbit/s) USB2.0 peripheral,  
-uses on-board 32MiB flash memory chip for data storage;  
+uses integrated full-speed (12Mbit/s) USB2.0 peripheral,  
+with on-board 32MiB flash memory chip for data storage;  
 measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.  
 While not very fast, it is enough for most badusb applications.  
-
-The pushbutton on the device is referred to as MSD-only button. Normally the payload is run  
-whenever you plug the device into a PC. But if you press and hold this button while inserting  
-the device, it prevents any keystrokes from being typed in.  
-
+  
+The pushbutton on the device is referred to as MSD-only button. Normally  
+the payload is run whenever you plug the device into a PC. But if you press  
+and hold this button while inserting the device, it prevents any keystrokes  
+from being typed in.  
+  
+Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.  
 When opening up the case, be careful no to break the plastic studs near  
 the USB connector and at the opposite (from USB) end of enclosure.  
-
+  
+programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
+For instructions on how to build and flash the device go check this video:  
+[https://www.youtube.com/watch?v=cfud5Dq_w2M](https://www.youtube.com/watch?v=cfud5Dq_w2M)  
+  
 ## firmware
-
+  
 firmware (written in C) was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain  
 (compiler, linker, binutils) and it does use gcc specific extentions.  
-was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
-
+it was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
+  
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  
-
+  
 depends on libgcc.a, which together with the linker script, startup code  
 and openocd configuration files is included in this repository.  
-
+  
 files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
-
-to build the firmware cd into the /firmware/ directory, then type:  
-
-> make  
-
-this will produce several output files, among which is firmware.bin  
-this is a file that contains the firmware to flash. To do it,  
-connect ST-LINKv2 programmer to the board, then to computer and type:  
-
-> make upload  
-
+  
 for your convenience, a pre-built binary firmware image is available in /extra/ directory.  
 
 ## directories info
