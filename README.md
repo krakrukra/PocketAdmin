@@ -73,9 +73,9 @@ headers, but integral parts of usb.c, main.c, msd.c respectively.
 they are not intended to be included in any other files.  
   
 for your convenience, a pre-built binary firmware image is available in  
-/extra/ directory. the name format is like this: firmware_RRNNNNNNNNNN,  
+/extra/ directory. the name format is like this: firmware\_RRNNNNNNNNNN,  
 RR stands for board revision, NNNNNNNNNN stands for firmware version.  
-For example, firmware_120000000002 means board revision 1.2, firmware version 2  
+For example, firmware\_120000000002 means board revision 1.2, firmware version 2  
   
 ## directories info
 
@@ -103,8 +103,8 @@ For example, firmware_120000000002 means board revision 1.2, firmware version 2
 /extra/fingerdb/ ------------------ OS fingerprint database  
 /extra/kblayout/ ------------------ alternative keyboard layout files  
 /extra/wikiPages/ ------------------ github wiki pages  
-/extra/schematic_*.pdf ----------- pdf version of schematic  
-/extra/firmware_* ----------- precompiled firmware image for PocketAdmin  
+/extra/schematic\_\*.pdf ----------- pdf version of schematic  
+/extra/firmware\_\* ----------- precompiled firmware image for PocketAdmin  
   
 ## contact info  
   
