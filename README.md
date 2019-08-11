@@ -126,7 +126,7 @@ for your convenience, a pre-built binary firmware image is available in /extra/ 
 (rr stands for board revision, nnnnnnnnnn stands for firmware version. That is,  
 firmware_120000000002 means board revision 1.2, firmware version 2)  
   
-## contact info
+## contact info  
   
 if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
@@ -136,9 +136,6 @@ go to my EEVblog [forum post](https://www.eevblog.com/forum/oshw/pocketadmin-an-
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 #### if you want to buy:  
-openbazaar shop link (online whenever my PC is running):  
-ob://QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr/store  
-or, you can preview the store [here](https://openbazaar.com/store/QmeCrxkz8J1pvBx4nVE7EgZNkLfMftmKtz3dc5oo4bPgqr), if you do not have openbazaar app installed yet  
   
 tindie shop link: https://www.tindie.com/products/17300/  
   

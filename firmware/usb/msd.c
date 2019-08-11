@@ -15,11 +15,13 @@ static void processNewCBW();
 static void processInquiryCommand_6();
 static void processReadCapacityCommand_10();
 static void processTestUnitReadyCommand_6();
+static void processRequestSenseCommand_6();
 static void processStartStopUnitCommand_6();
 static void processPreventAllowMediumRemovalCommand_6();
 static void processModeSenseCommand_6();
 static void processReadCommand_10();
 static void processWriteCommand_10();
+
 static void sendResponse(void* responseAddress, unsigned int responseSize);
 static void sendData();
 static void sendCSW(unsigned char status);
@@ -151,11 +153,15 @@ static void processNewCBW()
   //check if specified command is supported
   switch( (MSDinfo.CBW).CBWCB[0] )
     {
-    case 0x00://TEST UNIT READY command
+    case 0x00://TEST UNIT READY (6) command
       processTestUnitReadyCommand_6();
       break;
+
+    case 0x03://REQUEST SENSE (6) command
+      processRequestSenseCommand_6();
+      break;
       
-    case 0x12://INQUIRY command
+    case 0x12://INQUIRY (6) command
       processInquiryCommand_6();
       break;
 
@@ -163,11 +169,11 @@ static void processNewCBW()
       processModeSenseCommand_6();
       break;      
 
-    case 0x1B://START STOP UNIT command
+    case 0x1B://START STOP UNIT (6) command
       processStartStopUnitCommand_6();
       break;
       
-    case 0x1E://PREVENT ALLOW MEDIUM REMOVAL command
+    case 0x1E://PREVENT ALLOW MEDIUM REMOVAL (6) command
       processPreventAllowMediumRemovalCommand_6();
       break;
       
@@ -182,12 +188,30 @@ static void processNewCBW()
     case 0x2A://WRITE (10) command
       processWriteCommand_10();
       break;
-            
-    default://command is not recognized
-      sendCSW(2);//return error status, request reset recovery
 
-      USB->EP2R = (1<<13)|(1<<12)|(1<<7)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+    default://command is not recognized
+      sendCSW(1);//return error status
+
+      if( (MSDinfo.CBW).dCBWDataTransferLength )//if host wants to send or receive any data
+	{      
+	  if( (MSDinfo.CBW).bmCBWFlags & (1<<7) )//if host wants to receive data
+	    {
+	      USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	      USB->EP3R = (1<<15)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+	    }
+	  
+	  else//if host wants to send data
+	    {
+	      USB->EP2R = (1<<13)|(1<<12)|(1<<7)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+	      USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	    }
+	}
+      
+      else//if host does not want to send or receive any data
+	{
+	  USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	}
       break;
     }
 
@@ -244,7 +268,17 @@ static void processTestUnitReadyCommand_6()
   sendCSW(0);//return good status
 
   USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+  
+  return;
+}
+
+static void processRequestSenseCommand_6()
+{
+  sendResponse( &SenseData_Fixed, sizeof(SenseData_Fixed) );
+  
+  USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets  
   
   return;
 }
@@ -256,7 +290,7 @@ static void processStartStopUnitCommand_6()
   sendCSW(0);//return good status
   
   USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
   
   return;
 }
@@ -268,7 +302,7 @@ static void processPreventAllowMediumRemovalCommand_6()
   sendCSW(0);//return good status
   
   USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
 
   return;
 }
@@ -338,7 +372,7 @@ static void processReadCommand_10()
       USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
     }
 
-  PayloadInfo.FirstRead = 1;//used to implement DELAY functionality in ducky interpreter from main.c
+  PayloadInfo.FirstRead = 1;//indicate that a read command was received at least one time since poweron; used to implement DELAY functionality in ducky interpreter from main.c
   return;
 }
 
@@ -352,10 +386,10 @@ static void processWriteCommand_10()
   //if specified address range is outside the area from MSD_FIRSTADDR to MSD_LASTADDR
   if( (MSDinfo.DataPointer + MSDinfo.BytesLeft - 1) > MSD_LASTADDR )
     {
-      sendCSW(2);//return error status, request reset recovery
+      sendCSW(1);//return error status
       
       USB->EP2R = (1<<13)|(1<<12)|(1<<7)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets            
+      USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
     }
   //if specified address range is accessible
   else

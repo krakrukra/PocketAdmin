@@ -10,7 +10,7 @@ static unsigned char InquiryData_Standard[36] __attribute__(( aligned(2), sectio
   0x02,//response data format = SPC-2
   0x1F,//additional length = 31 bytes
   0x00,//no special features supported
-  0x00,//no special features supported
+  0x00 //no special features supported
 };
 
 static unsigned char InquiryData_VPDpagelist[] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
@@ -38,7 +38,14 @@ static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2), sect
   0x02,//data bytes per sector = 512
   0x00,//data bytes per sector = 512
   0x00,//number of cylinders = 128
-  0x80,//number of cylinders = 128
+  0x80 //number of cylinders = 128
+};
+
+static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
+{
+ 0x70,//current error sense data
+ 0x00,//reserved
+ 0x05 //ILLEGAL REQUEST
 };
 
 static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =

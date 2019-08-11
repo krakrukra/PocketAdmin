@@ -413,7 +413,7 @@ static void processGetDescriptorRequest()
     {
       ControlInfo.BytesLeft = (ControlInfo.ControlRequest).wLength;
     }
-
+  
   
   if(ControlInfo.BytesLeft <= MAXPACKET_0)//if one non-ZLP transaction is enough to copy all data
     {
