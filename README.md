@@ -80,27 +80,17 @@ image is available in /extra/ directory.
 #### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
 
 /firmware/cmsis/ ------- necessary header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
-
 /firmware/stdlib/ ---------- standard statically linked libraries (libgcc.a)  
-
 /firmware/openocd/ ------- standard configuration files for openocd  
-
-/firmware/fatfs/ ----------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) module for working with FAT filesystem, along with diskio.c + diskio.h  
-(custom low level driver for communication with W25Q256FVFG flash memory chip over SPI)  
-
-/firmware/usb/ ------------ custom USB stack, implementation of MSD and HID class devices  
-
-/firmware/main/main.c ------- file that contains main application  
-/firmware/main/support.c ------- file that contains interrupt vector table, IRQ handlers and startup code  
+/firmware/fatfs/ -------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) filesystem module + custom W25Q256FVFG disk driver  
+/firmware/usb/ ------------ contais custom USB stack, implementation of MSD and HID class devices  
+/firmware/main/ ------- main application file, interrupt vector table, IRQ handlers and startup code  
 
 #### /hardware/ ------------------- contains KiCad project, schematic, PCB files  
 
 /hardware/PocketAdmin.symbols/ -- project specific symbol library  
-
 /hardware/PocketAdmin.pretty/ --- project specific footprint library  
-
-/hardware/PocketAdmin.panel/ ---  files for panelised version of PCB
-
+/hardware/PocketAdmin.panel/ ---  files for panelised version of PCB  
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
 
 #### /extra/ -------------------  contains pictures, various extra documents, etc.  
