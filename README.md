@@ -72,9 +72,11 @@ files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
   
-for your convenience, a pre-built binary firmware  
-image is available in /extra/ directory.  
-
+for your convenience, a pre-built binary firmware image is available in  
+/extra/ directory. the name format is like this: firmware_RRNNNNNNNNNN,  
+RR stands for board revision, NNNNNNNNNN stands for firmware version.  
+For example, firmware_120000000002 means board revision 1.2, firmware version 2  
+  
 ## directories info
 
 #### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
@@ -82,8 +84,8 @@ image is available in /extra/ directory.
 /firmware/cmsis/ ------- necessary header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
 /firmware/stdlib/ ---------- standard statically linked libraries (libgcc.a)  
 /firmware/openocd/ ------- standard configuration files for openocd  
-/firmware/fatfs/ -------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) filesystem module + custom W25Q256FVFG disk driver  
-/firmware/usb/ ------------ contais custom USB stack, implementation of MSD and HID class devices  
+/firmware/fatfs/ ---------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) filesystem module + custom W25Q256FVFG disk driver  
+/firmware/usb/ ------------ custom USB stack, implementation of MSD and HID class devices  
 /firmware/main/ ------- main application file, interrupt vector table, IRQ handlers and startup code  
 
 #### /hardware/ ------------------- contains KiCad project, schematic, PCB files  
@@ -95,17 +97,14 @@ image is available in /extra/ directory.
 
 #### /extra/ -------------------  contains pictures, various extra documents, etc.  
 
-/extra/examplePayloads/ ----------- contains some example PocketAdmin payloads  
-/extra/pictures/ ------------------ contains device photos  
-/extra/mechanicalDrawings/ -------- contains info for various mechanical parts  
-/extra/fingerdb/ ------------------ contains OS fingerprint database  
-/extra/kblayout/ ------------------ contains alternative keyboard layout files  
-/extra/wikiPages/ ------------------ contains github wiki pages  
-  
-/extra/schematic_rev1_2.pdf ----------- pdf version of schematic  
-/extra/firmware_rrnnnnnnnnnn ----------- precompiled firmware image for PocketAdmin  
-(rr stands for board revision, nnnnnnnnnn stands for firmware version. That is,  
-firmware_120000000002 means board revision 1.2, firmware version 2)  
+/extra/examplePayloads/ ----------- some example PocketAdmin payloads  
+/extra/pictures/ --------------------- device photos  
+/extra/mechanicalDrawings/ -------- info for various mechanical parts  
+/extra/fingerdb/ ------------------ OS fingerprint database  
+/extra/kblayout/ ------------------ alternative keyboard layout files  
+/extra/wikiPages/ ------------------ github wiki pages  
+/extra/schematic_*.pdf ----------- pdf version of schematic  
+/extra/firmware_* ----------- precompiled firmware image for PocketAdmin  
   
 ## contact info  
   
