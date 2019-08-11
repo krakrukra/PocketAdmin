@@ -1,10 +1,10 @@
-# PocketAdmin (rev 1.2)  
-
-This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://www.youtube.com/watch?v=z5UUTUmGQlY&list=PLW5y1tjAOzI0YaJslcjcI4zKI366tMBYk)  
+# PocketAdmin  
+  
+This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe)  
 made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
 types in a preprogrammed payload. This can be very useful for automating sysadmin tasks or  
 in penetration testing applications.  
-
+  
 ![1.jpg](extra/pictures/1.jpg)  
 ![2.jpg](extra/pictures/2.jpg)  
 
@@ -51,27 +51,29 @@ Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.
 When opening up the case, be careful no to break the plastic studs near  
 the USB connector and at the opposite (from USB) end of enclosure.  
   
-programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
+hardware programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
 For instructions on how to build and flash the device go check this video:  
 [https://www.youtube.com/watch?v=cfud5Dq_w2M](https://www.youtube.com/watch?v=cfud5Dq_w2M)  
   
-## firmware
+## firmware  
   
-firmware (written in C) was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain  
+programming language used = C  
+flashing software used = openocd  
+IDE used = emacs text editor + Makefile  
+
+the firmware was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain  
 (compiler, linker, binutils) and it does use gcc specific extentions.  
 it was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
   
-flashing software used = openocd  
-IDE used = emacs text editor + Makefile  
-  
-depends on libgcc.a, which together with the linker script, startup code  
-and openocd configuration files is included in this repository.  
+depends on libgcc.a, which is included in this repository. linker script,  
+startup code and openocd configuration files are included here as well.  
   
 files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
   
-for your convenience, a pre-built binary firmware image is available in /extra/ directory.  
+for your convenience, a pre-built binary firmware  
+image is available in /extra/ directory.  
 
 ## directories info
 
