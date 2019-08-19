@@ -4,6 +4,12 @@ a FAT filesystem on the first partition, and in the root directory there
 must be a payload.txt file, which contains the commands that the device  
 should run at every insertion.  
   
+You might not want to run the payload absolutely every time. For example,  
+if you just want to edit the payload files. To do that, you would use the  
+MSD-only button. You hold it down, insert the device, wait around 1  
+second after that, then release. In that case the device will not type  
+anything in, and will show up as a drive (even if you use HID_ONLY_MODE).  
+  
 Optionally, alongside the payload.txt you can have a config.txt file.  
 If this file if present, the device first runs pre-configuration commands  
 from there, and then moves on to running some payload file.  

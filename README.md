@@ -45,7 +45,7 @@ While not very fast, it is enough for most badusb applications.
 The pushbutton on the device is referred to as MSD-only button. Normally  
 the payload is run whenever you plug the device into a PC. But if you press  
 and hold this button while inserting the device, it prevents any keystrokes  
-from being typed in.  
+from being typed in and makes the device show up as a drive.  
   
 Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.  
 When opening up the case, be careful no to break the plastic studs near  
