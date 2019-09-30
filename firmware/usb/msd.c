@@ -5,11 +5,15 @@
 //external flash memory is mapped to address 0xA0000000 in MCU memory space. these macros are for
 //first and last accessible byte addresses of the mapped flash memory area (not next available address)
 #define MSD_FIRSTADDR 0xA0000000U
-#define MSD_LASTADDR  0xA1FFFFFFU
+#define MSD_LASTADDR  0xA180FFFFU
 
-extern unsigned char ReadBuffer[512] __attribute__(( aligned(2) ));
-extern unsigned char WriteBuffer[4096] __attribute__(( aligned(2) ));
+extern unsigned short EBImap[512];
+extern unsigned short PBOmap[128];
 extern PayloadInfo_TypeDef PayloadInfo;
+extern DiskInfo_TypeDef DiskInfo;
+
+MSDinfo_TypeDef MSDinfo;
+unsigned char MSDbuffer[1024];
 
 static void processNewCBW();
 static void processInquiryCommand_6();
@@ -24,12 +28,10 @@ static void processWriteCommand_10();
 
 static void sendResponse(void* responseAddress, unsigned int responseSize);
 static void sendData();
+static void getData();
 static void sendCSW(unsigned char status);
 
 //----------------------------------------------------------------------------------------------------------------------
-
-//this data structure is needed for MSD transfers
-MSDinfo_TypeDef MSDinfo;
 
 void processMSDtransaction()
 {
@@ -43,74 +45,59 @@ void processMSDtransaction()
       
       else if(MSDinfo.MSDstage == MSD_OUT)
 	{
-	  //copy all bytes the host sent to destination address
-	  bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR2_RX), (unsigned short*) ((unsigned int) &WriteBuffer + MSDinfo.DataPointer % 4096), BTABLE->COUNT2_RX & 0x03FF );	  
-	  MSDinfo.DataPointer = MSDinfo.DataPointer + (BTABLE->COUNT2_RX & 0x03FF);
-	  (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - (BTABLE->COUNT2_RX & 0x03FF);
-	  MSDinfo.BytesLeft = MSDinfo.BytesLeft - (BTABLE->COUNT2_RX & 0x03FF);
-	  
-	  if( MSDinfo.BytesLeft )//if there is still data yet to be transmitted
-	    {	      
-	      //if WriteBuffer is full, write it to the medium
-	      if( (MSDinfo.DataPointer % 4096) == 0 )
-		{		  
-		  //if blocks have to be erased before writing new data
-		  if( (MSDinfo.DataPointer - MSD_FIRSTADDR) > MSDinfo.EraseStart )
-		    {
-		      //try to erase with biggest possible blocksize
-		      if     ( (MSDinfo.BytesLeft >= (4096 * 15)) && !(MSDinfo.WriteStart % (4096 * 16)) ) {block_erase_64k(MSDinfo.WriteStart); MSDinfo.EraseStart = MSDinfo.EraseStart + 4096 * 16;}
-		      else if( (MSDinfo.BytesLeft >= (4096 *  7)) && !(MSDinfo.WriteStart % (4096 *  8)) ) {block_erase_32k(MSDinfo.WriteStart); MSDinfo.EraseStart = MSDinfo.EraseStart + 4096 *  8;}
-		      else                                                                                 {block_erase_4k(MSDinfo.WriteStart);  MSDinfo.EraseStart = MSDinfo.EraseStart + 4096 *  1;}
-		    }
-		  
-		  write_pages(MSDinfo.WriteStart);
-		  MSDinfo.WriteStart = MSDinfo.DataPointer - MSD_FIRSTADDR;//move WriteStart pointer to next sector that was not written yet
-		}
-	      
-	      USB->EP2R = (1<<12)|(1<<7)|(2<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
-	      USB->EP3R = (1<<15)|(1<<7)|(3<<0);//respond to IN packets with NAK, ingore OUT packets
-	    }
-	  else//if last data transaction just got completed
-	    {	      
-	      //pre-fill WriteBuffer with existing data on the medium if necessary
-	      if(MSDinfo.DataPointer % 4096) disk_read(0, (unsigned char*) &WriteBuffer + MSDinfo.DataPointer % 4096, (MSDinfo.DataPointer - MSD_FIRSTADDR) / 512, (4096 - MSDinfo.DataPointer % 4096) / 512 );
+	  getData();//keep saving data to flash memory
 
-	      //erase last block if necessary
-	      if( (MSDinfo.DataPointer - MSD_FIRSTADDR) > MSDinfo.EraseStart ) {block_erase_4k(MSDinfo.WriteStart);  MSDinfo.EraseStart = MSDinfo.EraseStart + 4096 *  1;}
-	      
-	      //save WriteBuffer to the medium
-	      write_pages(MSDinfo.WriteStart);
-	      MSDinfo.WriteStart = MSDinfo.DataPointer - MSD_FIRSTADDR;//move WriteStart pointer to next sector that was not written yet
-	      
+	  //if last data transaction was just completed
+	  if(MSDinfo.BytesLeft == 0)
+	    {
 	      sendCSW(0);//return good status
 	      
 	      USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
 	      USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+	    }
+	  
+	  //if there are still data transactions left in this transfer
+	  else
+	    {
+	      USB->EP2R = (1<<12)|(1<<7)|(2<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
+	      USB->EP3R = (1<<15)|(1<<7)|(3<<0);//respond to IN packets with NAK, ingore OUT packets	      
 	    }
 	}
     }
   
   //in case of IN transaction
   else
-    {
-      
+    {      
       if(MSDinfo.MSDstage == MSD_IN)
 	{
-	  //keep sending data to host, send CSW with good status at the end of transfer
-	  if( (MSDinfo.DataPointer >= MSD_FIRSTADDR) && ((MSDinfo.DataPointer - 1) <= MSD_LASTADDR) ) sendData();//if data should come from the medium
-	  else sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//if data should come from RAM or ROM
-	  
-	  //if transfer is over but device actiually returned less data than host expected
-	  if( ((MSDinfo.CSW).dCSWDataResidue != 0) && (MSDinfo.BytesLeft == 0) )
+	  //if last data transaction was just completed
+	  if(MSDinfo.BytesLeft == 0)
 	    {
-	      USB->EP2R = (1<<15)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets
-	      USB->EP3R = (1<<15)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets, clear CTR_TX flag
+	      sendCSW(0);//return good status
+	      
+	      //if device returned less data than host expected
+	      if( (MSDinfo.CSW).dCSWDataResidue != 0 )
+		{
+		  USB->EP2R = (1<<15)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets
+		  USB->EP3R = (1<<15)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets, clear CTR_TX flag
+		}
+	      //if device returned as much data as host expected
+	      else
+		{
+		  USB->EP2R = (1<<15)|(1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets
+		  USB->EP3R = (1<<15)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets, clear CTR_TX flag
+		}
 	    }
-	  //if transfer is not over yet, or device actiually returned as much data as host expected
+	  
+	  //if there are still data transactions left in this transfer
 	  else
 	    {
+	      //keep sending data to host
+	      if( (MSDinfo.DataPointer >= MSD_FIRSTADDR) && ((MSDinfo.DataPointer - 1) <= MSD_LASTADDR) ) sendData();//if data should come from the medium
+	      else sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//if data should come from RAM or ROM
+	      
 	      USB->EP2R = (1<<15)|(1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets
-	      USB->EP3R = (1<<15)|(1<<4)|(3<<0);//respond to IN packets with data/CSW, ignore OUT packets, clear CTR_TX flag
+	      USB->EP3R = (1<<15)|(1<<4)|(3<<0);//respond to IN packets with data, ignore OUT packets, clear CTR_TX flag
 	    }
 	}
       
@@ -136,6 +123,7 @@ static void processNewCBW()
   bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR2_RX), (unsigned short*) &(MSDinfo.CBW), 31 );
   MSDinfo.BytesLeft = (MSDinfo.CBW).dCBWDataTransferLength;//try to send as much data as host expects
   (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CBW).dCBWDataTransferLength;//no data was received / sent yet
+  MSDinfo.ActiveBuffer = 0;//start reading/writing from the first 512 bytes of MSDbuffer[]
   
   //check if CBW is 31 bytes long, check if CBW signature is valid, check if target LUN is 0
   if( (BTABLE->COUNT2_RX & 0x03FF) != 31 )        error = 1;
@@ -156,7 +144,7 @@ static void processNewCBW()
     case 0x00://TEST UNIT READY (6) command
       processTestUnitReadyCommand_6();
       break;
-
+      
     case 0x03://REQUEST SENSE (6) command
       processRequestSenseCommand_6();
       break;
@@ -164,11 +152,11 @@ static void processNewCBW()
     case 0x12://INQUIRY (6) command
       processInquiryCommand_6();
       break;
-
+      
     case 0x1A://MODE SENSE (6) command
       processModeSenseCommand_6();
       break;      
-
+      
     case 0x1B://START STOP UNIT (6) command
       processStartStopUnitCommand_6();
       break;
@@ -180,7 +168,7 @@ static void processNewCBW()
     case 0x25://READ CAPACITY (10) command
       processReadCapacityCommand_10();
       break;
-
+      
     case 0x28://READ (10) command
       processReadCommand_10();
       break;
@@ -188,10 +176,10 @@ static void processNewCBW()
     case 0x2A://WRITE (10) command
       processWriteCommand_10();
       break;
-
+      
     default://command is not recognized
       sendCSW(1);//return error status
-
+      
       if( (MSDinfo.CBW).dCBWDataTransferLength )//if host wants to send or receive any data
 	{      
 	  if( (MSDinfo.CBW).bmCBWFlags & (1<<7) )//if host wants to receive data
@@ -242,10 +230,10 @@ static void processInquiryCommand_6()
   else//if EVPD is 0
     {
       sendResponse( &InquiryData_Standard, sizeof(InquiryData_Standard) );
-
+      
       USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
       USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
-    }     
+    }
 
   return;
 }
@@ -334,7 +322,7 @@ static void processModeSenseCommand_6()
       
     case 0x3F://request for all available mode pages
       sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );
-
+      
       USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
       USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets  
       break;
@@ -366,12 +354,30 @@ static void processReadCommand_10()
   //if specified address range is accessible
   else
     {
-      sendData();
-
-      USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+      if(MSDinfo.BytesLeft == 0)//if host requested 0 blocks to be read
+	{
+	  sendCSW(0);//return good status
+	  
+	  USB->EP2R = (1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets, clear CTR_RX flag
+	  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	}
+      else//if host wants to read one or more blocks
+	{ 
+	  //preload the MSDbuffer[] with requested data	  
+	  while(DiskInfo.TransferStatus != DISK_IDLE);//make sure disk_dmaread() request can be accepted
+	  disk_dmaread(0, (unsigned char*) &MSDbuffer[0], (MSDinfo.DataPointer - MSD_FIRSTADDR) / 512, 1);
+	  while(DiskInfo.TransferStatus != DISK_IDLE);//wait until one full block was read from the medium into MSDbuffer[]
+	  
+	  //if host requested 2 or more blocks to be read, preload the next block as well
+	  if(MSDinfo.BytesLeft >= 1024) disk_dmaread(0, (unsigned char*) &MSDbuffer[512], (MSDinfo.DataPointer + 512 - MSD_FIRSTADDR) / 512, 1);
+	  
+	  sendData();//start sending data to USB host
+	  
+	  USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+	}
     }
-
+  
   PayloadInfo.FirstRead = 1;//indicate that a read command was received at least one time since poweron; used to implement DELAY functionality in ducky interpreter from main.c
   return;
 }
@@ -380,8 +386,6 @@ static void processWriteCommand_10()
 {
   //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
   MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512 + MSD_FIRSTADDR;
-  MSDinfo.WriteStart = MSDinfo.DataPointer - MSD_FIRSTADDR - MSDinfo.DataPointer % 4096;//start writing from specified 4096 byte block
-  MSDinfo.EraseStart = MSDinfo.WriteStart;//start erasing blocks from specified 4096 byte block
   
   //if specified address range is outside the area from MSD_FIRSTADDR to MSD_LASTADDR
   if( (MSDinfo.DataPointer + MSDinfo.BytesLeft - 1) > MSD_LASTADDR )
@@ -401,11 +405,11 @@ static void processWriteCommand_10()
 	  USB->EP2R = (1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
 	  USB->EP3R = (1<<15)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
 	}
-      else
+      else//if host wants to write one or more blocks
 	{
-	  //pre-fill WriteBuffer with existing data on the medium if necessary
-	  disk_read(0, (unsigned char*) &WriteBuffer, MSDinfo.WriteStart / 512, (MSDinfo.DataPointer % 4096) / 512 );
-
+	  //make sure that there is pre-erased space to write all specified logical blocks
+	  while(DiskInfo.TransferStatus != DISK_IDLE);//wait until prepare_LB() request can be sent
+	  prepare_LB((MSDinfo.DataPointer - MSD_FIRSTADDR) / 512, (MSDinfo.CBW).dCBWDataTransferLength / 512 );
 	  MSDinfo.MSDstage = MSD_OUT;
 	  
 	  USB->EP2R = (1<<12)|(1<<7)|(2<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
@@ -423,21 +427,15 @@ static void processWriteCommand_10()
 static void sendResponse(void* responseAddress, unsigned int responseSize)
 {
   //try to return all data requested, but not more than is available
-  if( responseSize < MSDinfo.BytesLeft) MSDinfo.BytesLeft = responseSize;
-
-  //if last data transaction was just completed
-  if(MSDinfo.BytesLeft == 0)
-    {
-      sendCSW(0);//return good status
-    }
-
+  if(responseSize < MSDinfo.BytesLeft) MSDinfo.BytesLeft = responseSize;
+  
   //if one transaction is enough to transfer all remaining data
-  else if(MSDinfo.BytesLeft <= MAXPACKET_MSD)
+  if(MSDinfo.BytesLeft <= MAXPACKET_MSD)
     {
       bufferCopy( (unsigned short*) responseAddress, (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_TX), MSDinfo.BytesLeft );
       BTABLE->COUNT3_TX = MSDinfo.BytesLeft;
       
-      (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - MSDinfo.BytesLeft;      
+      (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - MSDinfo.BytesLeft;
       MSDinfo.BytesLeft = 0;
       MSDinfo.DataPointer = (unsigned int) responseAddress + MSDinfo.BytesLeft;
       MSDinfo.MSDstage = MSD_IN;
@@ -461,26 +459,52 @@ static void sendResponse(void* responseAddress, unsigned int responseSize)
 //send host a continuous chunk of data located at dataAddress, of size dataSize. only up to MAXPACKET_MSD bytes can be sent with one function call
 //only works for reading data from the main data medium (W25Q256FVFG flash memory chip)
 static void sendData()
-{
-  //if last data transaction was just completed
-  if(MSDinfo.BytesLeft == 0)
-    {
-      sendCSW(0);//return good status
-    }
+{  
+  bufferCopy( (unsigned short*) &MSDbuffer[MSDinfo.ActiveBuffer * 512 + MSDinfo.DataPointer % 512], (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_TX), MAXPACKET_MSD );
+  BTABLE->COUNT3_TX = MAXPACKET_MSD; 
+  (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - MAXPACKET_MSD;
+  MSDinfo.BytesLeft = MSDinfo.BytesLeft - MAXPACKET_MSD;
+  MSDinfo.DataPointer = (unsigned int) MSDinfo.DataPointer + MAXPACKET_MSD;
+  MSDinfo.MSDstage = MSD_IN;
 
-  //if all requested data was not sent yet
-  else
+  if((MSDinfo.DataPointer % 512) == 0)//if the block boundary is encountered
     {
-      //fill 512 byte read buffer with new data from the medium every time the block boundary is encountered
-      if( (MSDinfo.DataPointer % 512) == 0 ) disk_read(0, (unsigned char*) &ReadBuffer, (MSDinfo.DataPointer - MSD_FIRSTADDR) / 512, 1);
+      if(MSDinfo.BytesLeft > 512)//if there is a need to preload yet another block
+	{
+	  //preload a new block from the medium
+	  while(DiskInfo.TransferStatus != DISK_IDLE);//wait until one full block was read from the medium into MSDbuffer[]
+	  disk_dmaread(0, (unsigned char*) &MSDbuffer[MSDinfo.ActiveBuffer * 512], (MSDinfo.DataPointer + 512 - MSD_FIRSTADDR) / 512, 1);//replace data in a previously active buffer
+	}
       
-      bufferCopy( (unsigned short*) ((unsigned int) &ReadBuffer + MSDinfo.DataPointer % 512), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_TX), MAXPACKET_MSD );
-      BTABLE->COUNT3_TX = MAXPACKET_MSD;
+      MSDinfo.ActiveBuffer = (MSDinfo.ActiveBuffer + 1) % 2;//use the other half of MSDbuffer[] for the next USB transfers
+    }
+  
+  return;
+}
+
+static void getData()
+{
+  //copy all bytes the host sent to receive buffer
+  bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR2_RX), (unsigned short*) &MSDbuffer[MSDinfo.ActiveBuffer * 512 + MSDinfo.DataPointer % 512], BTABLE->COUNT2_RX & 0x03FF );
+  (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - (BTABLE->COUNT2_RX & 0x03FF);
+  MSDinfo.BytesLeft = MSDinfo.BytesLeft - (BTABLE->COUNT2_RX & 0x03FF);
+  MSDinfo.DataPointer = MSDinfo.DataPointer + (BTABLE->COUNT2_RX & 0x03FF);
+  MSDinfo.MSDstage = MSD_OUT;
+    
+  if((MSDinfo.DataPointer % 512) == 0)//if the block boundary is encountered
+    {
+      //write new received block to the medium
+      while(DiskInfo.TransferStatus != DISK_IDLE);//wait until previous block is written completely
+      disk_dmawrite(0, (unsigned char*) &MSDbuffer[MSDinfo.ActiveBuffer * 512], (MSDinfo.DataPointer - 512 - MSD_FIRSTADDR) / 512, 1);//save new block in flash
       
-      (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CSW).dCSWDataResidue - MAXPACKET_MSD;      
-      MSDinfo.BytesLeft = MSDinfo.BytesLeft - MAXPACKET_MSD;
-      MSDinfo.DataPointer = (unsigned int) MSDinfo.DataPointer + MAXPACKET_MSD;
-      MSDinfo.MSDstage = MSD_IN;
+      //if transfer is over or LS boundary is encountered
+      if( ( ((MSDinfo.DataPointer - MSD_FIRSTADDR) % (512 * 110)) == 0 ) || (MSDinfo.BytesLeft == 0) )
+	{
+	  while(DiskInfo.TransferStatus != DISK_IDLE);//make sure writemap_PBO() request can be accepted
+	  writemap_PBO();//write new flash metadata based on PBOmap[]
+	}
+      
+      MSDinfo.ActiveBuffer = (MSDinfo.ActiveBuffer + 1) % 2;//use the other half of MSDbuffer[] for the next USB transfers
     }
   
   return;

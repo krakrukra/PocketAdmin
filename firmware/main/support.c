@@ -2,6 +2,7 @@
 
 extern int main();
 extern void usb_handler() __attribute__((interrupt));
+extern void dma_handler() __attribute__((interrupt));
 
 static void startup();
 static inline void initialize_data(unsigned int* from, unsigned int* data_start, unsigned int* data_end) __attribute__((always_inline));
@@ -43,7 +44,7 @@ void* vectorTable[48] __attribute__(( section(".vectab,\"a\",%progbits@") )) =
     (void*)0x00000000,//IRQ7
     (void*)0x00000000,//IRQ8
     (void*)0x00000000,//IRQ9
-    (void*)0x00000000,//IRQ10
+    (void*)&dma_handler,//IRQ10
     (void*)0x00000000,//IRQ11
     (void*)0x00000000,//IRQ12
     (void*)0x00000000,//IRQ13
@@ -91,8 +92,8 @@ static inline void initialize_bss(unsigned int* bss_start, unsigned int* bss_end
 //the very first function that the CPU will run
 static void startup()
 {
-  RCC->AHBENR |= (1<<17);//enable GPIOA clock
-  RCC->APB1ENR |= (1<<0);//enable TIM2 clock
+  RCC->AHBENR |= (1<<17)|(1<<0);//enable GPIOA, DMA clocks
+  RCC->APB1ENR |= (1<<1)|(1<<0);//enable TIM3, TIM2 clocks
   RCC->APB2ENR |= (1<<12);//enable SPI1 clock
   
   GPIOA->MODER |= (1<<30)|(1<<15)|(1<<13)|(1<<11);//PA15 is output; PA7, PA6, PA5 are in alternate function mode (SPI1)

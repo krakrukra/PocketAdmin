@@ -42,14 +42,17 @@ void usb_init()
   
   //delay of approximately 1us (at SYSCLK = 48MHz) before USB reset is cleared
   RCC->APB1ENR |= (1<<1);//enable TIM3 clock
+  TIM3->CR1 = 0;//disable timer 3 (in case it was running)
   TIM3->ARR = 50;//timer 3 reload value is 50
+  TIM3->PSC = 0;//timer 3 prescaler = 1
+  TIM3->EGR = (1<<0);//generate update event
   TIM3->CR1 = (1<<7)|(1<<3)|(1<<0);//ARR is buffered, one pulse mode, start upcounting
   while(TIM3->CR1 & (1<<0));//wait until timer has finished counting
-
+  
   USB->CNTR = 0;//clear USB reset
   USB->ISTR = 0;//clear any interrupt flags
   USB->CNTR = (1<<15)|(1<<12)|(1<<11)|(1<<10);//enable interrupts: CTR, WKUP, SUSP, RESET
-
+  
   //EP0 IN buffer start address = 0x0040, size = 64 bytes
   BTABLE->ADDR0_TX  = 0x0040;
   BTABLE->COUNT0_TX = 0x0000;
@@ -71,9 +74,9 @@ void usb_init()
   //EP3 IN_1 buffer start address = 0x0220, size = 64 bytes
   BTABLE->ADDR3_RX  = 0x0220;
   BTABLE->COUNT3_RX = 0x0000;
-
+  
   usb_reset();
-
+  
   USB->BCDR = (1<<15);//enable internal pullup at D+ line
   
   //at this point the only thing left to enable USB transaction handling is to set EF bit in USB->DADDR. the host has to send a RESET signal for that to happend
@@ -107,11 +110,10 @@ void usb_reset()
   ControlInfo.TransferStage = IDLE;
   
   //initialize MSD state machine related registers
+  MSDinfo.ActiveBuffer = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;
-  MSDinfo.WriteStart = 0;
-  MSDinfo.EraseStart = 0;
   (MSDinfo.CSW).dCSWSignature = 0x53425355;
   (MSDinfo.CSW).dCSWTag = 0;
   (MSDinfo.CSW).dCSWDataResidue = 0;
@@ -647,6 +649,7 @@ static void processGetReportRequest()
 static void processBulkOnlyResetRequest()
 {
   //initialize MSD state machine related registers
+  MSDinfo.ActiveBuffer = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;

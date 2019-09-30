@@ -272,11 +272,10 @@ typedef struct
 {
   CBW_TypeDef CBW;//CBW currently being processed
   CSW_TypeDef CSW;//CSW corresponding to current CBW
+  unsigned char ActiveBuffer;//0 = first 512 bytes of MSDbuffer[] are currently used by USB, 1 = last 512 bytes
   MSDstage_TypeDef MSDstage;//stage of MSD transfer
   unsigned int DataPointer;//byte address in RAM where to continue reading/writing at next MSD transaction
   unsigned int BytesLeft;//number of bytes yet to be transmitted in a given MSD transfer
-  unsigned int WriteStart;//byte address of where to store new data on the medium with write_pages()
-  unsigned int EraseStart;//byte address of where to start erasing blocks on medium again (region between WriteStart and EraseStart is pre-erased already)
 } MSDinfo_TypeDef;
 
 //----------------------------------------------------------------------------------------------------------------------

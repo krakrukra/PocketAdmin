@@ -5,6 +5,7 @@
 #include "../fatfs/diskio.h"
 
 extern ControlInfo_TypeDef ControlInfo;
+extern DiskInfo_TypeDef DiskInfo;
 extern DeviceDescriptor_TypeDef DeviceDescriptor;
 
 static char PayloadBuffer[1024];//holds duckyscript commands to execute
@@ -96,7 +97,10 @@ int main()
     }
   
   usb_init();//initialize USB
+  NVIC_SetPriority(31, 1);//give USB interrupt a lower priority than DMA interrupt
+  NVIC_EnableIRQ(10);//enable DMA interrupt
   __enable_irq();//enable interrupts globally  
+  
   
   if(PayloadInfo.UseFingerprinter)//if there is a USE_FINGERPRINTER command in config.txt    
     {
@@ -121,7 +125,7 @@ int main()
     }
   //if USE_FINGERPRINTER command is not present
   else FATFSresult = f_open(&openedFileInfo, "0:/payload.txt", FA_READ);  
-
+  
   
   //if MSD-only button is not pressed and appropriate payload file exists, run ducky interpreter
   if( !FATFSresult && (GPIOA->IDR & (1<<2)) )
@@ -166,8 +170,17 @@ int main()
 
   while(1)
     {
+      //if there was 500ms without a single write command received, start erasing old invalid EB's
+      if( !(TIM3->CR1 & (1<<0)) )
+	{
+	  __disable_irq();
+	  makefree_EB((DiskInfo.LastErasedEB + 1) % 512);
+	  __enable_irq();
+	}
+
+      //send an empty report periodically
       sendKeycode(MOD_NONE, KB_Reserved);
-      delay_ms(100);
+      delay_ms(50);
     }
   
   return 0;
@@ -366,12 +379,13 @@ static void repeatDuckyCommand(unsigned int count)
 static char checkKeyword(char* referenceString)
 {
   char* whereToCheck = PayloadInfo.PayloadPointer;
-  
+
+  //keep comparing characters until the end of reference string
   while(*referenceString)
     {
-      //keep comparing characters until the end of reference string
-      if( *whereToCheck != *referenceString ) return 0;      
-      referenceString++;
+      //if a mismatch is found, stop the function and return 0
+      if( *whereToCheck != *referenceString ) return 0;  
+      referenceString++;//move to next character in referenceString
       
       //go to next character in a string. if the end of PayloadBuffer is reached, move pointer back to start of buffer
       if( whereToCheck < ((char*) &PayloadBuffer + 1023) ) whereToCheck++;
@@ -386,7 +400,7 @@ static char checkKeyword(char* referenceString)
 //convert decimal string at PayloadPointer to unsigned integer, move to the newline
 static unsigned int checkDecValue()
 {
-  int result = 0;
+  unsigned int result = 0;
   unsigned char digit = 0;
   unsigned char limit = 6;//maximum number of digits in a string to be interpreted
   

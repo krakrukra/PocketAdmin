@@ -47,7 +47,7 @@ DeviceDescriptor_TypeDef DeviceDescriptor __attribute__(( aligned(2) )) =
   .bMaxPacketSize0    = MAXPACKET_0,//max packet size for EP0 (default = 64 bytes)
   .idVendor           = 0x1C4F,//SiGma Micro
   .idProduct          = 0x0026,//keyboard
-  .bcdDevice          = 0x0100,//device version 1.0
+  .bcdDevice          = 0x0120,//device version 1.2
   .iManufacturer      = 0,//no symbolic name reserved in string descriptor
   .iProduct           = 0,//no symbolic name reserved in string descriptor
   .iSerialNumber      = 1,//serial number is in StringDescriptor_1
@@ -226,6 +226,6 @@ static GetConfigResponse_MSDonly_TypeDef GetConfigResponse_MSDonly __attribute__
 
 //string descriptors. only english (0x0409) is present in supported LANGID list
 static unsigned short StringDescriptor_0[2] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0304, 0x0409 };
-static unsigned short StringDescriptor_1[13] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x031A, '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '3' };
+static unsigned short StringDescriptor_1[13] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x031A, '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '4' };
 
 #endif //USB_RODATA_H

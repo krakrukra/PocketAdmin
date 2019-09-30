@@ -33,7 +33,7 @@ static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2), sect
   0x1E,//page length = 30 bytes
   0x0A,//transfer rate = 350KiB per second (2800 * 1024 bit/s)
   0xF0,//transfer rate = 350KiB per second (2800 * 1024 bit/s)
-  0x08,//number of heads = 8
+  0x06,//number of heads = 6
   0x40,//sectors per track = 64
   0x02,//data bytes per sector = 512
   0x00,//data bytes per sector = 512
@@ -50,11 +50,11 @@ static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".r
 
 static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
 {
-  //last accessible LBA = 65535
+  //last accessible LBA = 49279
   0x00,
   0x00,
-  0xFF,
-  0xFF,
+  0xC0,
+  0x7F,
   //block size = 512 bytes
   0x00,
   0x00,

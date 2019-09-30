@@ -25,14 +25,32 @@ typedef unsigned long long QWORD;
 typedef BYTE	DSTATUS;
 
 /* Results of Disk Functions */
-typedef enum {
-	RES_OK = 0,	/* 0: Successful */
-	RES_ERROR,	/* 1: R/W Error */
-	RES_WRPRT,	/* 2: Write Protected */
-	RES_NOTRDY,	/* 3: Not Ready */
-	RES_PARERR	/* 4: Invalid Parameter */
+typedef enum
+{
+  RES_OK = 0,	/* 0: Successful */
+  RES_ERROR,	/* 1: R/W Error */
+  RES_WRPRT,	/* 2: Write Protected */
+  RES_NOTRDY,	/* 3: Not Ready */
+  RES_PARERR	/* 4: Invalid Parameter */
 } DRESULT;
 
+typedef enum
+{
+  DISK_IDLE = 0,
+  DISK_READ,
+  DISK_WRITE,
+} TransferStatus_TypeDef;
+
+//this structure contains all necessary information for handling disk access operations
+typedef struct
+{
+  volatile TransferStatus_TypeDef TransferStatus;//indicates direction/presence of an ongoing DMA transfer
+  DSTATUS pdrv0_status;//status of physical drive 0
+  unsigned char TransferByte;//used for some DMA transfers as a source/destination (eg. to fill some buffer with 0xFF values)
+  unsigned short LastErasedEB;//index of the last EB that was erased
+  unsigned int DataPointer;//logical byte address in disk space where to continue reading/writing at next DMA transfer
+  unsigned int BytesLeft;//number of bytes yet to be transferred by DMA
+} DiskInfo_TypeDef;
 
 /* Disk Status Bits (DSTATUS) */
 #define STA_NOINIT	0x01  /* Drive not initialized */
@@ -75,10 +93,15 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 DWORD   get_fattime (void);
 
-void write_pages(unsigned int startAddr);
-void block_erase_4k(unsigned int startAddr);
-void block_erase_32k(unsigned int startAddr);
-void block_erase_64k(unsigned int startAddr);
-void device_reset();
-  
+DRESULT disk_dmaread (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_dmawrite (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
+void dma_handler() __attribute__((interrupt));
+
+void readmap_EBI();
+void readmap_PBO(unsigned short EBI);
+void writemap_PBO();
+void prepare_LB(unsigned int LBaddress, unsigned int LBcount);
+void relocate_LS(unsigned short LSindex);
+unsigned short makefree_EB(unsigned short startEBI);
+
 #endif //DISKIO

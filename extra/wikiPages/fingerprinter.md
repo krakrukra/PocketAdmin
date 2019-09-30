@@ -14,8 +14,8 @@ no matching fingerprint was found at all.
 ---
   
 The OS detection mechanism is based on the fact that different  
-USB drivers react differently to insertion of PocketAdmin.  
-For every device host machine sends a sequence of control requests.
+USB host drivers react differently to insertion of PocketAdmin.  
+For every device the host machine sends a sequence of control requests.  
   
 For example, a windows machine might send this:  
 * GET DEVICE DESCRIPTOR  

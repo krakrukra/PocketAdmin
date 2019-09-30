@@ -152,7 +152,7 @@ ascii-printable character). The acceped keycode values are from 0 to 101 (decima
 It is possible to use modifier keys with it, for example: "CTRL SHIFT KEYCODE 23"  
 
 5. You can use up to 4 modifier key commands on one line, but they only take  
-effect if followed by a a press key command or newline. Separate keywords  
+effect if followed by a press key command or newline. Separate keywords  
 for left or right modifier keys are available.  
 You can have a modifier key pressed, without a keycode sent along with it.  
 examples: "CTRL RALT DELETE", "CONTROL SHIFT t", "ALT"  

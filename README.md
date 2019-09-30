@@ -38,14 +38,16 @@ check KiCad pcb file for PCB manufacturing info
 check KiCad sch file + BOM.txt for component info  
   
 uses integrated full-speed (12Mbit/s) USB2.0 peripheral,  
-with on-board 32MiB flash memory chip for data storage;  
-measured speeds for MSD access : read ~262.7 KiB/s, write ~66.8KiB/s.  
+with on-board 32MiB flash memory chip for data storage; though, only  
+24MiB are available to use due to overprovisioning reasons.  
+measured speeds for MSD access : read 728 KiB/s, write 110-150 KiB/s,  
+with higher write speeds being acheived for files smaller than 4MiB  
 While not very fast, it is enough for most badusb applications.  
   
 The pushbutton on the device is referred to as MSD-only button. Normally  
 the payload is run whenever you plug the device into a PC. But if you press  
 and hold this button while inserting the device, it prevents any keystrokes  
-from being typed in and makes the device show up as a drive.  
+from being typed in and makes the device show up as a flash drive.  
   
 Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.  
 When opening up the case, be careful no to break the plastic studs near  
@@ -73,9 +75,9 @@ headers, but integral parts of usb.c, main.c, msd.c respectively.
 they are not intended to be included in any other files.  
   
 for your convenience, a pre-built binary firmware image is available in  
-/extra/ directory. the name format is like this: firmware\_RRNNNNNNNNNN,  
-RR stands for board revision, NNNNNNNNNN stands for firmware version.  
-For example, firmware\_120000000002 means board revision 1.2, firmware version 2  
+/extra/ directory. the name format is like this: firmware\_RRNNN, where  
+RR stands for board revision (11 = rev 1.1) , NNN stands for firmware version.  
+For example, firmware\_12003 means board revision 1.2, firmware version 3  
   
 ## directories info
 
