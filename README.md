@@ -1,18 +1,21 @@
 # PocketAdmin  
-  
-This is an open source keystroke injection device, similar to a well known [USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe)  
-made by hak5. It looks and feels like an ordinary USB flash drive but acts as a keyboard that  
-types in a preprogrammed payload. This can be very useful for automating sysadmin tasks or  
-in penetration testing applications.  
-  
+
+This is a keystroke injection device (also called badusb). It is similar to a well-known  
+[USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe) made by hak5, but has much extended functionality, lower price  
+and is also completely open source. It looks and feels like an ordinary USB flash drive,  
+but acts as a keyboard that types in a preprogrammed payload. This payload can do anything  
+from configuring a network to installing a reverse shell, since the device can basically  
+do whatever an admin can with a terminal, but taking only a few seconds. This makes  
+it a very powerful tool for automating sysadmin tasks or use in penetration testing.  
+
 ![1.jpg](extra/pictures/1.jpg)  
 ![2.jpg](extra/pictures/2.jpg)  
 
-The device here is intended to be a much improved verison of USB rubber ducky, namely:  
+Here is quick summary of how PocketAdmin is different from USB rubber ducky (and many others):  
 
 1. Made from inexpensive off-the-shelf parts, with not only open source firmware,  
 but hardware design files as well. This allows the user to do substantial  
-modifications to the design, as well as provides an option to build these yourself.  
+modifications to the design, as well as provides an option to build your own units.  
 
 2. Has a built-in interpreter (compatible with existing ducky script) which takes text files directly,  
 so you never have to install any encoder software and keep converting payload.txt to inject.bin.  
