@@ -38,10 +38,11 @@ check KiCad pcb file for PCB manufacturing info
 check KiCad sch file + BOM.txt for component info  
   
 uses integrated full-speed (12Mbit/s) USB2.0 peripheral,  
-with on-board 32MiB flash memory chip for data storage; though, only  
-24MiB are available to use due to overprovisioning reasons.  
+with on-board 32MiB flash memory chip for data storage;  
+only 24MiB are available for use due to overprovisioning reasons.  
+  
 measured speeds for MSD access : read 728 KiB/s, write 110-150 KiB/s,  
-with higher write speeds being acheived for files smaller than 4MiB  
+with higher write speeds being acheived for files smaller than 4MiB.  
 While not very fast, it is enough for most badusb applications.  
   
 The pushbutton on the device is referred to as MSD-only button. Normally  
