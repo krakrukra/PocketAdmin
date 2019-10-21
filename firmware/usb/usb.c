@@ -40,7 +40,7 @@ void usb_init()
   
   USB->CNTR = (1<<0);//enable USB power supply, keep USB reset
   
-  //delay of approximately 1us (at SYSCLK = 48MHz) before USB reset is cleared
+  //delay of approximately 1us (at APBCLK = 48MHz) before USB reset is cleared
   RCC->APB1ENR |= (1<<1);//enable TIM3 clock
   TIM3->CR1 = 0;//disable timer 3 (in case it was running)
   TIM3->ARR = 50;//timer 3 reload value is 50
