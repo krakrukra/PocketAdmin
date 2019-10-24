@@ -1,8 +1,8 @@
-Some example scripts can be found in /extra/examplePayloads/. You should keep in  
+Some example scripts can be found in [/extra/examplePayloads/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/examplePayloads). You should keep in  
 mind that payloads usually need to be modified to fit your particular application,  
 since they heavily depend on target OS, GUI and language settings, hardware, etc.  
 If you are too lazy to make your own payloads, you can always reuse payloads that  
-were originally designed for the USB rubber ducky or some other badusb. Even if  
+were originally designed for the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads) or [some other badusb's](https://github.com/samratashok/Kautilya). Even if  
 these original payloads are not in duckyscript format (eg. arduino based badusb's)  
 you can convert them to duckyscript without too much effort.  
   
