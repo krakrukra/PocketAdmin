@@ -5,6 +5,7 @@ DELAY 2000
 REM --- close file manager popup window (opens automatically as device is plugged in) ---
 ALT F4
 
+REM --- make sure input language is set to English ---
 DEFAULT_DELAY 300
 HOLD GUI
 SPACE
