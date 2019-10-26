@@ -1,5 +1,6 @@
-Some example scripts can be found in [/extra/examplePayloads/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/examplePayloads). You should keep in  
-mind that payloads usually need to be modified to fit your particular application,  
+Some example scripts can be found in [/extra/examplePayloads/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/examplePayloads). The prefix there  
+stands for target target OS (win, lin, mac, all). Though, you should keep in mind  
+that payloads usually need to be modified to fit your particular application,  
 since they heavily depend on target OS, GUI and language settings, hardware, etc.  
 If you are too lazy to make your own payloads, you can always reuse payloads that  
 were originally designed for the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads) or [some other badusb's](https://github.com/samratashok/Kautilya). Even if  
