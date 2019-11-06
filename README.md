@@ -124,6 +124,4 @@ go to my EEVblog [forum post](https://www.eevblog.com/forum/oshw/pocketadmin-an-
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 #### if you want to buy:  
-  
-tindie shop link: https://www.tindie.com/products/17300/  
-  
+<a href="https://www.tindie.com/stores/krakrukra/?ref=offsite_badges&utm_source=sellers_krakrukra&utm_medium=badges&utm_campaign=badge_medium"><img src="https://d2ss6ovg47m0r5.cloudfront.net/badges/tindie-mediums.png" alt="I sell on Tindie" width="150" height="78"></a>  
