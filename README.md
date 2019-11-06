@@ -110,8 +110,10 @@ For example, firmware\_12003 means board revision 1.2, firmware version 3
 /extra/kblayout/ ------------------ alternative keyboard layout files  
 /extra/wikiPages/ ------------------ github wiki pages  
 /extra/schematic\_\*.pdf ----------- pdf version of schematic  
-/extra/firmware\_\* ----------- precompiled firmware image for PocketAdmin  
-  
+/extra/firmware\_\* ----------- precompiled firmware image for PocketAdmin in binary format  
+/extra/firmware\_\*.dfu ------- precompiled firmware image for PocketAdmin in dfuse format  
+/extra/dfuse-pack.py ------- python script to turn raw binary images into .dfu file  
+
 ## contact info  
   
 if you have a problem / question / feature request, here are your options for contacting me:  

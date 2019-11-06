@@ -100,7 +100,7 @@ static void startup()
   GPIOA->BSRR = (1<<15);//pull PA15 high (SPI1 CS output)
   GPIOA->PUPDR |= (1<<4);//enable pullup at PA2
   
-  FLASH->ACR = (1<<0);//insert 1 wait state for flash read access (needed because SYSCLK will be 48MHz)
+  FLASH->ACR = (1<<4)|(1<<0);//enable prefetch buffer and insert 1 wait state for flash read access (needed because SYSCLK will be 48MHz)  
   
   RCC->CR |= (1<<19)|(1<<16);//enable HSE clock, clock security system
   while( !(RCC->CR & (1<<17)) );//wait until HSE is ready
