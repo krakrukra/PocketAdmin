@@ -1,2 +1,0 @@
-DELAY 2000
-STRING `1234567890-=qwertyuiop[]\asdfghjkl;'zxcvbnm,./   ~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?

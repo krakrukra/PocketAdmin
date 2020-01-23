@@ -28,6 +28,8 @@ SECTIONS
   *(.bss)
   __bss_end__ = ALIGN(4);
   }>SRAM AT>SRAM
-
+  
+  /DISCARD/ : { *(*) }
+  
   end = .;
 }

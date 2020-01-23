@@ -1,0 +1,2 @@
+DELAY 2000
+STRING MAC machine detected!

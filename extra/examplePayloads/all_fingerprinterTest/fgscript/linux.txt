@@ -1,2 +1,0 @@
-DELAY 2000
-STRING LINUX machine detected!

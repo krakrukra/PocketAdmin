@@ -17,13 +17,16 @@ static void processOUTtransaction_EP0();
 
 //HID class specific functions, variables
 static void processGetReportRequest();
-static unsigned char Report[8] __attribute__ (( aligned(2) ));
+static void processGetProtocolRequest();
+static void processSetReportRequest();
+static void processSetIdleRequest();
+static void processSetProtocolRequest();
 
 //MSD class specific functions, variables
 static void processBulkOnlyResetRequest();
 static void processGetMaxLunRequest();
-extern MSDinfo_TypeDef MSDinfo;
 extern void processMSDtransaction();
+extern MSDinfo_TypeDef MSDinfo;
 
 //this data structure is needed for control transfers
 ControlInfo_TypeDef ControlInfo;
@@ -40,14 +43,15 @@ void usb_init()
   
   USB->CNTR = (1<<0);//enable USB power supply, keep USB reset
   
-  //delay of approximately 1us (at APBCLK = 48MHz) before USB reset is cleared
-  RCC->APB1ENR |= (1<<1);//enable TIM3 clock
-  TIM3->CR1 = 0;//disable timer 3 (in case it was running)
-  TIM3->ARR = 50;//timer 3 reload value is 50
-  TIM3->PSC = 0;//timer 3 prescaler = 1
-  TIM3->EGR = (1<<0);//generate update event
-  TIM3->CR1 = (1<<7)|(1<<3)|(1<<0);//ARR is buffered, one pulse mode, start upcounting
-  while(TIM3->CR1 & (1<<0));//wait until timer has finished counting
+  //delay of a bit more than 1us (at APBCLK = 48MHz) before USB reset is cleared
+  RCC->APB1ENR |= (1<<5);//enable TIM6 clock  
+  TIM6->CR1 = (1<<7)|(1<<3)|(1<<2);//disable TIM6 (in case it was running)
+  TIM6->ARR = 50;//TIM6 reload value is 50
+  TIM6->PSC = 0;//TIM6 prescaler = 1
+  TIM6->EGR = (1<<0);//generate update event
+  TIM6->SR = 0;//clear overflow flag
+  TIM6->CR1 = (1<<7)|(1<<3)|(1<<2)|(1<<0);//enable TIM6
+  while(TIM6->CR1 & (1<<0));//wait until timer has finished counting
   
   USB->CNTR = 0;//clear USB reset
   USB->ISTR = 0;//clear any interrupt flags
@@ -56,27 +60,32 @@ void usb_init()
   //EP0 IN buffer start address = 0x0040, size = 64 bytes
   BTABLE->ADDR0_TX  = 0x0040;
   BTABLE->COUNT0_TX = 0x0000;
-  //EP0 OUT buffer start address = 0x0080, size = 96 bytes (only 66 bytes used = 64 data + 2 CRC)
+  //EP0 OUT buffer start address = 0x0080, size = 64 bytes
   BTABLE->ADDR0_RX  = 0x0080;
-  BTABLE->COUNT0_RX = (1<<15)|(1<<11);
-  //EP1 IN buffer start address = 0x00E0, size = 64 bytes
-  BTABLE->ADDR1_TX  = 0x00E0;
+  BTABLE->COUNT0_RX = (1<<15)|(1<<10);
+  //EP1 IN buffer start address = 0x00C0, size = 32 bytes
+  BTABLE->ADDR1_TX  = 0x00C0;
   BTABLE->COUNT1_TX = 0x0000;
-  //EP2 OUT_0 buffer start address = 0x0120, size = 96 bytes (only 66 bytes used = 64 data + 2 CRC)
-  BTABLE->ADDR2_TX  = 0x0120;
-  BTABLE->COUNT2_TX = (1<<15)|(1<<11);
-  //EP2 OUT_1 buffer start address = 0x0180, size = 96 bytes (only 66 bytes used = 64 data + 2 CRC)
-  BTABLE->ADDR2_RX  = 0x0180;
-  BTABLE->COUNT2_RX = (1<<15)|(1<<11);
-  //EP3 IN_0 buffer start address = 0x01E0, size = 64 bytes
-  BTABLE->ADDR3_TX  = 0x01E0;
+  //EP1 OUT buffer start address = 0x00E0, size = 32 bytes
+  BTABLE->ADDR1_RX  = 0x00E0;
+  BTABLE->COUNT1_RX = (1<<15);
+  //EP2 OUT_0 buffer start address = 0x0100, size = 64 bytes
+  BTABLE->ADDR2_TX  = 0x0100;
+  BTABLE->COUNT2_TX = (1<<15)|(1<<10);
+  //EP2 OUT_1 buffer start address = 0x0140, size = 64 bytes
+  BTABLE->ADDR2_RX  = 0x0140;
+  BTABLE->COUNT2_RX = (1<<15)|(1<<10);
+  //EP3 IN_0 buffer start address = 0x0180, size = 64 bytes
+  BTABLE->ADDR3_TX  = 0x0180;
   BTABLE->COUNT3_TX = 0x0000;
-  //EP3 IN_1 buffer start address = 0x0220, size = 64 bytes
-  BTABLE->ADDR3_RX  = 0x0220;
+  //EP3 IN_1 buffer start address = 0x01C0, size = 64 bytes
+  BTABLE->ADDR3_RX  = 0x01C0;
   BTABLE->COUNT3_RX = 0x0000;
   
   usb_reset();
   
+  NVIC_SetPriority(31, 1);//give USB interrupt a lower priority than others
+  NVIC_EnableIRQ(31);//enable USB interrupt
   USB->BCDR = (1<<15);//enable internal pullup at D+ line
   
   //at this point the only thing left to enable USB transaction handling is to set EF bit in USB->DADDR. the host has to send a RESET signal for that to happend
@@ -85,6 +94,9 @@ void usb_init()
 
 void usb_reset()
 {
+  unsigned char i;//used in a for() loop
+  unsigned short* buff;//used as a pointer into EP1_IN, EP1_OUT packet buffers
+  
   USB->CNTR = 0;//clear USB reset
   USB->ISTR = 0;//clear any interrupt flags
   USB->CNTR = (1<<15)|(1<<12)|(1<<11)|(1<<10);//enable interrupts: CTR, WKUP, SUSP, RESET
@@ -92,13 +104,13 @@ void usb_reset()
   //reinitialize endpoints
   USB->EP0R ^= (1<<15)|(1<<7);//disable EP0.    set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
   USB->EP1R ^= (1<<15)|(1<<7);//disable EP1_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-  USB->EP2R ^= (1<<15)|(1<<7);//disable EP2_RX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-  USB->EP3R ^= (1<<15)|(1<<7);//disable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-
+  USB->EP2R ^= (1<<15)|(1<<7)|(1<<6);//disable EP2_RX. set DTOG_RX=0, set DTOG_TX=1, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+  USB->EP3R ^= (1<<15)|(1<<7);       //disable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+  
   USB->EP0R = (1<<12)|(1<<9)|(1<<6)|(1<<4);//EP0 enabled, assigned CONTROL type, EA = 0. respond with STALL to IN/OUT packets
   USB->EP1R = (1<<10)|(1<<9)|(1<<0);//EP1 disabled, assigned INTERRUPT type, EA = 1
-  USB->EP2R = (2<<0);//EP2 disabled, assigned BULK type, EA = 2
-  USB->EP3R = (3<<0);//EP3 disabled, assigned BULK type, EA = 3  
+  USB->EP2R = (1<<8)|(2<<0);//EP2 disabled, assigned BULK type, double-buffered, EA = 2
+  USB->EP3R = (1<<8)|(3<<0);//EP3 disabled, assigned BULK type, double-buffered, EA = 3  
   
   //initialize Control state machine related registers
   ControlInfo.DataPointer = 0;
@@ -108,9 +120,17 @@ void usb_reset()
   ControlInfo.ZLPneeded = 0;
   ControlInfo.DeviceState = DEFAULT;
   ControlInfo.TransferStage = IDLE;
+  ControlInfo.HIDprotocol = 1;
+  
+  //initialize HID packet buffers
+  buff = (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX);
+  for(i=0; i<16; i++) buff[i] = 0;
+  buff = (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX);
+  for(i=0; i<16; i++) buff[i] = 0xFF;
   
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
+  MSDinfo.TargetFlag = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;
@@ -133,6 +153,11 @@ void usb_handler()
 	{
 	case 0://EP0 CTR
 	  processControlTransaction();
+	  break;
+
+	case 1://EP1 CTR
+	  if(USB->ISTR & (1<<4)) USB->EP1R = (1<<12)|(1<<10)|(1<<9)|(1<<7)|(1<<0);//if OUT transaction happened, clear CTR_RX flag, respond with ACK to OUT packets
+	  else                   USB->EP1R = (1<<15)|(1<<10)|(1<<9)|(1<<0);//if IN transaction happened, clear CTR_TX flag, respond with NAK to IN packets
 	  break;
 	  
 	case 2://EP2 CTR
@@ -173,7 +198,7 @@ void usb_handler()
 
 //function for copying data between RAM and PMA buffers (PMA cannot be accessed by word access, so half-word access is used)
 void bufferCopy(unsigned short* whereFrom, unsigned short* whereTo, unsigned short byteCount)
-{  
+{
   while(byteCount > 1)
     {
       *whereTo = *whereFrom;
@@ -181,7 +206,7 @@ void bufferCopy(unsigned short* whereFrom, unsigned short* whereTo, unsigned sho
       whereTo++;
       byteCount -= 2;
     }
-
+  
   //copy last byte in case ByteCount was an odd number
   if(byteCount)
     {
@@ -195,15 +220,15 @@ void bufferCopy(unsigned short* whereFrom, unsigned short* whereTo, unsigned sho
 
 static void processControlTransaction()
 {
-  if (USB->ISTR & (1<<4))//if OUT or SETUP transaction happened
+  if(USB->ISTR & (1<<4))//if OUT or SETUP transaction happened
     {
       if(USB->EP0R & (1<<11))//in case of SETUP transaction
 	{	  
 	  //copy 8 bytes (which contain control request) from EP0_RX buffer in PMA to ControlInfo structure in RAM
 	  //that is needed because buffer in PMA can be overwritten by next transactions and then request data would be lost
 	  bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) &ControlInfo.ControlRequest, 8 );
-
-	  //save a copy of the first 10 received control requests as OS fingerprint
+	  
+	  //take a copy of first 4 bytes from first 10 control requests and save it as OS fingerprint
 	  if(ControlInfo.OSfingerprintCounter < 10)
 	    {
 	      bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) &(ControlInfo.OSfingerprintData[ ControlInfo.OSfingerprintCounter ]), 4 );
@@ -215,7 +240,7 @@ static void processControlTransaction()
 	  ControlInfo.BytesLeft = 0;
 	  ControlInfo.ZLPneeded = 0;
 	  ControlInfo.TransferStage = IDLE;
-
+	  
 	  //only process standard and class specific requests. respond with STALL to any other bmRequestType
 	       if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (0<<5) ) processStandardRequest();
 	  else if( ((ControlInfo.ControlRequest).bmRequestType & 0x60) == (1<<5) ) processClassRequest();
@@ -317,23 +342,60 @@ static void processClassRequest()
 {
   if(ControlInfo.DeviceState == CONFIGURED)
     {
-      switch((ControlInfo.ControlRequest).bRequest)
+      //if target interface is HID interface
+      if( (ControlInfo.ControlRequest).wIndex == 0 )
 	{
-	case 0x01://GET_REPORT request (HID specific)
-	  processGetReportRequest();
-	  break;
+	  switch((ControlInfo.ControlRequest).bRequest)
+	    {
+	    case 0x01://GET_REPORT request
+	      processGetReportRequest();
+	      break;
 
-	case 0xFE://GET_maxLUN request (MSD specific)
-	  processGetMaxLunRequest();
-	  break;
-	  
-	case 0xFF://BULK-ONLY RESET request (MSD specific)
-	  processBulkOnlyResetRequest();
-	  break;
-	    
-	default: //if request not recognized
+	    case 0x03://GET_PROTOCOL request
+	      processGetProtocolRequest();
+	      break;
+	      
+	    case 0x09://SET_REPORT request
+	      processSetReportRequest();
+	      break;
+
+	    case 0x0A://SET_IDLE request
+	      processSetIdleRequest();
+	      break;
+	      
+	    case 0x0B://SET_PROTOCOL request
+	      processSetProtocolRequest();
+	      break;
+	      
+	    default: //if request is not recognized
+	      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+	      break;
+	    }
+	}
+      
+      //if target interface is MSD interface
+      else if( (ControlInfo.ControlRequest).wIndex == 1 )
+	{
+	  switch((ControlInfo.ControlRequest).bRequest)
+	    {
+	    case 0xFE://GET_maxLUN request
+	      processGetMaxLunRequest();
+	      break;
+	      
+	    case 0xFF://BULK-ONLY RESET request
+	      processBulkOnlyResetRequest();
+	      break;
+	      
+	    default: //if request is not recognized
+	      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+	      break;
+	    }
+	}
+      
+      //if target interface can not be determined
+      else
+	{
 	  USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
-	  break;
 	}
     }
   else//in case of DEFAULT or ADDRESS states
@@ -357,20 +419,15 @@ static void processGetDescriptorRequest()
       break;
       
     case 0x0200://get CONFIGURATION descriptor request, index = 0
-      if(ControlInfo.EnumerationMode == 0x00)//if default MSD+HID mode is set
-	{
-	  descriptorAddress = &GetConfigResponse_default;
-	  descriptorSize = sizeof(GetConfigResponse_default_TypeDef);
-	}
-      else if(GPIOA->IDR & (1<<2))//if MSD-only button is NOT pressed
+      if(ControlInfo.EnumerationMode == 1)//if HID-only mode is set
 	{
 	  descriptorAddress = &GetConfigResponse_HIDonly;
 	  descriptorSize = sizeof(GetConfigResponse_HIDonly_TypeDef);
 	}
-      else//if MSD-only button is pressed
+      else//if default HID+MSD mode is set
 	{
-	  descriptorAddress = &GetConfigResponse_MSDonly;
-	  descriptorSize = sizeof(GetConfigResponse_MSDonly_TypeDef);
+	  descriptorAddress = &GetConfigResponse_default;
+	  descriptorSize = sizeof(GetConfigResponse_default_TypeDef);
 	}
       break;
 
@@ -383,6 +440,11 @@ static void processGetDescriptorRequest()
 	  descriptorAddress = &StringDescriptor_1;
 	  descriptorSize = sizeof(StringDescriptor_1);
 	  break;
+
+    case 0x0302://get STRING descriptor request, index = 2
+      descriptorAddress = &StringDescriptor_2;
+      descriptorSize = sizeof(StringDescriptor_2);
+      break;
       
     case 0x2100://get HID descriptor request (HID specific)
       descriptorAddress = &GetConfigResponse_default.HIDdescriptor;
@@ -400,8 +462,8 @@ static void processGetDescriptorRequest()
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to next IN/OUT packet, clear both CTR flags
       return;
     }
-    
-
+  
+  
   //if host requests more data than there is, send all data in the configuration and all subordinate descriptors
   //else send as much data as requested
   if(descriptorSize < (ControlInfo.ControlRequest).wLength)
@@ -434,7 +496,7 @@ static void processGetDescriptorRequest()
       //copy data from configuration and all subordinate descriptors in RAM to PMA buffer EP0_TX
       bufferCopy( (unsigned short*) descriptorAddress, (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_TX), MAXPACKET_0);
       
-      ControlInfo.DataPointer = (unsigned int) descriptorAddress + MAXPACKET_0;//set DataPointer to addres in RAM where to copy data from when next CTR event happens (IN transaction)
+      ControlInfo.DataPointer = (unsigned int) descriptorAddress + MAXPACKET_0;//set DataPointer to address in RAM where to copy data from when next CTR event happens (IN transaction)
       ControlInfo.TransferStage = DATA_IN;//enter data stage, transmit data to host
       ControlInfo.BytesLeft = ControlInfo.BytesLeft - MAXPACKET_0;//at next CTR event there still will be data to transmit
       
@@ -482,22 +544,22 @@ void processClearFeatureRequest()
 	  break;
 	  
 	case 0x0002://target = EP2_OUT
-	  USB->EP2R ^= (1<<15)|(1<<13)|(1<<12)|(1<<7);//enable EP2_RX. set DTOG_RX=0, set DTOG_TX=0, respond with ACK to OUT packets, ignore IN packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA
+	  USB->EP2R ^= (1<<15)|(1<<13)|(1<<12)|(1<<7)|(1<<6);//enable EP2_RX. set DTOG_RX=0, set DTOG_TX=1, ACK to OUT packets, ignore IN packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA
 	  break;
 	  
 	case 0x0083://target = EP3_IN
-	  USB->EP3R ^= (1<<15)|(1<<7)|(1<<5)|(1<<4);//enable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, respond with data to IN packets, ignore OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA
+	  USB->EP3R ^= (1<<15)|(1<<14)|(1<<7)|(1<<5)|(1<<4);//enable EP3_TX. set DTOG_RX=1, set DTOG_TX=0, data to IN packets, ignore OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA
 	  break;
 	  
 	default:
 	  USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
 	  return;
 	}
-
+      
       BTABLE->COUNT0_TX = 0;//data payload size for next IN transaction = 0
       ControlInfo.TransferStage = STATUS_IN;//enter status stage, transmit ZLP to host
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<4);//respond with ZLP to next IN packet, with STALL to next OUT packet, clear both CTR flags
-
+      
     }
   //if not a ClearHaltRequest
   else
@@ -528,12 +590,12 @@ static void processSetConfigurationRequest()
       ControlInfo.ConfigurationNumber = (unsigned char) (ControlInfo.ControlRequest).wValue;
       ControlInfo.DeviceState = ADDRESS;//enter ADDRESS device state
       ControlInfo.TransferStage = STATUS_IN;//enter status stage, transmit ZLP to host
-
+      
       //deinitialize non-control endpoints
-      USB->EP1R ^= (1<<15)|(1<<7);//disable EP1_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-      USB->EP2R ^= (1<<15)|(1<<7);//disable EP2_RX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+      USB->EP1R ^= (1<<15)|(1<<7);//disable EP1_**. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+      USB->EP2R ^= (1<<15)|(1<<7)|(1<<6);//disable EP2_RX. set DTOG_RX=0, set DTOG_TX=1, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
       USB->EP3R ^= (1<<15)|(1<<7);//disable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, ignore IN/OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-
+      
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<4);//respond with ZLP to next IN packet, with STALL to next OUT packet, clear both CTR flags
     }
   else if((ControlInfo.ControlRequest).wValue == 1)//if new configuration number is 1
@@ -542,10 +604,10 @@ static void processSetConfigurationRequest()
       ControlInfo.ConfigurationNumber = (unsigned char) (ControlInfo.ControlRequest).wValue;
       ControlInfo.DeviceState = CONFIGURED;//enter CONFIGURED device state
       ControlInfo.TransferStage = STATUS_IN;//enter status stage, transmit ZLP to host
-
+      
       //initialize non-control endpoints
-      USB->EP1R ^= (1<<15)|(1<<7)|(1<<5);//enable EP1_TX. set DTOG_RX=0, set DTOG_TX=0, respond with NAK to IN packets, ignore OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
-      USB->EP2R ^= (1<<15)|(1<<13)|(1<<12)|(1<<7);//enable EP2_RX. set DTOG_RX=0, set DTOG_TX=0, respond with ACK to OUT packets, ignore IN packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+      USB->EP1R ^= (1<<15)|(1<<13)|(1<<12)|(1<<7)|(1<<5);//enable EP1_TX. set DTOG_RX=0, set DTOG_TX=0, NAK to IN packets, ACK to OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
+      USB->EP2R ^= (1<<15)|(1<<13)|(1<<12)|(1<<7)|(1<<6);//enable EP2_RX. set DTOG_RX=0, set DTOG_TX=1, ACK to OUT packets, ignore IN packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
       USB->EP3R ^= (1<<15)|(1<<7)|(1<<5);//enable EP3_TX. set DTOG_RX=0, set DTOG_TX=0, respond with NAK to IN packets, ignore OUT packets, clear both CTR flags; keep EP_TYPE, EP_KIND, EA untouched
       
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<4);//respond with ZLP to next IN packet, with STALL to next OUT packet, clear both CTR flags
@@ -560,7 +622,7 @@ static void processSetConfigurationRequest()
 
 static void processINtransaction_EP0()
 {
-  if(ControlInfo.TransferStage == DATA_IN)
+  if(ControlInfo.TransferStage == DATA_IN)//if data was sent to the host
     {
       if( (ControlInfo.BytesLeft == 0) && (ControlInfo.ZLPneeded) )//if non-ZLP transaction was just completed and only ZLP transaction is still left to transfer
 	{
@@ -589,14 +651,14 @@ static void processINtransaction_EP0()
 	  //copy data left to be transmitted from RAM to PMA buffer EP0_TX
 	  bufferCopy( (unsigned short*) ControlInfo.DataPointer, (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_TX), MAXPACKET_0);
 	  
-	  ControlInfo.DataPointer = ControlInfo.DataPointer + MAXPACKET_0;//set DataPointer to addres in RAM where to copy data from when next IN transaction happends
+	  ControlInfo.DataPointer = ControlInfo.DataPointer + MAXPACKET_0;//set DataPointer to address in RAM where to copy data from when next IN transaction happends
 	  ControlInfo.BytesLeft = ControlInfo.BytesLeft - MAXPACKET_0;//at next CTR event there will be no data left to transmit
 	  
 	  USB->EP0R = (1<<15)|(1<<9)|(1<<4);//respond to next IN packet with data, OUT packet with STALL, clear CTR_TX flag
 	}
     }
   
-  else if(ControlInfo.TransferStage == STATUS_IN)//ZLP was just successfully acknowledged by the host
+  else if(ControlInfo.TransferStage == STATUS_IN)//if ZLP was just successfully acknowledged by the host
     {
       USB->DADDR = (1<<7) | ControlInfo.NewAddress;//set the new device address
       
@@ -605,14 +667,37 @@ static void processINtransaction_EP0()
     }
   
   return;
-}
+ }
 
 static void processOUTtransaction_EP0()
 {
-  if(ControlInfo.TransferStage == STATUS_OUT)//ZLP was just successfully received from the host
-    {	      
+  if(ControlInfo.TransferStage == DATA_OUT)//if data was received from the host
+    { 
+      if(ControlInfo.BytesLeft <= MAXPACKET_0)//if last data transaction was just completed
+	{
+	  BTABLE->COUNT0_TX = 0;//data payload size for next IN transaction = 0
+	  //copy received data from PMA to RAM buffer specified by DataPointer
+	  bufferCopy((unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) ControlInfo.DataPointer, (BTABLE->COUNT0_RX & 0x03FF));
+	  
+	  ControlInfo.TransferStage = STATUS_IN;//enter status stage, send ZLP to host
+	  USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<7)|(1<<4);//respond to next OUT packet with STALL, next IN packet with ZLP, clear CTR_RX flag
+	}
+      else if(ControlInfo.BytesLeft > MAXPACKET_0)//if there is at least one more data transaction left
+	{ 
+	  //copy received data from PMA to RAM buffer specified by DataPointer
+	  bufferCopy((unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_RX), (unsigned short*) ControlInfo.DataPointer, (BTABLE->COUNT0_RX & 0x03FF));
+	  
+	  ControlInfo.DataPointer = ControlInfo.DataPointer + (BTABLE->COUNT0_RX & 0x03FF);//set DataPointer to address in RAM where to copy data to when next OUT transaction happends
+	  ControlInfo.BytesLeft = ControlInfo.BytesLeft - (BTABLE->COUNT0_RX & 0x03FF);//at next CTR event there will be no data left to receive
+	  
+	  USB->EP0R = (1<<12)|(1<<9)|(1<<7);//respond to next IN packet with NAK, OUT packet with ACK, clear CTR_RX flag
+	}
+    }
+  
+  else if(ControlInfo.TransferStage == STATUS_OUT)//if ZLP was just successfully received from the host
+    {
       ControlInfo.TransferStage = IDLE;//enter IDLE stage, wait for new setup packet
-      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<7);//respond to next IN/OUT packets with STALL, clear EP_KIND flag, clear CTR_RX flag
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<7);//respond to next IN/OUT packets with STALL, clear EP_KIND flag, clear CTR_RX flag      
     }
   
   return;
@@ -622,27 +707,112 @@ static void processOUTtransaction_EP0()
 //class specific functions
 static void processGetReportRequest()
 {
-  if( ((ControlInfo.ControlRequest).wValue) ==  0x0100)//if get INPUT report
+  if( ((ControlInfo.ControlRequest).wValue) ==  0x0100)//if INPUT_0 report is requested
     {
-      //if host requests more data than there is, send all data in the report
+      //if host requests more data than is available in EP1_TX packet buffer, send all data in the buffer
       //else send as much data as requested
-      if(sizeof(Report) < (ControlInfo.ControlRequest).wLength) ControlInfo.BytesLeft = sizeof(Report);
+      if(32 < (ControlInfo.ControlRequest).wLength) ControlInfo.BytesLeft = 32;
       else ControlInfo.BytesLeft = (ControlInfo.ControlRequest).wLength;
-	    
+      
       BTABLE->COUNT0_TX = ControlInfo.BytesLeft;//data payload size for next IN transaction = BytesLeft
-      //copy data from device descriptor in RAM to PMA buffer EP0_TX
-      bufferCopy( (unsigned short*) &Report, (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_TX), ControlInfo.BytesLeft);
+      //copy data from EP1_TX packet buffer to EP0_TX packet buffer
+      bufferCopy( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR0_TX), ControlInfo.BytesLeft);
       
       ControlInfo.TransferStage = DATA_IN;//enter data stage, transmit data to host
       ControlInfo.BytesLeft = 0;//at next CTR event there will be no data left to transmit
       
       USB->EP0R = (1<<9)|(1<<4);//respond to next IN packet with data, to OUT packet with NAK, clear both CTR flags
     }
-  else//if not an INPUT report is requested but any of these: OUTPUT, FEATURE, RESERVED
+  else//if a report other than INPUT_0 is requested
     {
       USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
     }
+  
+  return;
+}
 
+static void processGetProtocolRequest()
+{
+  if( ((ControlInfo.ControlRequest).wValue) ==  0x0000)//if wValue is set to 0
+    {
+      BTABLE->COUNT0_TX = 1;//data payload size for next IN transaction = 1
+      *( (unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR0_TX) ) = ControlInfo.HIDprotocol;//respond with currently selected HID protocol
+      
+      ControlInfo.TransferStage = DATA_IN;//enter data stage, transmit data to host
+      ControlInfo.BytesLeft = 0;//at next CTR event there will be no data left to transmit
+      
+      USB->EP0R = (1<<9)|(1<<4);//respond to next IN packet with data, to OUT packet with NAK, clear both CTR flags
+    }
+  else//if wValue is not set to 0
+    {
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+    }
+  
+  return;
+}
+
+static void processSetReportRequest()
+{  
+  if((ControlInfo.ControlRequest).wLength <= 32)//if host intends to send a small enough amount of data to fit into EP_1_OUT buffer
+    {
+      //prepare to save incoming data into EP_1_OUT packet memory buffer
+      ControlInfo.DataPointer = (BTABLE_BaseAddr + BTABLE->ADDR1_RX);//set DataPointer to address in RAM where to copy data to when next OUT transaction happends
+      ControlInfo.TransferStage = DATA_OUT;//enter data stage, receive data from host
+      ControlInfo.BytesLeft = (ControlInfo.ControlRequest).wLength;//at next CTR event there still will be data to transmit
+      
+      USB->EP0R = (1<<12)|(1<<9);//respond to next IN packet with NAK, to OUT packet with ACK, clear both CTR flags
+    }
+  else//if host intends to send more data than can fit into EP_1_OUT buffer
+    {
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+    }
+  
+  return;
+}
+
+static void processSetIdleRequest()
+{
+  if((ControlInfo.ControlRequest).wLength == 0)//if host does not intend to send any data
+    {
+      BTABLE->COUNT0_TX = 0;//data payload size for next IN transaction = 0
+      //ignore the data sent by the host
+      
+      //prepare to save incoming data into EP_1_OUT packet memory buffer
+      ControlInfo.TransferStage = STATUS_IN;//enter data stage, receive data from host
+      ControlInfo.BytesLeft = 0;//at next CTR event there will be no data left to transmit
+      
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<4);//respond with ZLP to next IN packet, to next OUT packet with STALL, clear both CTR flags
+    }
+  else//if host intends to send any data
+    {
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+    }
+  
+  return;
+}
+
+static void processSetProtocolRequest()
+{
+  unsigned char LEDstates = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol));//get current value of all LED states
+  
+  if((ControlInfo.ControlRequest).wLength == 0)//if host does not intend to send any data
+    {
+      BTABLE->COUNT0_TX = 0;//data payload size for next IN transaction = 0
+      ControlInfo.HIDprotocol = (unsigned char) (ControlInfo.ControlRequest).wValue;//set current HID protocol as specified by host machine
+      //if protocol was changed, move LEDstates byte in memory to the new appropriate location
+      *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) = LEDstates;
+      
+      //prepare to save incoming data into EP_1_OUT packet memory buffer
+      ControlInfo.TransferStage = STATUS_IN;//enter data stage, receive data from host
+      ControlInfo.BytesLeft = 0;//at next CTR event there will be no data left to transmit
+      
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<4);//respond with ZLP to next IN packet, to next OUT packet with STALL, clear both CTR flags
+    }
+  else//if host intends to send any data
+    {
+      USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
+    }  
+  
   return;
 }
 
@@ -650,6 +820,7 @@ static void processBulkOnlyResetRequest()
 {
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
+  MSDinfo.TargetFlag = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;

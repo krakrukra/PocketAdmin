@@ -7,3 +7,4 @@
 *.bck
 *.kicad_pcb-bak
 *-cache.lib
+*.panel

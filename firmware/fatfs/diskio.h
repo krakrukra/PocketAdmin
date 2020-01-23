@@ -34,22 +34,17 @@ typedef enum
   RES_PARERR	/* 4: Invalid Parameter */
 } DRESULT;
 
-typedef enum
-{
-  DISK_IDLE = 0,
-  DISK_READ,
-  DISK_WRITE,
-} TransferStatus_TypeDef;
-
 //this structure contains all necessary information for handling disk access operations
 typedef struct
-{
-  volatile TransferStatus_TypeDef TransferStatus;//indicates direction/presence of an ongoing DMA transfer
-  DSTATUS pdrv0_status;//status of physical drive 0
-  unsigned char TransferByte;//used for some DMA transfers as a source/destination (eg. to fill some buffer with 0xFF values)
+{  
   unsigned short LastErasedEB;//index of the last EB that was erased
-  unsigned int DataPointer;//logical byte address in disk space where to continue reading/writing at next DMA transfer
-  unsigned int BytesLeft;//number of bytes yet to be transferred by DMA
+  unsigned short BufferPageAddr;//holds physical page address of a page that is currently loaded in internal Data Buffer of W25N01GVZEIG
+  unsigned short PPOmapValidEBI;//holds index of an Erase Block for which PPOmap[] is currently valid
+  unsigned char  PPOmapLastPPO;//holds the biggest valid PPO in PPOmap[] (0 to 63); set to 0xFF if no LPO to PPO links are found at all
+  unsigned char  TransferByte;//used for some DMA transfers as a source/destination (eg. to fill some buffer with 0xFF values)
+  DSTATUS pdrv0_status;//status of physical drive 0
+  volatile unsigned char WritePageFlag;//0 means disk_dmawrite() will only write to internal DataBuffer, nonzero value means write block and save the DataBuffer to flash
+  volatile unsigned char BusyFlag;//0 means no DMA transfers between MCU and W25N01GVZEIG are ongoing, 1 means some transfer is ongoing
 } DiskInfo_TypeDef;
 
 /* Disk Status Bits (DSTATUS) */
@@ -85,7 +80,7 @@ typedef struct
 #define ATA_GET_MODEL	21  /* Get model name */
 #define ATA_GET_SN	22  /* Get serial number */
 
-
+//chan fatfs interface functions
 DSTATUS disk_initialize (BYTE pdrv);
 DSTATUS disk_status (BYTE pdrv);
 DRESULT disk_read (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
@@ -93,15 +88,12 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 DWORD   get_fattime (void);
 
-DRESULT disk_dmaread (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
-DRESULT disk_dmawrite (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
-void dma_handler() __attribute__((interrupt));
-
-void readmap_EBI();
-void readmap_PBO(unsigned short EBI);
-void writemap_PBO();
+//general disk access functions
 void prepare_LB(unsigned int LBaddress, unsigned int LBcount);
-void relocate_LS(unsigned short LSindex);
-unsigned short makefree_EB(unsigned short startEBI);
+void dmaread_LB (unsigned char* buff, unsigned int sector);
+void dmawrite_LB(unsigned char* buff, unsigned int sector, unsigned char writePageFlag);
+void dma_handler() __attribute__((interrupt));
+void garbage_collect();
+void mass_erase();
 
 #endif //DISKIO

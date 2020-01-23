@@ -31,14 +31,14 @@ static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2), sect
   0x00,//total length of block descriptors = 0  
   0x05,//mode page = Flexible Disk, page is not saveable, not a subpage format
   0x1E,//page length = 30 bytes
-  0x0A,//transfer rate = 350KiB per second (2800 * 1024 bit/s)
-  0xF0,//transfer rate = 350KiB per second (2800 * 1024 bit/s)
-  0x06,//number of heads = 6
-  0x40,//sectors per track = 64
+  0x13,//transfer rate = 610KiB per second
+  0x88,//transfer rate = 610KiB per second
+  0x08,//number of heads = 8
+  0x80,//sectors per track = 128
   0x02,//data bytes per sector = 512
   0x00,//data bytes per sector = 512
-  0x00,//number of cylinders = 128
-  0x80 //number of cylinders = 128
+  0x00,//number of cylinders = 192
+  0xC0 //number of cylinders = 192
 };
 
 static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
@@ -48,13 +48,13 @@ static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".r
  0x05 //ILLEGAL REQUEST
 };
 
-static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
+static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2) )) =
 {
-  //last accessible LBA = 49279
+  //last accessible LBA = 197119
   0x00,
-  0x00,
-  0xC0,
-  0x7F,
+  0x03,
+  0x01,
+  0xFF,
   //block size = 512 bytes
   0x00,
   0x00,

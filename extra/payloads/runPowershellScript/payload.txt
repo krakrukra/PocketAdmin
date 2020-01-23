@@ -1,0 +1,18 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+DELAY 2000
+
+REM --- find appropriate USB drive (FAT label must be POCKETADMIN) ---
+REM --- then run insert.ps1 script from its root directory as administartor ---
+GUI r
+DELAY 100
+STRING powershell Start-Process powershell { $driveletter = (Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter; set-executionpolicy -Force remotesigned; powershell "${driveletter}:\insert.ps1"; } -Verb runAs -windowstyle hidden
+ENTER
+
+REM --- UAC bypass, repeated 5 times just in case GUI acts too slow ---
+REPEAT_SIZE 4
+DELAY 900
+LEFT
+DELAY 100
+CTRL ALT SHIFT ENTER
+REPEAT 4

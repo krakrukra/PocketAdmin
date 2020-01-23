@@ -10,6 +10,12 @@ D 2.54 pitch ISP connector for ribbon cable
 K STM ISP connector ribbon cable
 $ENDCMP
 #
+$CMP W25N01GVZEIG
+D 1Gbit serial flash memory chip
+K serial flash memory chip ic
+F https://www.winbond.com/resource-files/w25n01gv revg 032116.pdf
+$ENDCMP
+#
 $CMP W25Q256FVFG
 D 256Mbit serial flash memory chip
 K serial flash memory chip ic

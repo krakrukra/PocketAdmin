@@ -118,13 +118,19 @@
 #define KB_nonUS_BACKSLASH 100
 #define KB_COMPOSE 101
 
+//macros for mouse
+#define MOUSE_IDLE       0b00000000
+#define MOUSE_LEFTCLICK  0b00000001
+#define MOUSE_RIGHTCLICK 0b00000010
+#define MOUSE_MIDCLICK   0b00000100
+
 //----------------------------------------------------------------------------------------------------------------------
 
 //Here ASCII encoded characters are mapped to HID class key codes
 //here is how: HID key code = 7 least significant bits of Keymap[ASCII_code - 32]
 //the Most Significant bit of Keymap[ASCII_code - 32] is set to 1 if SHIFT modifier key has to be pressed, 0 otherwise
 //to set SHIFT modifier add this: | 0x80
-unsigned char Keymap[107] = //__attribute__(( section(".rodata,\"a\",%progbits@") )) =
+unsigned char Keymap[107] =
   {
    /* HID code,// ASCII symbol */
    0x2C,       // space
