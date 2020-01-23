@@ -27,10 +27,10 @@ and also provide a database of .fgp files in /fingerdb/ directory.
   
 4. If you want to replace the default US keyboard layout with some other  
 one, you need to place required layout files in /kblayout/ directory.  
-
-5. If you want to use on-demand payloads, you need to place them inside
-/ondemand/ directory, with names from script03.txt up to script19.txt
-
+  
+5. If you want to use on-demand payloads, you need to place them inside  
+/ondemand/ directory, with names from script03.txt up to script19.txt  
+  
 So, let's say you want to check how the OS fingerprinter would identify  
 your system. There is an example payload for that. To use it, you would  
 go to /extra/payloads/fingerprinterTest/, check out the information  

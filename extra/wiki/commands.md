@@ -7,19 +7,19 @@ Here is a quick summary of the rules:
   
 1. Text encoding must be ASCII. Any symbol in a script that is  
 not ASCII-printable causes the rest of the line to be ignored.  
-Quotation marks used here are not parts of commands and are  
-just used to indicate start and end of a command.  
+Quotation marks used here are not parts of commands and  
+are just used to indicate start and end of a command.  
   
 2. All **special functionality** commands must be placed at the start of  
-the line and terminated with a newline character. Other commands, such as  
-**press key** or **mouse control** commands can be placed several times  
+the line and terminated with a newline character. Other commands, such  
+as **press key** or **mouse control** commands can be placed several times  
 on the same line, with space characters separating them. In that case, all  
 these key presses / mouse actions are considered to be applied simulteneously.  
   
 3. Some commands take arguments, which follow the command keyword.  
-These arguments will be denoted **n** for decimal numbers,  
-**x** for hex numbers, **s** for strings or characters. The keyword  
-and it's argument must be separated by exactly one space character.  
+These arguments will be denoted **n** for decimal numbers, **x** for hex  
+numbers, **s** for strings or characters. The keyword and it's argument  
+must be separated by exactly one space character.  
   
 4. Hex arguments must have 0x prefix when used in scripts, but case of  
 the letters doesn't matter (eg. 0x02ac, 0x02AC, 0x02aC are the same).  
@@ -67,7 +67,7 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "RCTRL"   --- applies right CTRL modifier key  
 * "RSHIFT"   --- applies right SHIFT modifier key  
 * "RALT"   --- applies right ALT modifier key  
-  
+*   
 * "KEYCODE **n**"   --- sends a key by HID keycode (decimal)  
 * "KEYCODE **x**"   --- sends a key by HID keycode (hex)  
 * "MENU"   --- key to open a menu (often the same as right click)  
@@ -117,13 +117,13 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "MOUSE_LEFTCLICK"  
 * "MOUSE_RIGHTCLICK"  
 * "MOUSE_MIDCLICK"  
-  
+*   
 * "MOUSE_RIGHT **n**" --- move mouse cursor right by **n** units  
 * "MOUSE_LEFT **n**" --- move mouse cursor left by **n** units  
 * "MOUSE_UP **n**" --- move mouse cursor up by **n** units  
 * "MOUSE_DOWN **n**" --- move mouse cursor down by **n** units  
-* "MOUSE_SCROLLDOWN n" --- scroll mouse wheel by **n** units towards the user  
-* "MOUSE_SCROLLUP n" --- scroll mouse wheel by **n** units away from user  
+* "MOUSE_SCROLLDOWN **n**" --- scroll mouse wheel by **n** units towards the user  
+* "MOUSE_SCROLLUP **n**" --- scroll mouse wheel by **n** units away from user  
   
 ---
   
@@ -148,16 +148,16 @@ useful when you do not know exactly how long should the device wait at a certain
 point in the script. For example, you might be starting up some program, or waiting  
 for UAC prompt to show up, etc. Depending on the situation it might take a variable  
 amount of time before the next part of the script should be executed. Also, you can  
-use this command whenever you need to mix badusb input and manual input. For example,  
-badusb is logging into some online account, but you need to solve a CAPTCHA; so you  
-pause the payload and solve the CAPTCHA manually, then badusb can continue with the  
-script. Or maybe you are in a BIOS boot menu, but you are not exactly sure in what  
+use this command whenever you need to mix badusb input and manual input. For  
+example, badusb is logging into some online account, but you need to solve a CAPTCHA;  
+so you pause the payload and solve the CAPTCHA manually, then badusb can continue with  
+the script. Or maybe you are in a BIOS boot menu, but you are not exactly sure in what  
 order the drives will be placed; so you select the drive manually and continue, etc.  
   
 3. "WAITFOR_RESET" command waits until the host machine sends a USB reset signal,  
 and is mostly intended to detect a host reboot. Depending on the situation, target  
-PC might take a variable amount of time to reboot, but once it reboots there is  
-a very limited amount of time to enter the BIOS / boot menu, etc; this makes normal  
+PC might take a variable amount of time to reboot, but once it reboots there is a  
+very limited amount of time to enter the BIOS / boot menu, etc; this makes normal  
 delays unsuitable for payloads which involve rebooting into BIOS. Keep in mind  
 though, that if the device will be actually powered off, then script execution  
 cannot continue. In that case you should use the OS fingerprinter to select  
@@ -166,25 +166,27 @@ appropriate BIOS-specific payload once the power is turned on again.
 4. "ONACTION_DELAY **n**" command is similar to "DEFAULT_DELAY **n**", and is in  
 fact it's alternative. That is, you cannot use them simultaneously and if one of  
 these commands is encountered in the script, it overwrites any effect that the  
-previous command had. Both commands are used to automatically insert a specified  
-delay (in milliseconds) after subsequent commands. The difference is,  
-"DEFAULT_DELAY **n**" inserts a delay after any script line whatsoever, including  
-"DEFAULT_DELAY **n**" itself, "REM **s**", "DELAY **n**", empty lines, etc; while  
-the "ONACTION_DELAY" only adds delay after "STRING **s**", "HOLD **s**", "RELEASE",  
-or any combination of **press key** and **mouse control** commands.  
-"DEFAULT_DELAY **n**" command only exists for compatibility with ducky  
-script and is not recommended for use in your own scripts.  
+previous command had. Both commands are used to automatically insert a  
+specified delay (in milliseconds) after subsequent commands. The difference  
+is, "DEFAULT_DELAY **n**" inserts a delay after any script line whatsoever,  
+including "DEFAULT_DELAY **n**" itself, "REM **s**", "DELAY **n**", empty  
+lines, etc; while the "ONACTION_DELAY" only adds delay after "STRING **s**",  
+"HOLD **s**", "RELEASE", or any combination of **press key** and **mouse  
+control** commands. "DEFAULT_DELAY **n**" command only exists for  
+compatibility with ducky script and is not recommended for use in your  
+own scripts.  
   
-5. "ALLOW_EXIT" command provides a means to stop current payload execution. It waits  
-for 1 second while watching for user-initiated capslock toggles. If capslock was  
-pressed 2 or more times, then the payload script will be abandoned and the device  
+5. "ALLOW_EXIT" command provides a means to stop current payload execution. It  
+waits for 1 second while watching for user-initiated capslock toggles. If capslock  
+was pressed 2 or more times, then the payload script will be abandoned and the device  
 will go back to idle state, waiting for user to select some on-demand payload. If  
 capslock toggles were not detected during the delay, payload execution will continue.  
 You should make sure that that the device was successfully initialized before this  
-command is encountered. In fact, usually this command is most useful after some sort  
-of dynamic delay, eg. "WAITFOR_INIT", "ALLOW_EXIT" sequence allows you to have a  
-payload that can be blocked by continuosly tapping on capslock while inserting the  
-device (so you don't have to take the device apart and use MSD-only button for this).  
+command is encountered. In fact, usually this command is most useful after some  
+sort of dynamic delay, eg. "WAITFOR_INIT", "ALLOW_EXIT" sequence allows you  
+to have a payload that can be blocked by continuosly tapping on capslock while  
+inserting the device (so you don't have to take the device apart and use  
+MSD-only button for this).  
   
 6. "STRING_DELAY **n**" command provides you a capability to slow down the rate  
 at which subsequent "STRING **s**" commands will be typing specified characters.  
@@ -192,7 +194,7 @@ Normally, the device will send one report with pressed keys, and in the next fra
 that is, after 1ms it will send a report with keys being released. If for some  
 reason the host machine cannot keep up with such typing rate, specifying a  
 "STRING_DELAY **n**" will make the device press a key and keep it pressed for **n**  
-extra milliseconds. After this, the key will be released and again the extra **n**ms  
+extra milliseconds. After this, the key will be released and again the extra **n** ms  
 delay will be inseted before the next character will be typed in.  
   
 7. "STRING **s**" command only accepts ASCII-printable characters, max length of the  
@@ -237,21 +239,22 @@ to mouse clicks. It is used whenever you need some keys continuously pressed, eg
 while in windows 10 language selection menu, opened with GUI + SPACE keys. This  
 command also affects output of "STRING **s**" and also of any **press key** or  
 **mouse control** commands. To release all the keys/clicks currently held down  
-you should use the "RELEASE" command. If you want to release only some particular  
-keys, you can use several "HOLD **s**" commands in a row, since they discard any  
-previously held keys. For example, the following command sequence "HOLD f g"  
-"DELAY 500" "HOLD f" "DELAY 500" "RELEASE" will keep both "f" and "g" keys pressed  
-for 500ms, then release only the "g" key, and only 500ms later release "f" as well.  
+you should use the "RELEASE" command. If you want to release only some  
+particular keys, you can use several "HOLD **s**" commands in a row, since they  
+discard any previously held keys. For example, the following command sequence  
+"HOLD f g" "DELAY 500" "HOLD f" "DELAY 500" "RELEASE" will keep both "f" and "g"  
+keys pressed for 500ms, then release only the "g" key, and only 500ms later  
+release "f" as well.  
   
 12. "REPEAT **n**" command can repeat one or more previous commands for a specified  
 number of times. If a block of commands is to be repeated, the beginning of this  
-block should be marked by a "REPEAT_START" command. The size of a repeat block is  
-unlimited, so it can span for the entire length of the payload script. Once the  
+block should be marked by a "REPEAT_START" command. The size of a repeat block  
+is unlimited, so it can span for the entire length of the payload script. Once the  
 "REPEAT **n**" command is completed, the previous repeat block is over and a new  
 "REPEAT_START" command is expected. In case a "REPEAT **n**" command is used  
 without a script block beginning explicitly specified, only the command  
 immediately preceding the "REPAT **n**" will be repeated. Some examples:  
-  
+\
 The following script will run 3 commands right before REPEAT for  
 11 times (once normally + repeated 10 times):  
 "REPEAT\_START"  
@@ -259,7 +262,7 @@ The following script will run 3 commands right before REPEAT for
 "ENTER"  
 "DELAY 300"  
 "REPEAT 10"  
-  
+\
 The following script will run 1 command right before REPEAT for  
 5 times (once normally + repeated 4 times):  
 "CTRL ALT DELETE"  

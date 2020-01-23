@@ -61,15 +61,15 @@ can be hidden. If the partition is too large, this command is ignored.
   
 6. "SHOW_FAKE_CAPACITY **n**" command makes the device lie to the host machine  
 about it's capacity. It takes a decimal nubmer as an argument, which is new fake  
-capacity in MiB (eg. "SHOW_FAKE_CAPACITY 2048" means pretend to be a 2GiB drive).  
-The argument can be any value from 97 to 32768, otherwise the command is ignored.  
-This command can be used if you want to make the device look more like an ordinary  
-flash drive, since the real 96MiB of capacity can look suspicious to the end user.  
-"SHOW_FAKE_CAPACITY **n**" and "USE_HIDDEN_REGION" do not interfere with  
-each other, so you can use both at the same time, if necessary.  
+capacity in MiB (eg. "SHOW_FAKE_CAPACITY 2048" means pretend to be a 2GiB  
+drive). The argument can be any value from 97 to 32768, otherwise the command  
+is ignored. This command can be used if you want to make the device look more  
+like an ordinary flash drive, since the real 96MiB of capacity can look suspicious  
+to the end user. "SHOW_FAKE_CAPACITY **n**" and "USE_HIDDEN_REGION" do not  
+interfere with each other, so you can use both at the same time, if necessary.  
   
-7. "FIRST_INSERT_ONLY" command is yet another comouflage feature. With this command  
-the device will try to create a new file in the root directory, called NOINSERT.  
+7. "FIRST_INSERT_ONLY" command is yet another comouflage feature. With this  
+command the device will create a new file in the root directory, called NOINSERT.  
 If such file already exists when device is plugged in, then any on-insertion payloads  
 will be blocked. This gives you an opportunity to run a payload on the first time  
 the device is inserted, but then prevent payload execution until NOINSERT file is  
