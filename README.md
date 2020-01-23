@@ -54,16 +54,16 @@ uses integrated full-speed (12Mbit/s) USB2.0 peripheral,
 with on-board 128MiB flash memory chip for data storage;  
 only 96MiB are available for use due to overprovisioning reasons.  
 measured speeds for MSD access : read 800-850 KiB/s, write 700-750 KiB/s,  
-
-There is an LED and a pushbutton on the device. The LED is a mass storage
-status indicator, which lights up any time the device reads or writes flash
-memory. It is recommended to make sure this LED is turned off before pulling
-the device out of host machine, to prevent filesystem corruption. 
+  
+There is an LED and a pushbutton on the device. The LED is a mass storage  
+status indicator, which lights up any time the device reads or writes flash  
+memory. It is recommended to make sure this LED is turned off before pulling  
+the device out of host machine, to prevent filesystem corruption.  
 The pushbutton on the device is referred to as MSD-only button. Normally  
 the payload is run whenever you plug the device into a PC. But if you press  
 and hold this button while inserting the device, it prevents any keystrokes  
-from being typed in and makes the device show up as a flash drive. It also
-prevents the use of camouflage features like hidden region or fake capacity.
+from being typed in and makes the device show up as a flash drive. It also  
+prevents the use of camouflage features like hidden region or fake capacity.  
   
 Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.  
 When opening up the case, be careful no to break the plastic studs near  
@@ -90,7 +90,7 @@ files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
   
-for your convenience, there is a dfu firmware image available in /extra/
+for your convenience, there is a dfu firmware image available in /extra/  
 directory. the name format is like this: firmware\_RRNNN, where  
 RR stands for board revision (13 = rev 1.3) , NNN stands for firmware version.  
 For example, firmware\_13000.dfu means board revision 1.3, firmware version 0  
