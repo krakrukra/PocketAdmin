@@ -149,10 +149,11 @@ point in the script. For example, you might be starting up some program, or wait
 for UAC prompt to show up, etc. Depending on the situation it might take a variable  
 amount of time before the next part of the script should be executed. Also, you can  
 use this command whenever you need to mix badusb input and manual input. For  
-example, badusb is logging into some online account, but you need to solve a CAPTCHA;  
-so you pause the payload and solve the CAPTCHA manually, then badusb can continue with  
-the script. Or maybe you are in a BIOS boot menu, but you are not exactly sure in what  
-order the drives will be placed; so you select the drive manually and continue, etc.  
+example, badusb is logging into some online account, but you need to solve a  
+CAPTCHA; so you pause the payload and solve the CAPTCHA manually, then badusb  
+can continue with the script. Or maybe you are in a BIOS boot menu, but you  
+are not exactly sure in what order the drives will be placed; so you select  
+the drive manually and continue, etc.  
   
 3. "WAITFOR_RESET" command waits until the host machine sends a USB reset signal,  
 and is mostly intended to detect a host reboot. Depending on the situation, target  
@@ -168,25 +169,24 @@ fact it's alternative. That is, you cannot use them simultaneously and if one of
 these commands is encountered in the script, it overwrites any effect that the  
 previous command had. Both commands are used to automatically insert a  
 specified delay (in milliseconds) after subsequent commands. The difference  
-is, "DEFAULT_DELAY **n**" inserts a delay after any script line whatsoever,  
-including "DEFAULT_DELAY **n**" itself, "REM **s**", "DELAY **n**", empty  
-lines, etc; while the "ONACTION_DELAY" only adds delay after "STRING **s**",  
-"HOLD **s**", "RELEASE", or any combination of **press key** and **mouse  
-control** commands. "DEFAULT_DELAY **n**" command only exists for  
-compatibility with ducky script and is not recommended for use in your  
-own scripts.  
+is, "DEFAULT_DELAY **n**" inserts a delay after any script line whatsoever, including  
+"DEFAULT_DELAY **n**" itself, "REM **s**", "DELAY **n**", empty lines, etc; while the  
+"ONACTION_DELAY **n**" only adds delay after "STRING **s**", "HOLD **s**", "RELEASE",  
+or any combination of **press key** and **mouse control** commands.  
+"DEFAULT_DELAY **n**" command only exists for compatibility with ducky script  
+and is not recommended for use in your own scripts.  
   
 5. "ALLOW_EXIT" command provides a means to stop current payload execution. It  
 waits for 1 second while watching for user-initiated capslock toggles. If capslock  
-was pressed 2 or more times, then the payload script will be abandoned and the device  
-will go back to idle state, waiting for user to select some on-demand payload. If  
-capslock toggles were not detected during the delay, payload execution will continue.  
-You should make sure that that the device was successfully initialized before this  
-command is encountered. In fact, usually this command is most useful after some  
-sort of dynamic delay, eg. "WAITFOR_INIT", "ALLOW_EXIT" sequence allows you  
-to have a payload that can be blocked by continuosly tapping on capslock while  
-inserting the device (so you don't have to take the device apart and use  
-MSD-only button for this).  
+was pressed 2 or more times, then the payload script will be abandoned and the  
+device will go back to idle state, waiting for user to select some on-demand  
+payload. If capslock toggles were not detected during the delay, payload execution  
+will continue. You should make sure that that the device was successfully  
+initialized before this command is encountered. In fact, usually this command  
+is most useful after some sort of dynamic delay, eg. "WAITFOR_INIT", "ALLOW_EXIT"  
+sequence allows you to have a payload that can be blocked by continuosly tapping  
+on capslock while inserting the device (so you don't have to take the device  
+apart and use MSD-only button for this).  
   
 6. "STRING_DELAY **n**" command provides you a capability to slow down the rate  
 at which subsequent "STRING **s**" commands will be typing specified characters.  
@@ -202,12 +202,12 @@ string is 1000 characters. By default a US-compatible keyboard layout is expecte
 If you have a different layout you need to change this by "USE_LAYOUT **s**"  
 pre-configuration command in config.txt; otherwise symbols from script will not be  
 typed in correctly. If you do have a US-compatible layout but you want to type a  
-string in a different language, you should set the GUI to use your desired  
-language and then use "STRING **s**" command with ASCII symbols that are bound to  
-the same physical keys as the symbols that you are trying to print.  
-For example, if GUI is configured to have RU input, "STRING Dtkjcbgtl CNTKC"  
-command will result in "Велосипед СТЕЛС" string typed. (because you have to  
-press the same key to type 'l' or 'д', same key for 'k' or 'л', etc)  
+string in a different language, you should set the GUI to use your desired language  
+and then use "STRING **s**" command with ASCII symbols that are bound to the same  
+physical keys as the symbols that you are trying to print. For example, if GUI is  
+configured to have RU input, "STRING Dtkjcbgtl CNTKC" command will result in  
+"Велосипед СТЕЛС" string typed. (because you have to press the same key to  
+type 'l' or 'д', same key for 'k' or 'л', etc)  
   
 8. Mouse control commands which have to do with moving the pointer or the  
 wheel take decimal arguments, ranging from 0 to 127. These arguments are  

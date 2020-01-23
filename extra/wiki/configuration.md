@@ -26,9 +26,9 @@ Similarly, normal payload commands are not allowed inside of config.txt
   
 ---
   
-1. With "VID **x**", "PID **x**", "SERIAL **s**" commands user can replace  
-default VID, PID values and a serial number used for enumeration. VID, PID  
-values are 4 digit hex numbers, while the serial number is a 12 character  
+1. With "VID **x**", "PID **x**", "SERIAL **s**" commands user can replace default  
+VID, PID values and a serial number used for enumeration. VID, PID values  
+are 4 digit hex numbers, while the serial number is a 12 character  
 string, although only digits 0-9 and capital A-F letters are allowed in it.  
 Any missing or invalid characters will be replaced by "0" in a serial number.  
 Here are some examples: "VID 0x046D", "PID 0xC228", "SERIAL 32500A4B11FF"  
@@ -48,16 +48,17 @@ For more information check this [wiki page](https://github.com/krakrukra/PocketA
 ASCII-to-HIDkeycode mapping with a new one.  
 For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/layouts)  
   
-5. "USE_HIDDEN_REGION" command reads the partition table (must be in MBR format),  
-finds the first block right after the end of first partition and assigns it to be  
-block number 0 for the host machine's read/write commands. This effectively makes  
-the entire first partition and the partition table itself unaccessible by the host  
-machine. In that case you can use the mass storage capability of the device, but  
-without the end user seeing any payload, config, or other files that you use.  
-Maximum size of hidden region is 16MiB, so you might need to edit the partition  
-table before using this command. For example, if first 1MiB of memory contains  
-the partition table and padding area, then the first partition of 15MiB or less  
-can be hidden. If the partition is too large, this command is ignored.  
+5. "USE_HIDDEN_REGION" command reads the partition table (must be in MBR  
+format), finds the first block right after the end of first partition and assigns  
+it to be block number 0 for the host machine's read/write commands. This  
+effectively makes the entire first partition and the partition table itself  
+unaccessible by the host machine. In that case you can use the mass storage  
+capability of the device, but without the end user seeing any payload, config,  
+or other files that you use. Maximum size of hidden region is 16MiB, so you  
+might need to edit the partition table before using this command. For example,  
+if first 1MiB of memory contains the partition table and padding area, then  
+the first partition of 15MiB or less can be hidden. If the partition is too large,  
+this command is ignored.  
   
 6. "SHOW_FAKE_CAPACITY **n**" command makes the device lie to the host machine  
 about it's capacity. It takes a decimal nubmer as an argument, which is new fake  
