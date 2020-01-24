@@ -286,6 +286,15 @@ static void waitForInit()
       while( (TIM6->CR1 & (1<<0)) &&  LEDstate ) LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);
     }
   
+  delay_ms(50);//wait for 50 milliseconds for some late arriving LED toggle
+  LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);//sample capslock state once more
+  if( LEDstate )//if late arriving capslock was detected, toggle capslock for one more time
+    {
+      sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
+      delay_ms(5);//keep capslock pressed for 5 milliseconds
+      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+    }
+  
   //unless HID-only mode is used, make sure MSD interface has received at least 1 read command
   while( (ControlInfo.EnumerationMode == 0) && !(PayloadInfo.DeviceFlags & (1<<1)) );
   

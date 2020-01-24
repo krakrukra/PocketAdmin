@@ -36,9 +36,9 @@ keys pressed simultaneously and you are not limited in keyword order or by a set
 combinations, only by the maximum of 10 commands on a single line.
   
 7. User has several configuration options available, none of which require a firmware update.  
-You can set which serial number and VID / PID values to use, how the device should show up
-(keyboard+mouse+disk or keyboard+mouse only), change keyboard layout, hide a particular memory
-region on the USB disk, show fake storage capacity to the host, etc.
+You can set which serial number and VID / PID values to use, how the device should show up  
+(keyboard+mouse+disk or keyboard+mouse only), change keyboard layout, hide a particular  
+memory region on the USB disk, show fake storage capacity to the host, etc.  
 
 **CHECK THE [WIKI](https://github.com/krakrukra/PocketAdmin/wiki) FOR HOW-TO-USE INFORMATION**  
 
