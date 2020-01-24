@@ -91,7 +91,7 @@ headers, but integral parts of usb.c, main.c, msd.c respectively.
 they are not intended to be included in any other files.  
   
 for your convenience, there is a dfu firmware image available in /extra/  
-directory. the name format is like this: firmware\_RRNNN, where  
+directory. the name format is like this: firmware\_RRNNN.dfu, where  
 RR stands for board revision (13 = rev 1.3) , NNN stands for firmware version.  
 For example, firmware\_13000.dfu means board revision 1.3, firmware version 0  
   

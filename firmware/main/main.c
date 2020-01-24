@@ -263,9 +263,9 @@ static void waitForInit()
   unsigned char LEDstate;//holds last sampled value of capslock LED state
   
   sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-  delay_ms(5);//wait for 5 milliseconds before sending any keys
+  delay_ms(50);//wait for 50 milliseconds before sending any keys
   LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);//sample current capslock LED state
-
+  
   while( !LEDstate )//keep toggling capslock until it is turned on
     {
       sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key

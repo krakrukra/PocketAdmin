@@ -430,17 +430,17 @@ static void processGetDescriptorRequest()
 	  descriptorSize = sizeof(GetConfigResponse_default_TypeDef);
 	}
       break;
-
+      
     case 0x0300://get STRING descriptor request, index = 0
-	  descriptorAddress = &StringDescriptor_0;
-	  descriptorSize = sizeof(StringDescriptor_0);
-	  break;
+      descriptorAddress = &StringDescriptor_0;
+      descriptorSize = sizeof(StringDescriptor_0);
+      break;
       
     case 0x0301://get STRING descriptor request, index = 1
-	  descriptorAddress = &StringDescriptor_1;
-	  descriptorSize = sizeof(StringDescriptor_1);
-	  break;
-
+      descriptorAddress = &StringDescriptor_1;
+      descriptorSize = sizeof(StringDescriptor_1);
+      break;
+      
     case 0x0302://get STRING descriptor request, index = 2
       descriptorAddress = &StringDescriptor_2;
       descriptorSize = sizeof(StringDescriptor_2);

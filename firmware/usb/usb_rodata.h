@@ -83,7 +83,7 @@ static unsigned char ReportDescriptor[] __attribute__(( aligned(2), section(".ro
   0x81, 0x06,//Input (Variable, Relative)
   
   0xC0,       //End Collection
-  0xC0        //End Collection
+  0xC0        //End Collection  
 };
 
 //device descriptor is not "static" and not in ".rodata" section to allow for dynamic VID/PID change
@@ -100,7 +100,7 @@ DeviceDescriptor_TypeDef DeviceDescriptor __attribute__(( aligned(2) )) =
   .idProduct          = 0x0026,//keyboard
   .bcdDevice          = 0x0130,//device version 1.3
   .iManufacturer      = 0,//no symbolic name reserved in string descriptor
-  .iProduct           = 2,//product name is in StringDescriptor_2
+  .iProduct           = 0,//no symbolic name reserved in string descriptor
   .iSerialNumber      = 1,//serial number is in StringDescriptor_1
   .bNumConfigurations = 1//only one configuration supported
 };
