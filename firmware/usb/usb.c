@@ -667,7 +667,7 @@ static void processINtransaction_EP0()
     }
   
   return;
- }
+}
 
 static void processOUTtransaction_EP0()
 {

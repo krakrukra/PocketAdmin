@@ -275,7 +275,7 @@ typedef struct
 {
   CBW_TypeDef CBW;//CBW currently being processed
   CSW_TypeDef CSW;//CSW corresponding to current CBW
-  unsigned char ActiveBuffer;//0 = first 1024 bytes of MSDbuffer[] are currently used by USB, 1 = last 1024 bytes
+  unsigned char ActiveBuffer;//0 = first 512 bytes of MSDbuffer[] are currently used by USB, 1 = last 512 bytes
   unsigned char TargetFlag;//0 = DataPointer points to MCU internal memory address, 1 = points to external flash memory
   MSDstage_TypeDef MSDstage;//stage of MSD transfer
   unsigned int DataPointer;//byte address in RAM where to continue reading/writing at next MSD transaction

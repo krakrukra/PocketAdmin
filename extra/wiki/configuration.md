@@ -76,6 +76,7 @@ will be blocked. This gives you an opportunity to run a payload on the first tim
 the device is inserted, but then prevent payload execution until NOINSERT file is  
 manually deleted. This can make the device less suspicious to the end user, since  
 there will be no weird popup windows every single time that device is inserted.  
+Note that the on-demand payloads are not blocked by this command.  
   
 8. "MASS_ERASE" command erases all the data blocks on the device which contain,  
 or have previously contained any data. The process will be started on the next  

@@ -7,5 +7,6 @@ You should have some text editor open before inserting the device.
 Based on what the device thinks your OS is, it will type in  
 "WINDOWS/LINUX/MAC/OTHER machine detected!"  
 This payload also uses HID_ONLY_MODE, so you will need to use the  
-MSD-only button to make it show up as a flash drive again.  
+MSD-only button (or long capslock toggle sequence) to make  
+the device show up as a flash drive again.  
   

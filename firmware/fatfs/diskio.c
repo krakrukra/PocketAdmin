@@ -600,7 +600,7 @@ static unsigned short makefree_EB(unsigned short startEBI)
   //if not a single free EB was found, erase some old invalid EB
   for(i=0; i<1024; i++)
     {
-      //if some invalid EB is found, stop searching  and return it's index
+      //if some invalid EB is found, stop searching and return it's index
       if((EBImap[startEBI] & 0xC000) == 0x0000 )
       {
 	erase_EB(startEBI);//erase the EB; this also writes new correct flash metadata

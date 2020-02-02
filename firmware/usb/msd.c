@@ -358,7 +358,7 @@ static void processReadCommand_10()
       sendCSW(1);//return error status
       
       USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets            
+      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
     }
   //if specified address range is accessible
   else

@@ -1,2 +1,2 @@
-DELAY 2000
+WAITFOR_INIT
 STRING LINUX machine detected!
