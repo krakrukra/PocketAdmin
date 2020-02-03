@@ -1,0 +1,3 @@
+WAITFOR_INIT
+STRING this is an ON-DEMAND payload number 3!
+ENTER

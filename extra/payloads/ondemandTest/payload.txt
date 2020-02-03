@@ -1,0 +1,9 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+WAITFOR_INIT
+
+REM --- open up notepad, do nothing else ---
+GUI r
+DELAY 100
+STRING notepad
+ENTER
