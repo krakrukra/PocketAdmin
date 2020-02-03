@@ -1,5 +1,5 @@
-This payload is intended for testing keyboard layout files, which  
-means you will have to copy /extra/kblayout/ onto the device.  
+This payload is intended for testing keyboard layout files, which is  
+why the layout file database is stored here in /kblayout/ directory.  
 You should have some text editor open before inserting the device,  
 and both PocketAdmin and target machine's GUI have to be configured  
 to use the same keyboard layout. The device should then type a long  

@@ -118,8 +118,8 @@ For example, firmware\_13000.dfu means board revision 1.3, firmware version 0
   
 /extra/payloads/ ----------- example and test payloads for PocketAdmin  
 /extra/pictures/ --------------------- photos and mechanical drawings  
-/extra/fingerdb/ ------------------ example OS fingerprint database  
-/extra/kblayout/ ------------------ alternative keyboard layout files  
+/extra/payloads/fingerprinterTest/fingerdb/ -- example OS fingerprint database  
+/extra/payloads/layoutTest/kblayout/ --- alternative keyboard layout files  
 /extra/wiki/ ------------------ github wiki pages  
   
 ## contact info  

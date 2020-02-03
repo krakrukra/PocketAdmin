@@ -1,23 +1,41 @@
-Some example scripts can be found in /extra/payloads/. You should keep in  
-mind that payloads usually need to be modified to fit your particular application,  
-since they heavily depend on target OS, GUI and language settings, hardware, etc.  
-If you are too lazy to make your own payloads, you can always reuse payloads that  
-were originally designed for the USB rubber ducky or some other badusb. Even if  
-these original payloads are not in duckyscript format (eg. arduino based badusb's)  
-you can convert them to duckyscript without too much effort.  
+Some example scripts can be found in **/extra/payloads/**. You should  
+keep in mind that it is not possible to make some one-size-fits-all  
+payloads that will magically do exactly what you want, without you  
+ever touching the code or doing whatever preparations that are needed.  
+Everybody has their own personal preferences, local GUI and language  
+settings; your target machine may be substantially faster or slower  
+than the intended example machine, etc. Basically, you should not just  
+copy-paste examples, you should actually understand what you are doing.  
+All these example payloads only serve one purpose, which is to give  
+you an idea of how the device can be used. They are intentionally  
+made to be simple and generic. In any kind of real application, you  
+will have to build up your own payload, possibly reusing some of  
+the code or techniques that you have learned from example payloads.  
   
-Each example payload is placed in a dedicated directory, inside of which only  
-corresponding script files, config.txt and readme.md files are included. If  
-necessary, you should also copy /extra/fingerdb/ or /extra/kblayout/ directories  
-to the device's root directory. The readme.md file is there only to explain in  
-more detail what the payload does and how it should be used, so you can.  
+Each example payload is placed in a dedicated directory, inside of which  
+all the relevant files are included, along with a readme.md documentation  
+file which is optional and only exists to explain what the payload does.  
+You may be able to simply copy all the contents inside of such directory  
+to the device and have it run the payload. Keep in mind, however, that  
+most of the example payloads expect a US keyboard layout and are intended  
+for a particular operating system. I recommend to always read the readme.md  
+file and also all of the in-script comments before using the examples.  
+The database of layout files is available in **/extra/payloads/layoutTest/kblayout/**  
+  
+Since the command language used by PocketAdmin is based on duckyscript,  
+you can also quite easily reuse payloads that were originally designed  
+for the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads). Though, you could also take some inspiration  
+from payloads which are not in duckyscript format to begin with, such  
+as scripts for [arduino style](https://github.com/samratashok/Kautilya) badusb's; if necessary, you can convert  
+them to duckyscript without too much effort.  
+  
   
 Always keep in mind, that in an actual application you MUST have  
 all the right files in the right places! That means:  
-
+  
 1. If you have any pre-configuration commands, you need to place them  
 separately in a config.txt file in the device's root directory.  
-
+  
 2. If fingerprinter was not enabled (default), you need to place  
 your script file (payload.txt) in the device's root directory.  
   
@@ -31,14 +49,3 @@ one, you need to place required layout files in /kblayout/ directory.
 5. If you want to use on-demand payloads, you need to place them inside  
 /ondemand/ directory, with names from script03.txt up to script19.txt  
   
-So, let's say you want to check how the OS fingerprinter would identify  
-your system. There is an example payload for that. To use it, you would  
-go to /extra/payloads/fingerprinterTest/, check out the information  
-in readme.md file and then copy all the files inside to PocketAdmin's root  
-directory. Since this payload does use the fingerprinter you will also  
-need to copy /extra/fingerdb/ directory, otherwise you will have to build  
-up your own database from scratch.  
-But what if you have a French keyboard layout? You would then copy  
-/extra/kblayout/ directory to the device as well, and then add this  
-command (without quotes) to config.txt: "USE_LAYOUT fr_FR".  
-The payload should now work as described in readme.md  
