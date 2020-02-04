@@ -26,9 +26,9 @@ the letters doesn't matter (eg. 0x02ac, 0x02AC, 0x02aC are the same).
 Size of a decimal argument is allowed to be 1-6 symbols, of a hex  
 argument 1-4 symbols, of a string argument 0-1000 symbols.  
   
-5. a command keyword together with it's argument are conidered as a single  
-command (eg. "KEYCODE 0x04", "MOUSE_RIGHT 10"). You can have up to 10  
-different **press key** or **mouse control** commands on the same line.  
+5. a command keyword together with it's **numeric** argument are conidered  
+as a single command (eg. "KEYCODE 0x04", "MOUSE_RIGHT 10"). You can have  
+up to 10 different **press key** or **mouse control** commands on the same line.  
 You can press up to 4 non-modifier keyboard keys simultaneously.  
   
 6. There are no particular requirements for the order of commands on the  

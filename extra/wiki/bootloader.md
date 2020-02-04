@@ -7,7 +7,7 @@ this same PC and make sure that your device is in DFU mode.
 Then, you feed a particular firmware image in DfuSe format to  
 this dedicated software and wait for it to finish the update.  
 The latest firmware image is available in the repository, in  
-**/firmware/firmware_13xxx.dfu** file, where xxx is a number  
+**/firmware/firmware_13nnn.dfu** file, where nnn is a number  
 which stands for firmware version (eg. firmware_13000.dfu);  
   
 There are 2 ways to enter DFU mode. If your device is already  
@@ -32,7 +32,7 @@ them, square pad should be on the other side and is not used.
 4. tap on capslock 20 times or more  
 5. wait at least 5 seconds  
 6. tap on capslock 20 times or more again  
-7. run command: dfu-util -a 0 -D firmware_13xxx.dfu  
+7. run command: dfu-util -a 0 -D firmware_13nnn.dfu  
 8. wait for update process to finish  
 9. pull the device out  
   
@@ -45,7 +45,7 @@ them, square pad should be on the other side and is not used.
 5. wait at least 5 seconds  
 6. tap on capslock 20 times or more again  
 7. click on "Choose" button (bottom right)  
-8. select the /firmware/firmware_13xxx.dfu file  
+8. select the /firmware/firmware_13nnn.dfu file  
 9. click on "Upgrade" button (bottom right)  
 10. confirm by clicking "yes"  
 11. wait for update process to finish  

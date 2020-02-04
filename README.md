@@ -90,10 +90,11 @@ files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
   
-for your convenience, there is a dfu firmware image available in /extra/  
-directory. the name format is like this: firmware\_RRNNN.dfu, where  
-RR stands for board revision (13 = rev 1.3) , NNN stands for firmware version.  
-For example, firmware\_13000.dfu means board revision 1.3, firmware version 0  
+for easy in-field updates, you can use the DFU bootloader. There is a dfu  
+firmware image available in /firmware/firmware\_RRNNN.dfu file. The name  
+format is this: RR stands for board revision (13 = rev 1.3) , NNN stands  
+for firmware version. For example, firmware\_13000.dfu means  
+board revision 1.3, firmware version 0  
   
 ## directories info
 
@@ -117,7 +118,7 @@ For example, firmware\_13000.dfu means board revision 1.3, firmware version 0
 #### /extra/ -------------------  contains pictures, payload files, documents, etc.  
   
 /extra/payloads/ ----------- example and test payloads for PocketAdmin  
-/extra/pictures/ --------------------- photos and mechanical drawings  
+/extra/pictures/ ---------------- photos and mechanical drawings  
 /extra/wiki/ ------------------ github wiki pages  
 /extra/payloads/fingerprinterTest/fingerdb/ -- example OS fingerprint database  
 /extra/payloads/layoutTest/kblayout/ --- alternative keyboard layout files  

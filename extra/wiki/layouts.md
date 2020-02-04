@@ -1,10 +1,10 @@
 If "USE_LAYOUT **s**" pre-configuration command is present in config.txt,  
 the default US keyboard layout is replaced with the new one. You need to  
-have the necessary layout file in /kblayout/ directory and specify it's  
-filename as argument to the command, e.g. "USE_LAYOUT fr_FR". Device then  
-will get new layout data from that file. Keep in mind that the filename  
-must be in 8.3 format, and only lowercase letters a-z, upepercase letters  
-A-Z, digits 0-9, underscore and dot symbols are allowed.  
+have the necessary layout file in /kblayout/ directory on the device and  
+specify it's filename as argument to the command, e.g. "USE_LAYOUT fr_FR".  
+Device then will get new layout data from that file. Keep in mind that  
+the filename must be in 8.3 format, and only lowercase letters a-z,  
+upepercase letters A-Z, digits 0-9, underscore and dot symbols are allowed.  
   
 Keyboard layout files are used as a mapping of ASCII-printable  
 characters (used in payload scripts) into HID keycodes along with  
@@ -13,7 +13,8 @@ value and subtracting 32 from it (to avoid non-printable characters),
 then using resulting number as an index to a byte array of 95 elements.  
 This byte array is located at the beginning of the file, so byte 0 of  
 the file corresponds to ASCII code 32 (spacebar), byte 1 to ASCII code 33  
-(exclamation mark), byte 2 to ASCII 34 (quotation mark) and so on.  
+(exclamation mark), byte 2 to ASCII 34 (quotation mark) and so on,  
+right up until (and including) byte index 94.  
   
 These bytes contain corresponding HID keycodes in 7 least significant  
 bits, and a SHIFT indicator in the most significant bit. If MSb is  
@@ -37,9 +38,10 @@ AltGr to be applied, so this bit is the only one that is set,
 giving a final value of 0x08 to be stored in byte 95 of layout file.  
   
 There are some existing keyboard layout files in this repository  
-(in /extra/kblayout/). You can, however, make your own if necessary.  
-I suggest copying an existing layout file (preferably with a layout  
-similar to yours) and then inserting all the right values with some hex editor.  
+(in **/extra/payloads/layoutTest/kblayout/**). You can, however,  
+make your own if necessary. I suggest copying an existing layout  
+file (preferably with a layout similar to yours) and then  
+inserting all the right values with some hex editor.  
   
 For more info on which HID keycodes correspond to which US keys read  
 USB HID usage tables document [located here](https://usb.org/document-library/hid-usage-tables-112), pages 52-59.  

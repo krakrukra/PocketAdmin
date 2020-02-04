@@ -15,7 +15,7 @@ Similarly, normal payload commands are not allowed inside of config.txt
   
 * "VID **x**"   --- sets VID value for enumeration  
 * "PID **x**"   --- sets PID value for enumeration  
-* "SERIAL **x**"   --- sets serial number for enumeration  
+* "SERIAL **s**"   --- sets serial number for enumeration  
 * "HID_ONLY_MODE"   --- switches device to HID-only mode  
 * "USE_FINGERPRINTER"   --- enables OS fingerprinter  
 * "USE_LAYOUT **s**"   --- loads new keyboard layout from a file  

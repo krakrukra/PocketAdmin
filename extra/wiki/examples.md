@@ -27,10 +27,13 @@ you can also quite easily reuse payloads that were originally designed
 for the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads). Though, you could also take some inspiration  
 from payloads which are not in duckyscript format to begin with, such  
 as scripts for [arduino style](https://github.com/samratashok/Kautilya) badusb's; if necessary, you can convert  
-them to duckyscript without too much effort.  
+them to duckyscript without too much effort. Though, same know-what-you-do    
+precautions apply here; if somebody made a payload back in 2012 for windows7  
+does not necessarily mean that you can blindly copy-paste it and it will work.  
   
+---
   
-Always keep in mind, that in an actual application you MUST have  
+Always keep in mind, that for everything to work you MUST have  
 all the right files in the right places! That means:  
   
 1. If you have any pre-configuration commands, you need to place them  
