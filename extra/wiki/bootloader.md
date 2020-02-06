@@ -1,4 +1,6 @@
-Ever since rev 1.3 release, you do not have to use St-Link V2  
+#### IMPORTANT: for previous 1.2 revision devices, use the [old upgrade process](https://github.com/krakrukra/12004-pocketadmin-wiki)  
+  
+With new rev 1.3 hardware, you do not have to use St-Link V2  
 hardware programmer device for performing firmware updates.  
 You may instead use the DFU bootloader and send new updated  
 firmware directly over USB. To do so, you will need to install  
@@ -24,35 +26,35 @@ wire or just with tweezers. The 2 holes you need to connect are
 in the corner of PCB and they both have round copper pads around  
 them, square pad should be on the other side and is not used.  
   
+You can check [this video](https://www.youtube.com/watch?v=t0oajBFZcZY) for a demonstration of  
+both old and new firmware update procedures.  
+  
+---
+  
 #### linux (debian) DFU update procedure  
   
 1. install dfu-util (sudo apt-get install dfu-util)  
-2. open terminal window in /firmware/ directory  
-3. connect the device to PC  
-4. tap on capslock 20 times or more  
-5. wait at least 5 seconds  
-6. tap on capslock 20 times or more again  
-7. run command: dfu-util -a 0 -D firmware_13nnn.dfu  
-8. wait for update process to finish  
-9. pull the device out  
+2. download this repository (.zip) to your PC and unpack it  
+3. open terminal window in /firmware/ directory  
+4. connect the device to PC  
+5. tap on capslock 20 times or more  
+6. wait at least 5 seconds  
+7. tap on capslock 20 times or more again  
+8. run command: dfu-util -a 0 -D firmware_13nnn.dfu  
+9. wait for update process to finish, pull the device out  
   
 #### windows DFU update procedure  
   
 1. download [DfuSe demo](https://www.st.com/en/development-tools/stsw-stm32080.html) software  
 2. install it and start the program  
-3. connect the device to PC  
-4. tap on capslock 20 times or more  
-5. wait at least 5 seconds  
-6. tap on capslock 20 times or more again  
-7. click on "Choose" button (bottom right)  
-8. select the /firmware/firmware_13nnn.dfu file  
-9. click on "Upgrade" button (bottom right)  
-10. confirm by clicking "yes"  
-11. wait for update process to finish  
-12. pull the device out  
-  
----
-  
-There soon will be a video on my youtube channel about  
-performing the firmware upgrade (both linux and windows)  
+3. download this repository (.zip) to your PC and unpack it  
+4. connect the device to PC  
+5. tap on capslock 20 times or more  
+6. wait at least 5 seconds  
+7. tap on capslock 20 times or more again  
+8. click on "Choose" button (bottom right)  
+9. select the /firmware/firmware_13nnn.dfu file  
+10. click on "Upgrade" button (bottom right)  
+11. confirm by clicking "yes"  
+12. wait for update process to finish, pull the device out  
   

@@ -27,7 +27,7 @@ MCP1700-3302E/TT 3.3V LDO linear regulator --- 1pcs
 
 0603 (1608 metric) GREEN LED --- 1pcs
 
-(5032 metric) NX5032GA 8MHz quartz crystal --- 1pcs
+(5032 metric) NX5032GA STD-CSK-7 8MHz quartz crystal --- 1pcs
 
 TL3342 tactile switch --- 1pcs
        you might want to choose similar ones with bigger height-off-PCB, up to 2mm (instead of 1.5mm with TL3342)
