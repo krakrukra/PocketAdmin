@@ -117,9 +117,9 @@ board revision 1.3, firmware version 0
   
 #### /extra/ -------------------  contains pictures, payload files, documents, etc.  
   
-/extra/payloads/ ----------- example and test payloads for PocketAdmin  
 /extra/pictures/ ---------------- photos and mechanical drawings  
 /extra/wiki/ ------------------ github wiki pages  
+/extra/payloads/ ----------- example and test payloads for PocketAdmin  
 /extra/payloads/fingerprinterTest/fingerdb/ -- example OS fingerprint database  
 /extra/payloads/layoutTest/kblayout/ --- alternative keyboard layout files  
   
@@ -130,6 +130,9 @@ send me an email to krakrukra@tutanota.com
 create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
+For extra security, you could use my PGP public key saved in [/extra/pubkey.asc](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pubkey.asc).  
+  
 #### if you want to buy:  
   
 <a href="https://www.tindie.com/stores/krakrukra/?ref=offsite_badges&utm_source=sellers_krakrukra&utm_medium=badges&utm_campaign=badge_medium"><img src="https://d2ss6ovg47m0r5.cloudfront.net/badges/tindie-mediums.png" alt="I sell on Tindie" width="150" height="78"></a>  
+  
