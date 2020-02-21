@@ -132,4 +132,7 @@ also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8
   
 For extra security, you could use my PGP public key saved in [/extra/pubkey.asc](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pubkey.asc).  
   
+#### if you want to buy:  
+  
+My tindie store: [https://www.tindie.com/stores/krakrukra/](https://www.tindie.com/stores/krakrukra/)  
   
