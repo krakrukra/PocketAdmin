@@ -79,7 +79,7 @@ programming language used = C
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  
   
-the firmware was developed on debian 9.7 system, using gcc-arm-none-eabi toolchain  
+the firmware was developed on debian 10.3 system, using gcc-arm-none-eabi toolchain  
 (compiler, linker, binutils) and it does use gcc specific extentions.  
 it was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
   
@@ -132,7 +132,4 @@ also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8
   
 For extra security, you could use my PGP public key saved in [/extra/pubkey.asc](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pubkey.asc).  
   
-#### if you want to buy:  
-  
-<a href="https://www.tindie.com/stores/krakrukra/?ref=offsite_badges&utm_source=sellers_krakrukra&utm_medium=badges&utm_campaign=badge_medium"><img src="https://d2ss6ovg47m0r5.cloudfront.net/badges/tindie-mediums.png" alt="I sell on Tindie" width="150" height="78"></a>  
   

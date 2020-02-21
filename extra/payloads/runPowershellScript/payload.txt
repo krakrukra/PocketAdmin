@@ -1,6 +1,7 @@
 REM --- target: windows ---
 REM --- wait unitl host has done all its initializations ---
 WAITFOR_INIT
+DELAY 500
 
 REM --- find appropriate USB drive (FAT label must be POCKETADMIN) ---
 REM --- then run insert.ps1 script from its root directory as administartor ---

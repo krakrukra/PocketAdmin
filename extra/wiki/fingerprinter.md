@@ -35,9 +35,10 @@ driver is used by the host machine, which in turn identifies the OS.
   
 These patterns are saved in fingerprint files and consist of the data  
 from 10 of the very first control requests sent by the host, namely  
-bmRequestType, bRequest and wValue fields. The byte order is the same  
-as in actual USB control request. Only bytes 0, 1 and 3 are compared  
-for every 4-byte member in the array.  
+bmRequestType, bRequest and wValue fields, which gives a total of 4  
+bytes saved per request. The byte order is the same as in actual USB  
+control request. Only bytes 0, 1 and 3 are compared for every 4-byte  
+member in the array.  
   
 ---
   
