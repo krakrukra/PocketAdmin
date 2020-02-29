@@ -136,7 +136,7 @@ For extra security, you could use my PGP public key saved in [/extra/pubkey.asc]
   
 My tindie store: [https://www.tindie.com/stores/krakrukra/](https://www.tindie.com/stores/krakrukra/)  
   
-My openbazaar store: ob://QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb  
+My openbazaar store: ob://QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe  
 You need openbazaar app installed to use this; web preview is available [here](https://openbazaar.com/QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb)  
 Openbazaar store is online whenever my PC is powered on.  
   
