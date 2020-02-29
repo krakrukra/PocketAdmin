@@ -135,4 +135,8 @@ For extra security, you could use my PGP public key saved in [/extra/pubkey.asc]
 #### if you want to buy:  
   
 My tindie store: [https://www.tindie.com/stores/krakrukra/](https://www.tindie.com/stores/krakrukra/)  
+
+My openbazaar store:[ob://QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb](ob://QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb)  
+Web preview of it: [https://openbazaar.com/QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb](https://openbazaar.com/QmR671bca56jLqQfcN4t1WRxKsaYtYDRBQQcLcrVR9HiXe/store/pocketadmin-badusb)  
+Openbazaar store is online whenever my PC is powered on.  
   
