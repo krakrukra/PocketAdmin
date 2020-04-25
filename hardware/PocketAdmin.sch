@@ -1,5 +1,6 @@
 EESchema Schematic File Version 4
-EELAYER 30 0
+LIBS:PocketAdmin-cache
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -20,7 +21,9 @@ P 1950 2550
 F 0 "J1" H 2005 3017 50  0000 C CNN
 F 1 "USB_A_Plug" H 2005 2926 50  0000 C CNN
 F 2 "Connector_USB:USB_A_CNCTech_1001-011-01101_Horizontal" H 2100 2500 50  0001 C CNN
-F 3 " ~" H 2100 2500 50  0001 C CNN
+F 3 "https://www.aliexpress.com/item/32661919556.html?spm=2114.12010615.8148356.1.5ee53258ygxLhO" H 2100 2500 50  0001 C CNN
+F 4 "~" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "black G49 USB A plug" H 0   0   50  0001 C CNN "Short Description"
 	1    1950 2550
 	1    0    0    -1  
 $EndComp
@@ -32,6 +35,8 @@ F 0 "U3" H 6750 2264 50  0000 C CNN
 F 1 "STM32F072C8Tx" H 6750 2173 50  0000 C CNN
 F 2 "Package_QFP:LQFP-48_7x7mm_P0.5mm" H 6200 2450 50  0001 R CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00090510.pdf" H 6800 3850 50  0001 C CNN
+F 4 "STMicroelectronics" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "ARM cortex M0 microcontroller" H 0   0   50  0001 C CNN "Short Description"
 	1    6800 3850
 	1    0    0    -1  
 $EndComp
@@ -42,7 +47,9 @@ P 5400 3000
 F 0 "Y1" V 5354 2869 50  0000 R CNN
 F 1 "8MHz" V 5445 2869 50  0000 R CNN
 F 2 "Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm" H 5400 3000 50  0001 C CNN
-F 3 "NX5032GA STD-CSK-7" H 5400 3000 50  0001 C CNN
+F 3 "https://www.ndk.com/images/products/catalog/c_NX5032GA_e.pdf" H 5400 3000 50  0001 C CNN
+F 4 "Nihon Dempa Kogyo" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "NX5032GA-8MHZ(STD-CSK-7) crystal resonator" H 0   0   50  0001 C CNN "Short Description"
 	1    5400 3000
 	0    1    1    0   
 $EndComp
@@ -53,7 +60,9 @@ P 5150 3250
 F 0 "C5" V 5310 3250 50  0000 C CNN
 F 1 "18pF" V 5401 3250 50  0000 C CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 5188 3100 50  0001 C CNN
-F 3 "C0G 5% 50V" H 5150 3250 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5150 3250 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "C0G 5% 50V     eg. C1608C0G1H180J" H 0   0   50  0001 C CNN "Short Description"
 	1    5150 3250
 	0    1    1    0   
 $EndComp
@@ -64,7 +73,9 @@ P 5150 2750
 F 0 "C4" V 4898 2750 50  0000 C CNN
 F 1 "18pF" V 4989 2750 50  0000 C CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 5188 2600 50  0001 C CNN
-F 3 "C0G 5% 50V" H 5150 2750 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5150 2750 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "C0G 5% 50V     eg. C1608C0G1H180J" H 0   0   50  0001 C CNN "Short Description"
 	1    5150 2750
 	0    1    1    0   
 $EndComp
@@ -123,7 +134,9 @@ P 6450 2200
 F 0 "C7" H 6565 2246 50  0000 L CNN
 F 1 "100nF" H 6565 2155 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 6488 2050 50  0001 C CNN
-F 3 "X7R 10% 50V" H 6450 2200 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 6450 2200 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    6450 2200
 	1    0    0    -1  
 $EndComp
@@ -134,7 +147,9 @@ P 5950 2200
 F 0 "C6" H 6065 2246 50  0000 L CNN
 F 1 "100nF" H 6065 2155 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 5988 2050 50  0001 C CNN
-F 3 "X7R 10% 50V" H 5950 2200 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5950 2200 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    5950 2200
 	1    0    0    -1  
 $EndComp
@@ -145,7 +160,9 @@ P 5450 2200
 F 0 "C3" H 5565 2246 50  0000 L CNN
 F 1 "100nF" H 5565 2155 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 5488 2050 50  0001 C CNN
-F 3 "X7R 10% 50V" H 5450 2200 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5450 2200 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    5450 2200
 	1    0    0    -1  
 $EndComp
@@ -177,6 +194,8 @@ F 0 "U2" H 3900 2592 50  0000 C CNN
 F 1 "MCP1700-3302E/TT" H 3900 2501 50  0000 C CNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 3900 2575 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001826C.pdf" H 3900 2350 50  0001 C CNN
+F 4 "Microchip Technology" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "3.3V LDO linear voltage regulator" H 3900 2350 50  0001 C CNN "Short Description"
 	1    3900 2350
 	1    0    0    -1  
 $EndComp
@@ -238,7 +257,9 @@ P 4350 2500
 F 0 "C2" H 4468 2546 50  0000 L CNN
 F 1 "10uF" H 4468 2455 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 4388 2350 50  0001 C CNN
-F 3 "X5R 10% 10V" H 4350 2500 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 4350 2500 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X5R 10% 16V   eg. C2012X5R1C106K" H 0   0   50  0001 C CNN "Short Description"
 	1    4350 2500
 	1    0    0    -1  
 $EndComp
@@ -249,7 +270,9 @@ P 3450 2500
 F 0 "C1" H 3333 2546 50  0000 R CNN
 F 1 "10uF" H 3333 2455 50  0000 R CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 3488 2350 50  0001 C CNN
-F 3 "X5R 10% 10V" H 3450 2500 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 3450 2500 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X5R 10% 16V   eg. C2012X5R1C106K" H 0   0   50  0001 C CNN "Short Description"
 	1    3450 2500
 	1    0    0    -1  
 $EndComp
@@ -339,7 +362,9 @@ P 1700 3450
 F 0 "CON1" H 1520 3496 50  0000 R CNN
 F 1 "ST-LINK_V2" H 1520 3405 50  0000 R CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" V 950 3500 50  0001 C CNN
-F 3 "" H 1900 3450 50  0000 C CNN
+F 3 "~" H 1900 3450 50  0000 C CNN
+F 4 "~" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "plated holes in PCB, to plug a cable in" H 0   0   50  0001 C CNN "Short Description"
 	1    1700 3450
 	1    0    0    -1  
 $EndComp
@@ -350,7 +375,9 @@ P 2900 3750
 F 0 "U1" H 3228 3803 60  0000 L CNN
 F 1 "IP4220CZ6" H 3228 3697 60  0000 L CNN
 F 2 "Package_SO:TSOP-6_1.65x3.05mm_P0.95mm" H 2900 3650 60  0001 C CNN
-F 3 "" H 2900 3650 60  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/IP4220CZ6.pdf" H 2900 3650 60  0001 C CNN
+F 4 "Nexperia" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "ESD protection diode for USB" H 0   0   50  0001 C CNN "Short Description"
 	1    2900 3750
 	1    0    0    -1  
 $EndComp
@@ -423,7 +450,9 @@ P 7950 5050
 F 0 "R1" V 8050 5050 50  0000 C CNN
 F 1 "33" V 7950 5050 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 7880 5050 50  0001 C CNN
-F 3 "5%" H 7950 5050 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1811151223_LIZ-Elec-CR0603JA0102G_C101253.pdf" H 7950 5050 50  0001 C CNN
+F 4 "LIZ Electronics" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "5% 50V  eg. CR0603JA0330G" H 0   0   50  0001 C CNN "Short Description"
 	1    7950 5050
 	0    1    1    0   
 $EndComp
@@ -434,7 +463,9 @@ P 8200 4950
 F 0 "R2" V 8100 4950 50  0000 C CNN
 F 1 "33" V 8200 4950 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 8130 4950 50  0001 C CNN
-F 3 "5%" H 8200 4950 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1811151223_LIZ-Elec-CR0603JA0102G_C101253.pdf" H 8200 4950 50  0001 C CNN
+F 4 "LIZ Electronics" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "5% 50V  eg. CR0603JA0330G" H 0   0   50  0001 C CNN "Short Description"
 	1    8200 4950
 	0    1    1    0   
 $EndComp
@@ -452,7 +483,9 @@ P 2250 3750
 F 0 "C8" H 2368 3796 50  0000 L CNN
 F 1 "10uF" H 2368 3705 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 2288 3600 50  0001 C CNN
-F 3 "X5R 10% 10V" H 2250 3750 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 2250 3750 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X5R 10% 16V   eg. C2012X5R1C106K" H 0   0   50  0001 C CNN "Short Description"
 	1    2250 3750
 	1    0    0    -1  
 $EndComp
@@ -500,7 +533,9 @@ P 9000 3750
 F 0 "C9" H 9115 3796 50  0000 L CNN
 F 1 "100nF" H 9115 3705 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 9038 3600 50  0001 C CNN
-F 3 "X7R 10% 50V" H 9000 3750 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 9000 3750 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    9000 3750
 	-1   0    0    1   
 $EndComp
@@ -537,7 +572,9 @@ P 8000 3850
 F 0 "SW1" H 8000 3650 50  0000 C CNN
 F 1 "TL3342" H 8000 3750 50  0000 C CNN
 F 2 "Button_Switch_SMD:SW_SPST_TL3342" H 8000 4050 50  0001 C CNN
-F 3 "" H 8000 4050 50  0001 C CNN
+F 3 "https://www.aliexpress.com/item/32996664072.html?spm=a2g0s.9042311.0.0.320a4c4dCBT2OS" H 8000 4050 50  0001 C CNN
+F 4 "~" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "1.5mm height momentary pushbutton" H 0   0   50  0001 C CNN "Short Description"
 	1    8000 3850
 	1    0    0    -1  
 $EndComp
@@ -563,7 +600,9 @@ P 7550 3700
 F 0 "C10" H 7665 3746 50  0000 L CNN
 F 1 "100nF" H 7665 3655 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 7588 3550 50  0001 C CNN
-F 3 "X7R 10% 50V" H 7550 3700 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 7550 3700 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    7550 3700
 	1    0    0    -1  
 $EndComp
@@ -599,7 +638,9 @@ P 5700 3600
 F 0 "C11" H 5450 3650 50  0000 L CNN
 F 1 "18pF" H 5400 3550 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 5738 3450 50  0001 C CNN
-F 3 "C0G 5% 50V" H 5700 3600 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5700 3600 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "C0G 5% 50V     eg. C1608C0G1H180J" H 0   0   50  0001 C CNN "Short Description"
 	1    5700 3600
 	1    0    0    -1  
 $EndComp
@@ -666,6 +707,8 @@ F 0 "U4" H 9300 3900 50  0000 C CNN
 F 1 "W25N01GVZEIG" H 9350 3800 50  0000 C CNN
 F 2 "PocketAdmin:WSON-8_8x6mm" H 8900 4250 50  0001 C CNN
 F 3 "https://www.winbond.com/resource-files/w25n01gv revg 032116.pdf" H 8900 4250 50  0001 C CNN
+F 4 "Winbond Electronics" H 8900 4300 50  0001 C CNN "Manufacturer"
+F 5 "128MiB serial NAND flash memory" H 0   0   50  0001 C CNN "Short Description"
 	1    8900 4300
 	1    0    0    -1  
 $EndComp
@@ -707,7 +750,9 @@ P 2050 4150
 F 0 "R3" V 1950 4150 50  0000 C CNN
 F 1 "4.7k" V 2050 4150 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 1980 4150 50  0001 C CNN
-F 3 "5%" H 2050 4150 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1811151223_LIZ-Elec-CR0603JA0102G_C101253.pdf" H 2050 4150 50  0001 C CNN
+F 4 "LIZ Electronics" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "5% 50V  eg. CR0603JA0472G" H 0   0   50  0001 C CNN "Short Description"
 	1    2050 4150
 	1    0    0    1   
 $EndComp
@@ -720,7 +765,9 @@ P 5500 4700
 F 0 "R4" V 5400 4700 50  0000 C CNN
 F 1 "4.7k" V 5500 4700 50  0000 C CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 5430 4700 50  0001 C CNN
-F 3 "5%" H 5500 4700 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1811151223_LIZ-Elec-CR0603JA0102G_C101253.pdf" H 5500 4700 50  0001 C CNN
+F 4 "LIZ Electronics" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "5% 50V  eg. CR0603JA0472G" H 0   0   50  0001 C CNN "Short Description"
 	1    5500 4700
 	1    0    0    -1  
 $EndComp
@@ -731,7 +778,9 @@ P 5850 4350
 F 0 "D1" H 5850 4450 50  0000 C CNN
 F 1 "GREEN" H 5850 4550 50  0000 C CNN
 F 2 "LED_SMD:LED_0603_1608Metric" H 5850 4350 50  0001 C CNN
-F 3 "~" H 5850 4350 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1912191206_Foshan-NationStar-Optoelectronics-NCD0603G2_C87326.pdf" H 5850 4350 50  0001 C CNN
+F 4 "Foshan NationStar" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "eg. NCD0603G2" H 0   0   50  0001 C CNN "Short Description"
 	1    5850 4350
 	1    0    0    1   
 $EndComp
@@ -784,7 +833,9 @@ P 1750 4150
 F 0 "C12" H 1864 4104 50  0000 L CNN
 F 1 "100nF" H 1864 4195 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 1788 4000 50  0001 C CNN
-F 3 "X7R 10% 50V" H 1750 4150 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 1750 4150 50  0001 C CNN
+F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H 0   0   50  0001 C CNN "Short Description"
 	1    1750 4150
 	-1   0    0    1   
 $EndComp

@@ -1,4 +1,4 @@
-Some example scripts can be found in **/extra/payloads/**. You should  
+Some example scripts can be found in [/extra/payloads/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads). You should  
 keep in mind that it is not possible to make some one-size-fits-all  
 payloads that will magically do exactly what you want, without you  
 ever touching the code or doing whatever preparations that are needed.  
@@ -20,14 +20,14 @@ to the device and have it run the payload. Keep in mind, however, that
 most of the example payloads expect a US keyboard layout and are intended  
 for a particular operating system. I recommend to always read the readme.md  
 file and also all of the in-script comments before using the examples.  
-The database of layout files is available in **/extra/payloads/layoutTest/kblayout/**  
+The database of layout files is available in [/extra/payloads/layoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/layoutTest/kblayout)  
   
 Since the command language used by PocketAdmin is based on duckyscript,  
 you can also quite easily reuse payloads that were originally designed  
 for the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads). Though, you could also take some inspiration  
 from payloads which are not in duckyscript format to begin with, such  
 as scripts for [arduino style](https://github.com/samratashok/Kautilya) badusb's; if necessary, you can convert  
-them to duckyscript without too much effort. Though, same know-what-you-do    
+them to duckyscript without too much effort. The exact same know-what-you-do    
 precautions apply here; if somebody made a payload back in 2012 for windows7  
 does not necessarily mean that you can blindly copy-paste it and it will work.  
   
