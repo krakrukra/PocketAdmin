@@ -247,9 +247,10 @@ static GetConfigResponse_HIDonly_TypeDef GetConfigResponse_HIDonly __attribute__
   
 };
 
-//string descriptors. only english (0x0409) is present in supported LANGID list
-static unsigned short StringDescriptor_0[2]  __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0304, 0x0409 };
-       unsigned short StringDescriptor_1[13] = { 0x031A, '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-static unsigned short StringDescriptor_2[16] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0320, 'U', 'S', 'B', ' ', 'F', 'L', 'A', 'S', 'H', ' ', 'D', 'R', 'I', 'V', 'E' };
+static unsigned short StringDescriptor_0[2]  __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0304, 0x0409 };//LANGID list; only english (united states) is supported
+       unsigned short StringDescriptor_1[13] = { 0x031A, '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };//iSerial
+//static unsigned short StringDescriptor_2[5]  __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x030A, 'U', 'S', 'B', ' ' };//iManufacturer
+//static unsigned short StringDescriptor_3[12] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0318, 'F', 'L', 'A', 'S', 'H', ' ', 'D', 'R', 'I', 'V', 'E' };//iProduct
+
 
 #endif //USB_RODATA_H

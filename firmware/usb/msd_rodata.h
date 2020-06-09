@@ -10,7 +10,12 @@ static unsigned char InquiryData_Standard[36] __attribute__(( aligned(2), sectio
   0x02,//response data format = SPC-2
   0x1F,//additional length = 31 bytes
   0x00,//no special features supported
-  0x00 //no special features supported
+  0x00,//no special features supported
+  0x00,//no special features supported
+  'O', 'r', 'd', 'i', 'n', 'a', 'r', 'y',//Vendor Identification
+  ' ', 'F', 'l', 'a', 's', 'h', ' ', 'D',//Product Identification
+  'r', 'i', 'v', 'e', ' ', ' ', ' ', ' ',//Product Identification
+  ' ', ' ', ' ', ' ' //Product Revision Level
 };
 
 static unsigned char InquiryData_VPDpagelist[] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =

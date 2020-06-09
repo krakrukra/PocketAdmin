@@ -178,31 +178,36 @@ DRESULT disk_ioctl (
   if(pdrv != 0) return RES_PARERR;//only physical drive 0 is available
   
   switch(cmd)
-    {
+    {      
     case CTRL_SYNC:
+      //do nothing, because disk_write() does not use any cache
       return RES_OK;
       break;
-
+            
     case GET_SECTOR_COUNT:
+      //number of usable sectors = 197120
       *((DWORD*) buff) = 197120;
       return RES_OK;
       break;
-
+            
     case GET_SECTOR_SIZE:
+      //sector size = 512 bytes
       *((WORD*) buff) = 512;
       return RES_OK;
       break;
-
+            
     case GET_BLOCK_SIZE:
+      //erase block size = 256 sectors (128KiB)
       *((DWORD*) buff) = 256;
       return RES_OK;
       break;
-
+      
     case CTRL_TRIM:
+      //do nothing, because TRIM requests are not supported
       return RES_OK;
       break;
     }
-
+  
   return RES_ERROR;
 }
 
@@ -385,7 +390,7 @@ void dmawrite_LB(unsigned char* buff, unsigned int sector, unsigned char WritePa
 void dma_handler()
 {
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
-  CS_HIGH;//pull CS pin high  
+  CS_HIGH;//pull CS pin high
   
   SPI1->CR1 &= ~(1<<6);//disable SPI1
   SPI1->CR2 &= ~((1<<1)|(1<<0));//disable DMA requests for SPI1
@@ -394,14 +399,14 @@ void dma_handler()
   DMA1_Channel2->CCR = 0;//disable DMA channel 2
   DMA1_Channel3->CCR = 0;//disable DMA channel 3
   DMA1->IFCR = (1<<5)|(1<<4);//clear DMA channel 2 TC flag
-
+  
   //if the end of current Logical Page or end of the entire write sequence is reached
   if( DiskInfo.WritePageFlag )
     {
       write_PP((DiskInfo.PPOmapValidEBI * 64) + DiskInfo.PPOmapLastPPO);//write Data Buffer into the next available PP
       DiskInfo.WritePageFlag = 0;//the page and it's metadata have been stored in flash
     }
-
+  
   DiskInfo.BusyFlag = 0;
   return;
 }
@@ -411,10 +416,10 @@ void garbage_collect()
   //if there was 100ms without a single read or write command received, start erasing old invalid EB's
   if( !(TIM7->CR1 & (1<<0)) )
     {
-      NVIC_DisableIRQ(31);
+      NVIC_DisableIRQ(31);//disable usb interrupt, so makefree_EB() and MSD access do not collide
       //if there are no more invalid blocks to erase, prevent background erasing for the next 100ms
       if( makefree_EB((DiskInfo.LastErasedEB + 1) % 1024) > 1023 ) restart_tim7(100);
-      NVIC_EnableIRQ(31);
+      NVIC_EnableIRQ(31);//enable usb interrupt
     }
   
   return;

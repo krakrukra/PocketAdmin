@@ -35,14 +35,6 @@
    ---------------------------------------------------------------------------*/
 
 
-#if defined ( __ICCARM__ )
- #pragma system_include  /* treat file as system include file for MISRA check */
-#endif
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 #ifndef __CORE_CM0_H_GENERIC
 #define __CORE_CM0_H_GENERIC
 
@@ -75,59 +67,28 @@
 
 #define __CORTEX_M                (0x00)                                   /*!< Cortex-M Core                    */
 
+/*------------------ GNU Compiler ---------------------*/
+#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
+#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+#define __STATIC_INLINE  static inline
 
-#if   defined ( __CC_ARM )
-  #define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */
-  #define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
-  #define __STATIC_INLINE  static __inline
-
-#elif defined ( __ICCARM__ )
-  #define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */
-  #define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
-  #define __STATIC_INLINE  static inline
-
-#elif defined ( __GNUC__ )
-  #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
-  #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
-  #define __STATIC_INLINE  static inline
-
-#elif defined ( __TASKING__ )
-  #define __ASM            __asm                                      /*!< asm keyword for TASKING Compiler      */
-  #define __INLINE         inline                                     /*!< inline keyword for TASKING Compiler   */
-  #define __STATIC_INLINE  static inline
-
-#endif
 
 /** __FPU_USED indicates whether an FPU is used or not. This core does not support an FPU at all
 */
 #define __FPU_USED       0
 
-#if defined ( __CC_ARM )
-  #if defined __TARGET_FPU_VFP
-    #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-  #endif
-
-#elif defined ( __ICCARM__ )
-  #if defined __ARMVFP__
-    #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-  #endif
-
-#elif defined ( __GNUC__ )
-  #if defined (__VFP_FP__) && !defined(__SOFTFP__)
-    #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-  #endif
-
-#elif defined ( __TASKING__ )
-  #if defined __FPU_VFP__
-    #error "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-  #endif
+#if defined (__VFP_FP__) && !defined(__SOFTFP__)
+  #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
 #endif
+
 
 #include <stdint.h>                      /* standard types definitions                      */
 #include "core_cmInstr.h"                /* Core Instruction Access                         */
 #include "core_cmFunc.h"                 /* Core Function Access                            */
 
 #endif /* __CORE_CM0_H_GENERIC */
+
+
 
 #ifndef __CMSIS_GENERIC
 
@@ -160,13 +121,10 @@
     \li to specify the access to peripheral variables.
     \li for automatic generation of peripheral register debug information.
 */
-#ifdef __cplusplus
-  #define   __I     volatile             /*!< Defines 'read only' permissions                 */
-#else
-  #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
-#endif
-#define     __O     volatile             /*!< Defines 'write only' permissions                */
-#define     __IO    volatile             /*!< Defines 'read / write' permissions              */
+
+#define   __I     volatile const       /*!< Defines 'read only' permissions                 */
+#define   __O     volatile             /*!< Defines 'write only' permissions                */
+#define   __IO    volatile             /*!< Defines 'read / write' permissions              */
 
 /*@} end of group Cortex_M0 */
 
@@ -196,13 +154,7 @@ typedef union
 {
   struct
   {
-#if (__CORTEX_M != 0x04)
     uint32_t _reserved0:27;              /*!< bit:  0..26  Reserved                           */
-#else
-    uint32_t _reserved0:16;              /*!< bit:  0..15  Reserved                           */
-    uint32_t GE:4;                       /*!< bit: 16..19  Greater than or Equal flags        */
-    uint32_t _reserved1:7;               /*!< bit: 20..26  Reserved                           */
-#endif
     uint32_t Q:1;                        /*!< bit:     27  Saturation condition flag          */
     uint32_t V:1;                        /*!< bit:     28  Overflow condition code flag       */
     uint32_t C:1;                        /*!< bit:     29  Carry condition code flag          */
@@ -233,13 +185,7 @@ typedef union
   struct
   {
     uint32_t ISR:9;                      /*!< bit:  0.. 8  Exception number                   */
-#if (__CORTEX_M != 0x04)
     uint32_t _reserved0:15;              /*!< bit:  9..23  Reserved                           */
-#else
-    uint32_t _reserved0:7;               /*!< bit:  9..15  Reserved                           */
-    uint32_t GE:4;                       /*!< bit: 16..19  Greater than or Equal flags        */
-    uint32_t _reserved1:4;               /*!< bit: 20..23  Reserved                           */
-#endif
     uint32_t T:1;                        /*!< bit:     24  Thumb bit        (read 0)          */
     uint32_t IT:2;                       /*!< bit: 25..26  saved IT state   (read 0)          */
     uint32_t Q:1;                        /*!< bit:     27  Saturation condition flag          */
@@ -677,6 +623,3 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
 
 #endif /* __CMSIS_GENERIC */
 
-#ifdef __cplusplus
-}
-#endif

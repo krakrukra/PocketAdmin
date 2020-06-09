@@ -41,7 +41,7 @@ static void checkOSfingerprint();
 
 PayloadInfo_TypeDef PayloadInfo =
   {
-    .DefaultDelay = 0,//if  DEFAULT_DELAY  is not explicitly set, use 0ms value
+    .DefaultDelay = 0,//if  DEFAULT_DELAY is not explicitly set, use 0ms value
     .StringDelay = 0,//if STRING_DELAY is not explicitly set, use 0ms value
     .PayloadPointer = (char*) &PayloadBuffer,//start interpreting commands at the beginning of PayloadBuffer
     .BytesLeft = 0,//nothing was saved in PayloadBuffer yet
@@ -77,7 +77,7 @@ int main()
 	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
 	  
 	  if(countCapsToggles(65535) > 19)//if there was 20 or more capslock toggles in a given sequence
-	    {	      
+	    { 
 	      RCC->APB1RSTR |= (1<<23);//reset USB registers, detach from the USB bus
 	      delay_ms(1000);//wait for 1000ms
 	      RCC->APB1RSTR &= ~(1<<23);//deassert USB reset
@@ -101,7 +101,7 @@ int main()
 	  checkOSfingerprint();//set appropriate payload filename in PayladInfo.Filename[]
 	  f_chdir("0:/fgscript");//go to /fgscript/ directory
 	  NVIC_EnableIRQ(31);//enable USB interrupt
-
+	  
 	  //unless explicitly disabled, run OS specific ON-INSERTION script
 	  if( !(PayloadInfo.DeviceFlags & (1<<0)) ) runDuckyPayload(PayloadInfo.Filename);
 	}
@@ -110,7 +110,7 @@ int main()
 	  NVIC_DisableIRQ(31);//disable USB interrupt so that MSD and fatfs data access do not collide
 	  f_chdir("0:/");//go to the root directory
 	  NVIC_EnableIRQ(31);//enable USB interrupt
-
+	  
 	  //unless explicitly disabled, run default ON-INSERTION script
 	  if( !(PayloadInfo.DeviceFlags & (1<<0)) ) runDuckyPayload("payload.txt");
 	}                  
@@ -127,7 +127,7 @@ int main()
 	  if( (toggleCount > 2) && (toggleCount < 20) )
 	    {
 	      NVIC_DisableIRQ(31);//disable USB interrupt to prevent f_mount() and MSD access collision
-	      FATFSresult  = f_mount(&FATFSinfo, "0:", 1);//remount the filesystem, just in case new on-demand scrits were added
+	      FATFSresult  = f_mount(&FATFSinfo, "0:", 1);//remount the filesystem, just in case new on-demand scripts were added
 	      FATFSresult |= f_chdir("0:/ondemand");//go to the /ondemand/ directory
 	      setFilename("script__.txt");//set next payload filename to script__.txt
 	      PayloadInfo.Filename[6] = 48 + toggleCount / 10;//set correct on-demand payload name
@@ -149,6 +149,8 @@ int main()
 	      else                                 usb_init();//if DFUmode flag was not set
 	      
 	      NVIC_DisableIRQ(31);//disable USB interrupt to prevent race condition
+	      __DSB();//make sure NVIC registers are updated before ISB is executed
+	      __ISB();//make sure the latest NVIC setting is used immediately
 	      PayloadInfo.DeviceFlags |=  (1<<3);//set DFUmodeFlag
 	      PayloadInfo.DeviceFlags &= ~(1<<1);//clear FirstReadFlag
 	      NVIC_EnableIRQ(31);//enable USB interrupt again
@@ -167,10 +169,12 @@ static void readConfigFile(char* filename)
 {
   unsigned int commandStart = (unsigned int) &PayloadBuffer;//remember where start of command is
   unsigned int firstLBA;//holds first LBA of the first partition
-  unsigned int LBAcount;//hold size of first partition in LBA
+  unsigned int LBAcount;//holds size of first partition in LBA
+  unsigned char MSDbutton;//holds state of the MSD-only button (1 = pressed, 0 = released)
   
-  //if MSD-only button was pressed at the time of insetion, set NoInsertFlag
-  if( !(GPIOA->IDR & (1<<2)) ) PayloadInfo.DeviceFlags |= (1<<0);
+  //sample the state of MSD-only button at the time of insertion
+  if( !(GPIOA->IDR & (1<<2)) ) MSDbutton = 1;
+  else                         MSDbutton = 0;
   
   if( !f_open(&openedFileInfo, filename, FA_READ | FA_OPEN_EXISTING) )//if configuration file was successfully opened
     {
@@ -191,10 +195,10 @@ static void readConfigFile(char* filename)
 	       if( checkKeyword("VID 0x") )     {DeviceDescriptor.idVendor  = (unsigned short) checkHexValue();}
 	  else if( checkKeyword("PID 0x") )     {DeviceDescriptor.idProduct = (unsigned short) checkHexValue();}
 	  else if( checkKeyword("SERIAL ") )    {setSerialNumber(PayloadInfo.PayloadPointer);}
-	  else if( checkKeyword("MASS_ERASE") ) {mass_erase(); NVIC_SystemReset();}     
-	  else if( !(PayloadInfo.DeviceFlags & (1<<0)) && checkKeyword("HID_ONLY_MODE") ) {ControlInfo.EnumerationMode = 1;}
+	  else if( checkKeyword("MASS_ERASE") ) {mass_erase(); NVIC_SystemReset();}
+	  else if( (MSDbutton == 0) && checkKeyword("HID_ONLY_MODE") ) {ControlInfo.EnumerationMode = 1;}
 	  
-	  else if( !(PayloadInfo.DeviceFlags & (1<<0)) && checkKeyword("USE_HIDDEN_REGION") )
+	  else if( (MSDbutton == 0) && checkKeyword("USE_HIDDEN_REGION") )
 	    {
 	      //read LBA 0 into an unused area of PayloadBuffer
 	      disk_read(0, (unsigned char*) &PayloadBuffer + 1024, 0, 1);
@@ -210,7 +214,7 @@ static void readConfigFile(char* filename)
 		  if( (firstLBA + LBAcount) <= 32768 ) PayloadInfo.LBAoffset = firstLBA + LBAcount;
 		}
 	    }
-	  else if( !(PayloadInfo.DeviceFlags & (1<<0)) && checkKeyword("SHOW_FAKE_CAPACITY ") )
+	  else if( (MSDbutton == 0) && checkKeyword("SHOW_FAKE_CAPACITY ") )
 	    {
 	      PayloadInfo.FakeCapacity = checkDecValue();//read fake capacity value (in MiB)
 	      //only allow fake capacity from 97MiB to 32GiB
@@ -254,6 +258,9 @@ static void readConfigFile(char* filename)
 	  PayloadInfo.BytesLeft = PayloadInfo.BytesLeft - ((unsigned int) PayloadInfo.PayloadPointer - commandStart);
 	}
     }
+  
+  //if MSD-only button was pressed set NoInsertFlag
+  if(MSDbutton) PayloadInfo.DeviceFlags |= (1<<0);
   
   return;
 }
@@ -561,12 +568,12 @@ static void runDuckyCommand()
 static void repeatDuckyCommands(unsigned int count)
 {
   //remember where in the file current REPEAT command is (first byte outside of a repeat block)
-  unsigned int repeatEnd = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft;  
-
+  unsigned int repeatEnd = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft;
+  
   //if REPEAT is the very first command in the payload file, skip to the next line and do nothing else
   if(repeatEnd == 0) return;
   
-  NVIC_DisableIRQ(31);//disable usb interrupt, so f_read() and MSD access do not collide  
+  NVIC_DisableIRQ(31);//disable usb interrupt, so f_read() and MSD access do not collide
   if(PayloadInfo.RepeatCount)//if a repeat block still needs to be repeated
     { 
       if(PayloadInfo.RepeatCount == 0xFFFFFFFF) PayloadInfo.RepeatCount = count;
@@ -613,7 +620,7 @@ static char checkKeyword(char* referenceString)
       else whereToCheck = (char*) &PayloadBuffer;
     }
   
-  //if requested keyword was actiually found, move PayloadPointer to next keyword
+  //if requested keyword was actually found, move PayloadPointer to next keyword
   PayloadInfo.PayloadPointer = whereToCheck;
   return 1;
 }
@@ -698,12 +705,14 @@ static void setSerialNumber(char* newSerialNumber)
 {
   unsigned char i;//used in a for() loop
   
+  for(i=0; i<12; i++) StringDescriptor_1[i+1] = '0';//set serial to string with 12 ASCII zero symbols
+  
   for(i=0; i<12; i++)
     { 
       //allow only digits 0-9 and capital A-F letters in the serial number
            if( ( *(newSerialNumber) >  47 ) && ( *(newSerialNumber) <   58 ) ) StringDescriptor_1[i+1] = *(newSerialNumber);
       else if( ( *(newSerialNumber) >  64 ) && ( *(newSerialNumber) <   71 ) ) StringDescriptor_1[i+1] = *(newSerialNumber);
-      else StringDescriptor_1[i] = 48;//in unsupported character was encountered, place ASCII 0 in it's place
+      else break;//if an unsupported character was encountered, stop reading the new serial number
       
       newSerialNumber++;//move to the next character
     }
@@ -893,9 +902,10 @@ static void restart_tim6(unsigned short time)
 
 static void enter_bootloader()
 {
+  //set function pointer to a value specified in the vector table of System Memory
   void (*bootloader)(void) = (void (*)(void)) ( *((unsigned int*) (0x1FFFC804U)) );
   
-  //disable all interrupts
+  //disable all interrupts in the NVIC
   NVIC_DisableIRQ(31);
   NVIC_DisableIRQ(18);
   NVIC_DisableIRQ(10);
@@ -922,11 +932,13 @@ static void enter_bootloader()
   RCC->CFGR = 0;//set HSI as system clock
   while( !((RCC->CFGR & 0x0F) == 0b0000) );//wait until HSI is used as system clock  
   RCC->CR = 0x0083;//disable PLL, HSE clocks; disable CSS
-  
+
+  __DSB();//make sure all outstanding memory transfers are over before changing MSP value
   __set_MSP(0x20003FFC);//move main stack pointer back to the top
+  __ISB();//make sure the effect of changing MSP value is visible immediately
   bootloader();//jump to bootloader code
-  NVIC_SystemReset();//reset the system if CPU ever returns
   
+  NVIC_SystemReset();//reset the system if CPU ever returns
   return;
 }
 

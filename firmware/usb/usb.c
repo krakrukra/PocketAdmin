@@ -36,6 +36,7 @@ ControlInfo_TypeDef ControlInfo;
 //this function must be called before any use of USB 
 void usb_init()
 {
+  NVIC_DisableIRQ(31);//disable USB interrupt
   RCC->CFGR3 |= (1<<7);//USB uses PLL clock
   RCC->APB1ENR |= (1<<23);//enable USB interface clock
   RCC->APB1RSTR |= (1<<23);//reset USB registers
@@ -86,6 +87,8 @@ void usb_init()
   
   NVIC_SetPriority(31, 1);//give USB interrupt a lower priority than others
   NVIC_EnableIRQ(31);//enable USB interrupt
+  __DSB();//make sure NVIC registers are updated before ISB is executed
+  __ISB();//make sure the latest NVIC settings are used immediately
   USB->BCDR = (1<<15);//enable internal pullup at D+ line
   
   //at this point the only thing left to enable USB transaction handling is to set EF bit in USB->DADDR. the host has to send a RESET signal for that to happend
@@ -439,11 +442,6 @@ static void processGetDescriptorRequest()
     case 0x0301://get STRING descriptor request, index = 1
       descriptorAddress = &StringDescriptor_1;
       descriptorSize = sizeof(StringDescriptor_1);
-      break;
-      
-    case 0x0302://get STRING descriptor request, index = 2
-      descriptorAddress = &StringDescriptor_2;
-      descriptorSize = sizeof(StringDescriptor_2);
       break;
       
     case 0x2100://get HID descriptor request (HID specific)

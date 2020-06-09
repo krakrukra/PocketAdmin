@@ -248,7 +248,7 @@ static void processReadCapacityCommand_10()
   ReadCapacity_Data[2] = sendLastLBA >>  8;
   ReadCapacity_Data[3] = sendLastLBA >>  0;
   
-  //copy READ CAPACITY response from ROM to PMA
+  //copy READ CAPACITY response from RAM to PMA
   sendResponse( &ReadCapacity_Data, sizeof(ReadCapacity_Data) );//pre-fill the first packet buffer
   USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
