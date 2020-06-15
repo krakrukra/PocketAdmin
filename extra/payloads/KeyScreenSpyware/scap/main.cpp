@@ -21,7 +21,7 @@ struct tm* TimePointer;
 time_t LastEpochTime = 0;
 unsigned int timerID;
 
-int main()
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
   HHOOK KeyboardHook;
   HHOOK MouseHook;
