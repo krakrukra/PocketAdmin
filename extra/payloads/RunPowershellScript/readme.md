@@ -16,8 +16,8 @@ The default **insert.ps1** script does not do anything, you should
 replace it with something that fits your desires. If you do not  
 know powershell or how to write scripts for it, you can always  
 search for scripts online. Though, realistically, you still would  
-have to learn some powershell to reuse them properly. As an example,  
-here is a collection of penetration testing scripts  
+have to learn some powershell to reuse them properly. As an  
+example, here is a collection of penetration testing scripts  
 by Nikhil Mittal: [https://github.com/samratashok/nishang](https://github.com/samratashok/nishang)  
 And here is an example of how one of these scripts can be used with  
 PocketAdmin: [GetInformationScript payload](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/GetInformationScript)  
