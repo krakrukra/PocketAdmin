@@ -30,10 +30,10 @@ simultaneously and have the device automatically pick the correct payload to run
 the appropriate number of times. You can also use this functionality for more convenient device  
 operation, such as rebooting into mass storage of DFU modes without taking the device apart.  
   
-6. Extended set of commands for extra functionality, such as: mouse control, commands to hold and  
-release keys, dynamic delays, ability to repeat blocks of commands; you can have several non-modifier  
-keys pressed simultaneously and you are not limited in keyword order or by a set of hardcoded key
-combinations, only by the maximum of 10 commands on a single line.
+6. Extended set of commands for extra functionality, such as: mouse control, commands to hold  
+and release keys, dynamic delays, ability to repeat blocks of commands; you can have several  
+non-modifier keys pressed simultaneously and you are not limited in keyword order or by a set  
+of hardcoded key combinations, only by the maximum of 10 commands on a single line.  
   
 7. User has several configuration options available, none of which require a firmware update.  
 You can set which serial number and VID / PID values to use, how the device should show up  
