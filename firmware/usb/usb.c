@@ -45,7 +45,7 @@ void usb_init()
   USB->CNTR = (1<<0);//enable USB power supply, keep USB reset
   
   //delay of a bit more than 1us (at APBCLK = 48MHz) before USB reset is cleared
-  RCC->APB1ENR |= (1<<5);//enable TIM6 clock  
+  RCC->APB1ENR |= (1<<4);//enable TIM6 clock  
   TIM6->CR1 = (1<<7)|(1<<3)|(1<<2);//disable TIM6 (in case it was running)
   TIM6->ARR = 50;//TIM6 reload value is 50
   TIM6->PSC = 0;//TIM6 prescaler = 1
