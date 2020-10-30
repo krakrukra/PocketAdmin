@@ -39,21 +39,20 @@ of hardcoded key combinations, only by the maximum of 10 commands on a single li
 You can set which serial number and VID / PID values to use, how the device should show up  
 (keyboard+mouse+disk or keyboard+mouse only), change keyboard layout, hide a particular  
 memory region on the USB disk, show fake storage capacity to the host, etc.  
-
+  
 **CHECK THE [WIKI](https://github.com/krakrukra/PocketAdmin/wiki) FOR HOW-TO-USE INFORMATION**  
-
+  
 ---
-
+  
 ## hardware
-
+  
 project is designed using KiCad 5.1.5  
 check KiCad pcb file for PCB manufacturing info  
 check KiCad sch file + BOM.txt for component info  
   
-uses integrated full-speed (12Mbit/s) USB2.0 peripheral,  
-with on-board 128MiB flash memory chip for data storage;  
-only 96MiB are available for use due to overprovisioning reasons.  
-measured speeds for MSD access : read 800-850 KiB/s, write 700-750 KiB/s,  
+Uses integrated full-speed (12Mbit/s) USB2.0 peripheral, with  
+96MiB of available on-board flash memory for data storage;  
+measured speeds for MSD access: read 800-850 KiB/s, write 700-750 KiB/s   
   
 There is an LED and a pushbutton on the device. The LED is a mass storage  
 status indicator, which lights up any time the device reads or writes flash  
@@ -69,7 +68,7 @@ Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.
 When opening up the case, be careful no to break the plastic studs near  
 the USB connector and at the opposite (from USB) end of enclosure.  
   
-hardware programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1PCS-ST-LINK-Stlink-ST-Link-V2-Mini-STM8-STM32-Simulator-Download-Programmer-Programming-With-Cover/32792513237.html?ws_ab_test=searchweb0_0,searchweb201602_2_10152_10151_10065_10344_10068_10342_10546_10343_10340_10548_10341_10696_10084_10083_10618_10307_10135_10133_10059_100031_10103_10624_10623_10622_10621_10620,searchweb201603_55,ppcSwitch_3&algo_expid=448b8f37-4a09-4701-bf7f-8b2ce2770a23-0&algo_pvid=448b8f37-4a09-4701-bf7f-8b2ce2770a23&priceBeautifyAB=0)  
+hardware programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/32792925130.html?spm=2114.12010615.8148356.5.4a1c43eddntSjr)  
 For instructions on how to build and flash the device go check this video:  
 [https://www.youtube.com/watch?v=cfud5Dq_w2M](https://www.youtube.com/watch?v=cfud5Dq_w2M)  
   
@@ -99,8 +98,7 @@ board revision 1.3, firmware version 0
 ## directories info
 
 #### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
-  
-/firmware/cmsis/ ------- necessary header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
+/firmware/cmsis/ ------- header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
 /firmware/stdlib/ ---------- standard statically linked libraries (libgcc.a)  
 /firmware/openocd/ ------- standard configuration files for openocd  
 /firmware/fatfs/ ---------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) filesystem module + custom W25N01GVZEIG disk driver  
@@ -110,13 +108,12 @@ board revision 1.3, firmware version 0
 /firmware/firmware_13NNN.dfu ------ pre-compiled firmware image in DfuSe format (STM32)  
   
 #### /hardware/ ------------------- contains KiCad project, schematic, PCB files  
-  
 /hardware/PocketAdmin.symbols/ -- project specific symbol library  
 /hardware/PocketAdmin.pretty/ --- project specific footprint library  
 /hardware/gerbers/ ----------- gerber+excellon fabrication output files  
+/hardware/BOM.txt --------- list of parts needed for DIY assembly  
   
 #### /extra/ -------------------  contains pictures, payload files, documents, etc.  
-  
 /extra/pictures/ ---------------- photos and mechanical drawings  
 /extra/wiki/ ------------------ github wiki pages  
 /extra/payloads/ ----------- example and test payloads for PocketAdmin  
@@ -127,7 +124,7 @@ board revision 1.3, firmware version 0
   
 if you have a problem / question / feature request, here are your options for contacting me:  
 send me an email to krakrukra@tutanota.com  
-create a new github issue, or use of the existing one called [general discussion](https://github.com/krakrukra/PocketAdmin/issues/1)  
+create a new github issue (check [closed issues](https://github.com/krakrukra/PocketAdmin/issues?q=is%3Aissue+is%3Aclosed) first)  
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 For extra security, you could use my PGP public key saved in [/extra/pubkey.asc](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pubkey.asc).  
