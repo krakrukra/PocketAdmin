@@ -92,8 +92,25 @@ they are not intended to be included in any other files.
 for easy in-field updates, you can use the DFU bootloader. There is a dfu  
 firmware image available in /firmware/firmware\_RRNNN.dfu file. The name  
 format is this: RR stands for board revision (13 = rev 1.3) , NNN stands  
-for firmware version. For example, firmware\_13000.dfu means  
-board revision 1.3, firmware version 0  
+for firmware version. For example, firmware\_13000.dfu means board  
+revision 1.3, firmware version 0  
+  
+  
+To automate firmware build process you can use make utility. If you  
+open terminal in /firmware/ directory, you could run these commands:  
+  
+> make  
+> make upload  
+> make dfu  
+> make clean  
+  
+"make" will compile source code and create several files, among them  
+is firmware.bin which contains firmware to flash. "make upload" will  
+flash this file via St-Link V2 programmer. Make sure to connect the  
+programmer to the board properly, before you plug it in and run the  
+command. "make dfu" will create a DFU firmware image from firmware.bin  
+which can be used later by DFU flashing software. "make clean" will  
+delete all the compiled or temporary files created by previous commands.  
   
 ## directories info
 
