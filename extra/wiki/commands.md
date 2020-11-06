@@ -209,17 +209,18 @@ configured to have RU input, "STRING Dtkjcbgtl CNTKC" command will result in
 "Велосипед СТЕЛС" string typed. (because you have to press the same key to  
 type 'l' or 'д', same key for 'k' or 'л', etc)  
   
-8. Mouse control commands which have to do with moving the pointer or the  
-wheel take decimal arguments, ranging from 0 to 127. These arguments are  
-relative values which represent displacement from the previous location and  
-are expressed in logical units. It is completely up to the host machine to  
-decide what these values actually mean and what postprocessing should be done  
-on them. For example, dispacement by 10 units might mean 10 or 20 pixels,  
-depending on the sensitivity setting. Also, the postprocessing does not have  
-to be linear, so that "MOUSE_RIGHT 100" and "MOUSE_RIGHT 10" executed 10 times  
-in a row may have different results. That means that you should be extra careful  
-when using these commands and make sure that the machine you are testing the  
-payload on is similar enough to the intended target machine.  
+8. Mouse control commands which have to do with moving the pointer or the wheel  
+take decimal arguments, ranging from 0 to 127. These arguments are relative  
+values which represent displacement from the previous location and are expressed  
+in logical units. It is completely up to the host machine to decide what these  
+values actually mean and what postprocessing should be done on them. For example,  
+dispacement by 10 units might mean 10 or 20 pixels, depending on the sensitivity  
+setting. Also, host postprocessing might result in eg. "MOUSE_RIGHT 100" not  
+being equivalent to "MOUSE_RIGHT 10" executed 10 times in a row. That means you  
+should be extra careful and make correct assumptions about target machine to use  
+mouse control successfully. Commands which have to do with moving mouse pointer  
+on different axies (or add scroll) can be combined on a single line, for example,  
+"MOUSE_RIGHT 120 MOUSE_DOWN 35 MOUSE_SCROLLUP 47" is a valid command.  
   
 9. Single ASCII-printable character commands are available, which will type  
 out that character. The appropriate modifiers (left SHIFT and right ALT keys)  
