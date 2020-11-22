@@ -632,19 +632,6 @@ nrst
 Text GLabel 6000 3450 0    50   Input ~ 0
 nrst
 $Comp
-L Device:C C11
-U 1 1 5C51BC64
-P 5700 3600
-F 0 "C11" H 5450 3650 50  0000 L CNN
-F 1 "18pF" H 5400 3550 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 5738 3450 50  0001 C CNN
-F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5700 3600 50  0001 C CNN
-F 4 "TDK" H 0   0   50  0001 C CNN "Manufacturer"
-F 5 "C0G 5% 50V     eg. C1608C0G1H180J" H 0   0   50  0001 C CNN "Short Description"
-	1    5700 3600
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:GND #PWR0107
 U 1 1 5CEFA800
 P 6100 3250
@@ -870,4 +857,17 @@ Wire Wire Line
 	2250 3950 2250 3900
 Text Notes 3900 4300 0    50   ~ 0
 PC15, PB13, PB10 pins are connected\n to netnames only to ease PCB layout \n     and are not used by the MCU 
+$Comp
+L Device:C C11
+U 1 1 5FBAACB3
+P 5700 3600
+F 0 "C11" H 5400 3650 50  0000 L CNN
+F 1 "100nF" H 5350 3550 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5738 3450 50  0001 C CNN
+F 3 "https://product.tdk.com/info/en/catalog/datasheets/mlcc_commercial_general_en.pdf" H 5700 3600 50  0001 C CNN
+F 4 "TDK" H -1850 -100 50  0001 C CNN "Manufacturer"
+F 5 "X7R 10% 50V   eg. C1608X7R1H104K" H -1850 -100 50  0001 C CNN "Short Description"
+	1    5700 3600
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
