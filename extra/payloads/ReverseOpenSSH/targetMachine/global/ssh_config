@@ -1,0 +1,5 @@
+Host *
+CheckHostIP no
+ExitOnForwardFailure yes
+IdentityFile C:\ProgramData\ssh\id_rsa
+GlobalKnownHostsFile C:\ProgramData\ssh\known_hosts

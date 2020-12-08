@@ -54,7 +54,7 @@ same directory name as is used by screen capture software.
 Keylog files have timestamps in their names too, in the  
 following format: HH-00.txt, where HH is hour in 24-hour format,  
 00 is a literal string (eg. "22-00.txt" or "23-00.txt", etc)  
-More precise timestamps, along with what window were the kestrokes  
+More precise timestamps, along with what window were the keystrokes  
 typed into and what language was selected are placed inside the  
 text file. The keystrokes are mostly logged when the key is **released**,  
 so if you hold a key down it will register as only one character typed.  
