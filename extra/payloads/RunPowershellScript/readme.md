@@ -27,7 +27,7 @@ commands shown there were replaced with more modern commands.
 This payload only works if the currently logged in user has admin  
 privileges, but this is quite a common situation.  
   
-SilentUACbypass payload launches insert.ps1* script without requesting  
+SilentUACbypass payload launches insert.ps1 script without requesting  
 for admin rights explicitly, and instead attempts to do a silent UAC  
 bypass inside the script (avoids showing a UAC confirmation window to  
 the user). The currently logged in user still has to have admin rights  
