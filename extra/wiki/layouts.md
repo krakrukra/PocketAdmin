@@ -38,7 +38,7 @@ AltGr to be applied, so this bit is the only one that is set,
 giving a final value of 0x08 to be stored in byte 95 of layout file.  
   
 There are some existing keyboard layout files in this repository  
-(in **/extra/payloads/layoutTest/kblayout/**). You can, however,  
+( in [/extra/payloads/LayoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/LayoutTest/kblayout)  ). You can, however,  
 make your own if necessary. I suggest copying an existing layout  
 file (preferably with a layout similar to yours) and then  
 inserting all the right values with some hex editor.  

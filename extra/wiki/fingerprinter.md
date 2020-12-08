@@ -103,6 +103,6 @@ CURRENT.FGP will match the collected fingerprint, so the PREVIOUS.FGP will
 stay untouched (up until you plug the device into some new machine again)  
   
 There is an example OS fingerprint database included in this repository,  
-in **/extra/payloads/fingerprinterTest/fingerdb/**; though, it is not  
+in [/extra/payloads/FingerprinterTest/fingerdb/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FingerprinterTest/fingerdb); though, it is not  
 particulary hard to build your own.  
   

@@ -1,8 +1,8 @@
 if((([System.Security.Principal.WindowsIdentity]::GetCurrent()).groups -match "S-1-5-32-544")) 
 {
-  #user script that will run with admin priviledges
+  # user script start
   Write-Output "this requires admin priviledges" > C:\Windows\adminonly.txt
-  #end of user script
+  # user script end
     
   Remove-ItemProperty -Path "HKCU:\Environment" -Name "bypassed" -ErrorAction SilentlyContinue
 } 

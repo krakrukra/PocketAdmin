@@ -9,12 +9,11 @@ REM --- find appropriate USB drive (FAT label must be POCKETADMIN) ---
 REM --- execute insert.ps1 script from its root directory as administartor ---
 GUI r
 DELAY 100
-STRING powershell start-process powershell -verb runas {-exec bypass -noP -wind hidden -nonI  .((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')}
-
+STRING powershell -exec bypass -noP -wind hidden -nonI ".((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')"
 ENTER
 
-REM --- UAC bypass, waits for user to double-tap capslock before proceeding ---
-WAITFOR_CAPSLOCK
+REM --- wait 2 seconds for UAC prompt to appear, try to say "YES" ---
+DELAY 2000
 LEFT
 DELAY 50
 ENTER

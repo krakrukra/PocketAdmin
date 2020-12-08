@@ -1,4 +1,6 @@
 This payload is intended for testing on-demand payload functionality.  
+You can directly copy all the files here to PocketAdmin's storage.  
+  
 Once you plug the device in, default on-insertion payload will open  
 up notepad and do nothing else. If you input a sequence of several  
 capslock toggles, device should call an appropriate payload from  

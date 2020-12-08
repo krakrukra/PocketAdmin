@@ -61,7 +61,7 @@ the first partition of 15MiB or less can be hidden. If the partition is too larg
 this command is ignored.  
   
 6. "SHOW_FAKE_CAPACITY **n**" command makes the device lie to the host machine  
-about it's capacity. It takes a decimal nubmer as an argument, which is new fake  
+about it's capacity. It takes a decimal number as an argument, which is new fake  
 capacity in MiB (eg. "SHOW_FAKE_CAPACITY 2048" means pretend to be a 2GiB  
 drive). The argument can be any value from 97 to 32768, otherwise the command  
 is ignored. This command can be used if you want to make the device look more  

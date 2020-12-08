@@ -10,9 +10,8 @@ In situations where you need more payload scripts (eg. one with a
 keylogger, other with reverse shell, third with data extraction)  
 and when you also have an opportunity to select appropriate payload  
 manually, you can use a different approach. This approach is called  
-on-demand payloads (as opposed to normal on-insertion payloads) and  
-it was introduced with the latest 1.3 revision of PocketAdmin.  
-
+on-demand payloads (as opposed to normal on-insertion payloads).  
+  
 This new approach allows you to store up to 17 extra payload scripts  
 in a dedicated /ondemand/ directory. The names of these payload files  
 should be in the format "scriptNN.txt", where NN is a number from 3  
@@ -43,4 +42,5 @@ or not and are completely independent from all the other functions, eg.
 there is no difference if you have enbled OS fingerprinter, HID-only  
 mode, etc. If the script file that you have requested was not found,  
 the device will stay in the idle state, but sequences of 20 or more  
-toggles will function even if there is no valid filesystem found  
+toggles will function even if there is no valid filesystem found on device.  
+  

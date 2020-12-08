@@ -1,7 +1,8 @@
 This is a windows specific payload, which will install several  
 softwares on the target machine, to make screenshots of user's  
 desktop, log keystrokes and then periodically send collected  
-data back to a specified dropbox account.  
+data back to a specified dropbox account. It is described in  
+more detail in [this video](https://www.youtube.com/watch?v=pKTy7eIpTOI).  
   
 After insertion, device will execute commands from **payload.txt**  
 file. This will bring up windows runline dialog and use it to  
