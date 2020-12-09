@@ -1,2 +1,3 @@
 Host *
 CheckHostIP no
+ServerAliveInterval 5
