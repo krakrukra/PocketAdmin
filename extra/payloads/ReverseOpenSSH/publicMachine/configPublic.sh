@@ -32,11 +32,16 @@ chown -R peasant:peasant /home/peasant
 chsh -s /bin/true peasant
 
 # install global ssh configuration files for public machine
+mkdir /etc/ssh
 cp ./global/* /etc/ssh
 chmod 600 /etc/ssh/ssh_host_ecdsa_key
 chmod 644 /etc/ssh/ssh_host_ecdsa_key.pub
 chmod 644 /etc/ssh/sshd_config
 chown -R root:root /etc/ssh
+
+# prevent access to ssh host key inside setup directory
+chmod 600 ./global/ssh_host_ecdsa_key
+chown root:root ./global/ssh_host_ecdsa_key
 
 # configure firewall rules on public machine, allow TCP port 22 and ports 2200 through 2205
 iptables-restore  < ./rules.v4
