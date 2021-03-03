@@ -1,5 +1,3 @@
-#### IMPORTANT: for previous 1.2 revision devices, check the [old wiki](https://github.com/krakrukra/12004-pocketadmin-wiki/wiki)  
-  
 By default PocketAdmin shows up as a compound device with HID  
 (keyboard + mouse) and MSD (flash drive) interfaces. For the most  
 basic use, there must be a FAT16 or FAT32 filesystem on the first  

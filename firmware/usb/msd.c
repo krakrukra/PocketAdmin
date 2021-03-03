@@ -43,15 +43,15 @@ void processMSDtransaction()
 	    {
 	      getData();//save last data packet to flash memory
 	      sendCSW(0);//return good status	      
-	      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
 	    }
 	  
 	  //if there are still data transactions left in this transfer
 	  else
 	    {
-	      USB->EP2R = (1<<8)|(1<<7)|(1<<6)|(2<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
-	      USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(3<<0);//respond to IN packets with NAK, ingore OUT packets
+	      USB->EP3R = (1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<8)|(1<<7)|(4<<0);//respond to IN packets with NAK, ingore OUT packets
 	      getData();//save data packet to flash memory
 	    }
 	}
@@ -63,29 +63,29 @@ void processMSDtransaction()
       if(MSDinfo.MSDstage == MSD_IN)
 	{
 	  //if last data transaction was just completed
-	  if( (BTABLE->COUNT3_TX == 0) || (BTABLE->COUNT3_RX == 0) )
+	  if( (BTABLE->COUNT4_TX == 0) || (BTABLE->COUNT4_RX == 0) )
 	    {
 	      sendCSW(0);//return good status
 	      
 	      //if device returned less data than host expected
 	      if( (MSDinfo.CSW).dCSWDataResidue != 0 )
 		{
-		  USB->EP2R = (1<<15)|(1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets
-		  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<5)|(3<<0);//respond to IN packets with STALL, ignore OUT packets, clear CTR_TX flag
+		  USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets
+		  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<5)|(4<<0);//respond to IN packets with STALL, ignore OUT packets, clear CTR_TX flag
 		}
 	      //if device returned as much data as host expected
 	      else
 		{
-		  USB->EP2R = (1<<15)|(1<<8)|(1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets
-		  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(3<<0);//respond to IN packets with CSW, ignore OUT packets, clear CTR_TX flag
+		  USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(3<<0);//respond with NAK to OUT packets, ignore IN packets
+		  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(4<<0);//respond to IN packets with CSW, ignore OUT packets, clear CTR_TX flag
 		}
 	    }
 	  
 	  //if there are still data transactions left in this transfer
 	  else
 	    {
-	      USB->EP2R = (1<<15)|(1<<8)|(1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets
-	      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(3<<0);//respond to IN packets with data, ignore OUT packets, clear CTR_TX flag
+	      USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(3<<0);//respond with NAK to OUT packets, ignore IN packets
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(4<<0);//respond to IN packets with data, ignore OUT packets, clear CTR_TX flag
 	      
 	      //pre-fill the next buffer with data
 	      if( MSDinfo.TargetFlag ) sendData();//if data should come from the medium
@@ -97,8 +97,8 @@ void processMSDtransaction()
 	{
 	  MSDinfo.MSDstage = READY;//CSW was just acknowledged by the host, device expects new CBW now
 	  
-	  USB->EP2R = (1<<15)|(1<<8)|(1<<7)|(1<<6)|(2<<0);//respond with ACK to OUT packets, ignore IN packets
-	  USB->EP3R = (1<<15)|(1<<8)|(1<<4)|(3<<0);//respond to IN packets with NAK, ignore OUT packets, clear CTR_TX flag
+	  USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(1<<6)|(3<<0);//respond with ACK to OUT packets, ignore IN packets
+	  USB->EP4R = (1<<15)|(1<<8)|(1<<4)|(4<<0);//respond to IN packets with NAK, ignore OUT packets, clear CTR_TX flag
 	}
     }
   
@@ -114,8 +114,8 @@ static void processNewCBW()
   unsigned char  error = 0;//this variable will be set to 1 in case of any errors found in CBW
   
   //set bufferOffset and bytesReceived to correct values
-  if(USB->EP2R & (1<<14)) {bufferOffset = BTABLE->ADDR2_TX; bytesReceived = BTABLE->COUNT2_TX & 0x03FF;}
-  else                    {bufferOffset = BTABLE->ADDR2_RX; bytesReceived = BTABLE->COUNT2_RX & 0x03FF;}
+  if(USB->EP3R & (1<<14)) {bufferOffset = BTABLE->ADDR3_TX; bytesReceived = BTABLE->COUNT3_TX & 0x03FF;}
+  else                    {bufferOffset = BTABLE->ADDR3_RX; bytesReceived = BTABLE->COUNT3_RX & 0x03FF;}
   
   //copy CBW from PMA to RAM, to save state and to allow word access to be used (4 byte access)
   bufferCopy( (unsigned short*) (BTABLE_BaseAddr + bufferOffset), (unsigned short*) &(MSDinfo.CBW), 31 );
@@ -132,8 +132,8 @@ static void processNewCBW()
     {
       sendCSW(2);//return error status, request reset recovery
       
-      USB->EP2R = (1<<13)|(1<<8)|(1<<7)|(1<<6)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+      USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
       return;
     }
   
@@ -183,21 +183,21 @@ static void processNewCBW()
 	{ 
 	  if( (MSDinfo.CBW).bmCBWFlags & (1<<7) )//if host wants to receive data
 	    {
-	      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
 	    }
 	  
 	  else//if host wants to send data
 	    {
-	      USB->EP2R = (1<<13)|(1<<8)|(1<<7)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
-	      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	      USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
 	    }
 	}
       
       else//if host does not want to send or receive any data
 	{
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
 	}
       break;
     }
@@ -213,24 +213,24 @@ static void processInquiryCommand_6()
 	{
 	case 0x00://VPD page code = supported VPD pages
 	  sendResponse( &InquiryData_VPDpagelist, sizeof(InquiryData_VPDpagelist) );//pre-fill the first packet buffer	  
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
 	  sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
 	  break;
 	  
 	default://specified VPD page code is not recognized
 	  sendCSW(1);//return error status
 	  
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
 	  break;
 	}
     }
   else//if EVPD is 0
     {
       sendResponse( &InquiryData_Standard, sizeof(InquiryData_Standard) );//pre-fill the first packet buffer      
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets      
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets      
       sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
     }
   
@@ -250,8 +250,8 @@ static void processReadCapacityCommand_10()
   
   //copy READ CAPACITY response from RAM to PMA
   sendResponse( &ReadCapacity_Data, sizeof(ReadCapacity_Data) );//pre-fill the first packet buffer
-  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
   sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
   return;
 }
@@ -262,8 +262,8 @@ static void processTestUnitReadyCommand_6()
   
   sendCSW(0);//return good status
   
-  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
   
   return;
 }
@@ -271,8 +271,8 @@ static void processTestUnitReadyCommand_6()
 static void processRequestSenseCommand_6()
 {
   sendResponse( &SenseData_Fixed, sizeof(SenseData_Fixed) );//pre-fill the first packet buffer  
-  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
   sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
   
   return;
@@ -284,21 +284,21 @@ static void processStartStopUnitCommand_6()
   
   sendCSW(0);//return good status
   
-  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
   
   return;
 }
 
 static void processPreventAllowMediumRemovalCommand_6()
 {
-  //do some medium access control here
-
-  sendCSW(0);//return good status
+  //do nothing
   
-  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
-
+  sendCSW(1);//return error status
+  
+  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
+  
   return;
 }
 
@@ -312,8 +312,8 @@ static void processModeSenseCommand_6()
     {
       sendCSW(1);//return error status
       
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
       return;
     }
   
@@ -322,23 +322,23 @@ static void processModeSenseCommand_6()
     {
     case 0x05://requested mode page = Flexible Disk
       sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets      
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets      
       sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
       break;
       
     case 0x3F://request for all available mode pages
       sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
       sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
       break;
      
     default://requested page number not recognized
       sendCSW(1);//return error status
       
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
       break;
     }
   
@@ -357,8 +357,8 @@ static void processReadCommand_10()
     {
       sendCSW(1);//return error status
       
-      USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(3<<0);//respond to IN packets with STALL, ignore OUT packets
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
     }
   //if specified address range is accessible
   else
@@ -367,8 +367,8 @@ static void processReadCommand_10()
 	{
 	  sendCSW(0);//return good status
 	  
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond with NAK to OUT packets, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond with NAK to OUT packets, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
 	}
       else//if host wants to read one or more blocks
 	{	  
@@ -381,8 +381,8 @@ static void processReadCommand_10()
 	  if(MSDinfo.BytesLeft >= 1024) dmaread_LB((unsigned char*) &MSDbuffer[512], (MSDinfo.DataPointer + 512) / 512);
 	  
 	  sendData();//start sending data to USB host	  
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with data, ingore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
 	  sendData();//start sending data to USB host
 	}
     }
@@ -403,8 +403,8 @@ static void processWriteCommand_10()
     {
       sendCSW(1);//return error status
       
-      USB->EP2R = (1<<13)|(1<<8)|(1<<7)|(2<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
-      USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ignore OUT packets
+      USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
     }
   //if specified address range is accessible
   else
@@ -413,8 +413,8 @@ static void processWriteCommand_10()
 	{
 	  sendCSW(0);//return good status
 	  
-	  USB->EP2R = (1<<8)|(1<<7)|(2<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(3<<0);//respond to IN packets with CSW, ingore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
 	}
       else//if host wants to write one or more blocks
 	{
@@ -423,8 +423,8 @@ static void processWriteCommand_10()
 	  prepare_LB(MSDinfo.DataPointer / 512, (MSDinfo.CBW).dCBWDataTransferLength / 512 );
 	  MSDinfo.MSDstage = MSD_OUT;
 	  
-	  USB->EP2R = (1<<8)|(1<<7)|(1<<6)|(2<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
-	  USB->EP3R = (1<<15)|(1<<8)|(1<<7)|(3<<0);//respond to IN packets with NAK, ingore OUT packets
+	  USB->EP3R = (1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<8)|(1<<7)|(4<<0);//respond to IN packets with NAK, ingore OUT packets
 	}
     }
   
@@ -441,8 +441,8 @@ static void sendResponse(void* responseAddress, unsigned int responseSize)
   unsigned short* countPointer;//holds where in packet memory should the number of bytes to transmit be stored
   
   //set bufferOffset and countPointer to correct values
-  if(USB->EP3R & (1<<14)) {bufferOffset = BTABLE->ADDR3_RX; countPointer = (unsigned short*) (&BTABLE->COUNT3_RX);}
-  else                    {bufferOffset = BTABLE->ADDR3_TX; countPointer = (unsigned short*) (&BTABLE->COUNT3_TX);}
+  if(USB->EP4R & (1<<14)) {bufferOffset = BTABLE->ADDR4_RX; countPointer = (unsigned short*) (&BTABLE->COUNT4_RX);}
+  else                    {bufferOffset = BTABLE->ADDR4_TX; countPointer = (unsigned short*) (&BTABLE->COUNT4_TX);}
   
   //try to return all data requested, but not more than is available
   if(responseSize < MSDinfo.BytesLeft) MSDinfo.BytesLeft = responseSize;
@@ -482,8 +482,8 @@ static void sendData()
   unsigned short* countPointer;//holds where in packet memory should the number of bytes to transmit be stored
   
   //set bufferOffset and countPointer to correct values
-  if(USB->EP3R & (1<<14)) {bufferOffset = BTABLE->ADDR3_RX; countPointer = (unsigned short*) (&BTABLE->COUNT3_RX);}
-  else                    {bufferOffset = BTABLE->ADDR3_TX; countPointer = (unsigned short*) (&BTABLE->COUNT3_TX);}
+  if(USB->EP4R & (1<<14)) {bufferOffset = BTABLE->ADDR4_RX; countPointer = (unsigned short*) (&BTABLE->COUNT4_RX);}
+  else                    {bufferOffset = BTABLE->ADDR4_TX; countPointer = (unsigned short*) (&BTABLE->COUNT4_TX);}
   
   //if one transaction is enough to transfer all remaining data
   if(MSDinfo.BytesLeft <= MAXPACKET_MSD)
@@ -530,8 +530,8 @@ static void getData()
   unsigned short bytesReceived;//holds how many bytes a particular packet memory buffer has received
   
   //set bufferOffset and bytesReceived to correct values
-  if(USB->EP2R & (1<<14)) {bufferOffset = BTABLE->ADDR2_TX; bytesReceived = BTABLE->COUNT2_TX & 0x03FF;}
-  else                    {bufferOffset = BTABLE->ADDR2_RX; bytesReceived = BTABLE->COUNT2_RX & 0x03FF;}
+  if(USB->EP3R & (1<<14)) {bufferOffset = BTABLE->ADDR3_TX; bytesReceived = BTABLE->COUNT3_TX & 0x03FF;}
+  else                    {bufferOffset = BTABLE->ADDR3_RX; bytesReceived = BTABLE->COUNT3_RX & 0x03FF;}
   
   //copy all bytes the host sent to receive buffer
   bufferCopy( (unsigned short*) (BTABLE_BaseAddr + bufferOffset), (unsigned short*) &MSDbuffer[MSDinfo.ActiveBuffer * 512 + MSDinfo.DataPointer % 512], bytesReceived );
@@ -567,11 +567,11 @@ static void sendCSW(unsigned char status)
 {
   (MSDinfo.CSW).dCSWTag = (MSDinfo.CBW).dCBWTag;//set CSW tag according to current CBW
   (MSDinfo.CSW).bCSWStatus = status;//return status as specified in argument
-  bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_TX), 13 );//copy CSW from RAM to PMA
-  bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR3_RX), 13 );//copy CSW from RAM to PMA
-  BTABLE->COUNT3_TX = 13;
-  BTABLE->COUNT3_RX = 13;
+  bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR4_TX), 13 );//copy CSW from RAM to PMA
+  bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR4_RX), 13 );//copy CSW from RAM to PMA
+  BTABLE->COUNT4_TX = 13;
+  BTABLE->COUNT4_RX = 13;
   MSDinfo.MSDstage = STATUS;//CSW is being sent, waiting for host to acknowledge it
-
+  
   return;
 }

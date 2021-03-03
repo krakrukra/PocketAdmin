@@ -155,30 +155,42 @@ typedef struct
 typedef struct
 {
   ConfigurationDescriptor_TypeDef ConfigurationDescriptor_1;
-  InterfaceDescriptor_TypeDef InterfaceDescriptor_0;//HID interface
-  HIDdescriptor_TypeDef HIDdescriptor;//HID descriptor
-  EndpointDescriptor_TypeDef EndpointDescriptor_1_IN;//HID_IN  endpoint
-  EndpointDescriptor_TypeDef EndpointDescriptor_1_OUT;//HID_OUT endpoint
-  InterfaceDescriptor_TypeDef InterfaceDescriptor_1;//MSD interface
-  EndpointDescriptor_TypeDef EndpointDescriptor_2_OUT;//MSD_OUT endpoint
-  EndpointDescriptor_TypeDef EndpointDescriptor_3_IN;//MSD_IN  endpoint
+  
+  InterfaceDescriptor_TypeDef InterfaceDescriptor_0;//HID_KB interface
+  HIDdescriptor_TypeDef HIDdescriptor_0;//HID descriptor
+  EndpointDescriptor_TypeDef EndpointDescriptor_1_IN;//HID_KB_IN  endpoint
+  EndpointDescriptor_TypeDef EndpointDescriptor_1_OUT;//HID_KB_OUT endpoint
+  
+  InterfaceDescriptor_TypeDef InterfaceDescriptor_1;//HID_MS interface
+  HIDdescriptor_TypeDef HIDdescriptor_1;//HID descriptor
+  EndpointDescriptor_TypeDef EndpointDescriptor_2_IN;//HID_MS_IN  endpoint
+  
+  InterfaceDescriptor_TypeDef InterfaceDescriptor_2;//MSD interface
+  EndpointDescriptor_TypeDef EndpointDescriptor_3_OUT;//MSD_OUT endpoint
+  EndpointDescriptor_TypeDef EndpointDescriptor_4_IN;//MSD_IN  endpoint
 } __attribute__(( packed )) GetConfigResponse_default_TypeDef;
 
 typedef struct
 {
   ConfigurationDescriptor_TypeDef ConfigurationDescriptor_1;
-  InterfaceDescriptor_TypeDef InterfaceDescriptor_0;//HID interface
-  HIDdescriptor_TypeDef HIDdescriptor;//HID descriptor
-  EndpointDescriptor_TypeDef EndpointDescriptor_1_IN;//HID_IN  endpoint
-  EndpointDescriptor_TypeDef EndpointDescriptor_1_OUT;//HID_OUT endpoint
+  
+  InterfaceDescriptor_TypeDef InterfaceDescriptor_0;//HID_KB interface
+  HIDdescriptor_TypeDef HIDdescriptor_0;//HID descriptor
+  EndpointDescriptor_TypeDef EndpointDescriptor_1_IN;//HID_KB_IN  endpoint
+  EndpointDescriptor_TypeDef EndpointDescriptor_1_OUT;//HID_KB_OUT endpoint
+  
+  InterfaceDescriptor_TypeDef InterfaceDescriptor_1;//HID_MS interface
+  HIDdescriptor_TypeDef HIDdescriptor_1;//HID descriptor
+  EndpointDescriptor_TypeDef EndpointDescriptor_2_IN;//HID_MS_IN  endpoint
 } __attribute__(( packed )) GetConfigResponse_HIDonly_TypeDef;
 
 typedef struct
 {
   ConfigurationDescriptor_TypeDef ConfigurationDescriptor_1;
+  
   InterfaceDescriptor_TypeDef InterfaceDescriptor_0;//MSD interface
-  EndpointDescriptor_TypeDef EndpointDescriptor_2_OUT;//MSD OUT endpoint
-  EndpointDescriptor_TypeDef EndpointDescriptor_3_IN;//MSD IN endpoint
+  EndpointDescriptor_TypeDef EndpointDescriptor_3_OUT;//MSD OUT endpoint
+  EndpointDescriptor_TypeDef EndpointDescriptor_4_IN;//MSD IN endpoint
 } __attribute__(( packed )) GetConfigResponse_MSDonly_TypeDef;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -230,14 +242,15 @@ typedef struct
   unsigned short BytesLeft;//how many bytes are yet to be transmitted in data stage
   unsigned char NewAddress;//address to assign to a device after STATUS_IN stage is completed
   unsigned char ConfigurationNumber;//current device configuration number
-  unsigned char ZLPneeded;//0 means there is no need for last packet to be ZLP in DATA_IN TransferStage, 1 = ZLP is needed  
+  unsigned char ZLPneeded;//0 means there is no need for last packet to be ZLP in DATA_IN TransferStage, 1 = ZLP is needed
   DeviceState_TypeDef DeviceState;//current device state
   TransferStage_TypeDef TransferStage;//current stage of control transfer
-  ControlRequest_TypeDef ControlRequest;//structure to hold the control request currently being processed  
+  ControlRequest_TypeDef ControlRequest;//structure to hold the control request currently being processed
   unsigned int OSfingerprintData[10];//holds copies of bytes 0-3 from first 10 control requests after poweron
   volatile unsigned char OSfingerprintCounter;//keeps track of how many control requests have been received after poweron
   volatile unsigned char EnumerationMode;//0 means default HID+MSD enumeration, 1 means HID-only enumeration
-  volatile unsigned char HIDprotocol;//0 means boot protocol is currently being used by HID interface, 1 means report protocol
+  volatile unsigned char HIDprotocolKB;//0 means boot protocol is used by keyboard, 1 means report protocol is used
+  volatile unsigned char HIDprotocolMS;//0 means boot protocol is used by mouse, 1 means report protocol is used
 } ControlInfo_TypeDef;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -298,6 +311,7 @@ typedef struct
   unsigned short HoldModifiers;//contains modifier keys to be sent in a default report
   unsigned short LBAoffset;//contains lowest LBA which is available to MSD interface (lower LBA's are hidden)
   unsigned short FakeCapacity;//contains a fake capacity value in MiB; use real capacity if FakeCapacity == 0
+  volatile unsigned char  LEDstates;//contains latest OUT report received by HID keyboard interface
   char Filename[13];//holds the name of the file on which some particular action should be performed
   
   unsigned char PayloadFlags;//holds status flag bitmask with meanings of each bit specified below:

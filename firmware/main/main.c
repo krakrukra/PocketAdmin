@@ -52,6 +52,7 @@ PayloadInfo_TypeDef PayloadInfo =
     .HoldModifiers = MOD_NONE,//no modifiers are applied
     .LBAoffset = 0,//all blocks are available to MSD interface
     .FakeCapacity = 0,//use real capacity by default
+    .LEDstates = 0,//assume no LED's are ON yet
     .Filename = {0x00},//no target filename is specified yet
     .PayloadFlags = 0,//no payload specific flags are set
     .DeviceFlags = 0//no device wide flags are set
@@ -113,14 +114,14 @@ int main()
 	  
 	  //unless explicitly disabled, run default ON-INSERTION script
 	  if( !(PayloadInfo.DeviceFlags & (1<<0)) ) runDuckyPayload("payload.txt");
-	}                  
+	}
       
       
       while(1)
 	{
 	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty keyboard report
 	  sendMSreport(MOUSE_IDLE);//send an empty mouse report
-	  	  
+	  
 	  toggleCount = countCapsToggles(65535);//count number of capslock toggles in one sequence
 	  
 	  //if there was from 3 to 19 capslock toggles in a given sequence
@@ -267,38 +268,74 @@ static void readConfigFile(char* filename)
 
 static void waitForInit()
 {
-  unsigned char LEDstate;//holds last sampled value of capslock LED state
-  
-  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-  delay_ms(50);//wait for 50 milliseconds before sending any keys
-  LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);//sample current capslock LED state
-  
-  while( !LEDstate )//keep toggling capslock until it is turned on
+  unsigned char CAPSstate = PayloadInfo.LEDstates & (1<<1);//holds last sampled value of capslock LED state
+
+  restart_tim6(50);//set TIM6 to count for 50ms
+  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
     {
-      sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
-      delay_ms(5);//keep capslock pressed for 5 milliseconds
       sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-      
-      restart_tim6(200);//start TIM6, wait up to 200ms for host to acknowledge capslock press event (if not, try again)
-      while( (TIM6->CR1 & (1<<0)) && !LEDstate ) LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);
+      delay_ms(10);//wait for 10 milliseconds before sending new report
+      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
     }
   
-  while( LEDstate )//keep toggling capslock until it is turned off
+  while( !CAPSstate )//keep toggling capslock until it is turned on
     {
-      sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
-      delay_ms(5);//keep capslock pressed for 5 milliseconds
+      restart_tim6(100);//set TIM6 to count for 100ms
+      while( (TIM6->CR1 & (1<<0)) && !CAPSstate )//keep capslock pressed until TIM6 runs out or CAPS LED turns on
+	{
+	  sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample capslock state
+	}
+      
+      restart_tim6(200);//set TIM6 to count for 200ms
+      while( (TIM6->CR1 & (1<<0)) && !CAPSstate )//keep capslock released until TIM6 runs out or CAPS LED turns on
+	{
+	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  CAPSstate = PayloadInfo.LEDstates & (1<<1);
+	}
+    }
+  
+  restart_tim6(50);//set TIM6 to count for 50ms
+  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
+    {
       sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+      delay_ms(10);//wait for 10 milliseconds before sending new report
+      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
+    }
+  
+  while( CAPSstate )//keep toggling capslock until it is turned off
+    {
+      restart_tim6(100);//set TIM6 to count for 100ms
+      while( (TIM6->CR1 & (1<<0)) && CAPSstate )//keep capslock pressed until TIM6 runs out or CAPS LED turns off
+	{
+	  sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample capslock state
+	}
       
       restart_tim6(1010);//start TIM6, wait up to 1010ms for host to acknowledge capslock press event (if not, try again)
-      while( (TIM6->CR1 & (1<<0)) &&  LEDstate ) LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);
+      while( (TIM6->CR1 & (1<<0)) && CAPSstate )//keep capslock released until TIM6 runs out or CAPS LED turns off
+	{
+	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  CAPSstate = PayloadInfo.LEDstates & (1<<1);
+	}
+    }
+
+  restart_tim6(50);//set TIM6 to count for 50ms
+  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
+    {
+      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+      delay_ms(10);//wait for 10 milliseconds before sending new report
+      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
     }
   
-  delay_ms(50);//wait for 50 milliseconds for some late arriving LED toggle
-  LEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);//sample capslock state once more
-  if( LEDstate )//if late arriving capslock was detected, toggle capslock for one more time
+  if( CAPSstate )//if late arriving capslock was detected, toggle capslock for one more time
     {
       sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
-      delay_ms(5);//keep capslock pressed for 5 milliseconds
+      delay_ms(10);//keep capslock pressed for 10 milliseconds
       sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
     }
   
@@ -311,27 +348,29 @@ static void waitForInit()
 static unsigned short countCapsToggles(unsigned short toggleLimit)
 {
   unsigned short toggleCount = 0;//holds number of times that capslock was switched on/off    
-  unsigned char oldLEDstate;//holds previous sampled value of capslock LED state
-  unsigned char newLEDstate;//holds latest   sampled value of capslock LED state
+  unsigned char oldCAPSstate;//holds previous sampled value of capslock LED state
+  unsigned char newCAPSstate;//holds latest   sampled value of capslock LED state
   
   restart_tim6(1010);//start capslock sequence timer, run for 1010ms
-
+  oldCAPSstate = PayloadInfo.LEDstates & (1<<1);//sample capslock LED state at the start
+  
   //keep going until capslock sequence timer runs out or toggleLimit is reached
   while( (TIM6->CR1 & (1<<0)) && (toggleCount < toggleLimit) )
     {
-      //sample capslock LED states before and after a short delay
-      oldLEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);
+      //have a short delay before sampling new CAPS state again
       delay_ms(1);//wait for 1 millisecond
       garbage_collect();//erase an invalid block if found
       delay_ms(1);//wait for 1 millisecond
-      newLEDstate = *((unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX + ControlInfo.HIDprotocol)) & (1<<1);
+      newCAPSstate = PayloadInfo.LEDstates & (1<<1);//sample new CAPS state
       
       //if capslock LED state have changed since previous sample
-      if( oldLEDstate != newLEDstate )
+      if( oldCAPSstate != newCAPSstate )
 	{
 	  restart_tim6(1010);//restart capslock toggle timer, run for 1010ms
 	  toggleCount++;//one more capslock toggle event was detected
 	}
+
+      oldCAPSstate = newCAPSstate;//remember current CAPS state for the next comparison
     }
   
   return toggleCount;
@@ -341,7 +380,7 @@ static unsigned short countCapsToggles(unsigned short toggleLimit)
 static void runDuckyPayload(char* filename)
 {
   unsigned char replaceFlag = 0;//will be set to 1 every time there is a need to replace some data in PayloadBuffer
-
+  
   //reinitialize PayloadInfo variables which are script specific
   PayloadInfo.DefaultDelay = 0;
   PayloadInfo.StringDelay = 0;
@@ -382,10 +421,10 @@ static void runDuckyPayload(char* filename)
 	      if(BytesRead < 1024) PayloadBuffer[ (PayloadInfo.PayloadFlags % 2) * 1024 + BytesRead ] = 0x0A;//if end of file is detected, add an extra newline
 	      
 	      PayloadInfo.PayloadFlags ^= (1<<0);//commands are now being executed from the other half of PayloadBuffer	      
-	      replaceFlag = 0;//reset loadFlag back to 0
+	      replaceFlag = 0;//set replaceFlag back to 0
 	      NVIC_EnableIRQ(31);//enable usb interrupt again
 	    }
-
+	  
 	  runDuckyCommand();//execute one line of ducky script, subtract number of executed bytes from BytesLeft
 	}
     }
@@ -546,7 +585,7 @@ static void runDuckyCommand()
   
   if(  (PayloadInfo.DeviceFlags & (1<<4)) && (PayloadInfo.PayloadFlags & (1<<4)) ) delay_ms(PayloadInfo.DefaultDelay);//if ONACTION_DELAY is used, only wait for default time if necessary
   if( !(PayloadInfo.DeviceFlags & (1<<4)) )                                        delay_ms(PayloadInfo.DefaultDelay);//if DEFAULT_DELAY  is used, always wait for default time
-
+  
   PayloadInfo.PayloadFlags &= ~(1<<4);//clear ActionFlag
   PayloadInfo.PayloadFlags &= ~(1<<3);//clear MouseFlag
   
@@ -770,32 +809,15 @@ static void sendString(char* stringStart)
 //send specified keyboard report to host machine
 static void sendKBreport(unsigned short modifiers, unsigned int keycodes)
 {
-  if(ControlInfo.HIDprotocol)//if report protocol is currently selected
-    { 
-      //write keyboard report data into a new report
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  0) ) = (modifiers << 8) | 0x01;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  2) ) = keycodes <<  8;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  4) ) = keycodes >>  8;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  6) ) = keycodes >> 24;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  8) ) = 0;
-      
-      BTABLE->COUNT1_TX = 9;//data payload size for next IN transaction = 9 bytes
-      USB->EP1R = (1<<15)|(1<<10)|(1<<9)|(1<<7)|(1<<4)|(1<<0);//respond with data to next IN packet
-      while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)            
-    }
+  //write keyboard report data into a new report
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  0) ) = modifiers;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  2) ) = keycodes >>  0;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  4) ) = keycodes >> 16;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  6) ) = 0;
   
-  else//if boot protocol is currently selected
-    {
-      //write keyboard report data into a new report
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  0) ) = modifiers;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  2) ) = keycodes >>  0;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  4) ) = keycodes >> 16;
-      *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX +  6) ) = 0;
-      
-      BTABLE->COUNT1_TX = 8;//data payload size for next IN transaction = 9 bytes
-      USB->EP1R = (1<<15)|(1<<10)|(1<<9)|(1<<7)|(1<<4)|(1<<0);//respond with data to next IN packet
-      while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)      
-    }
+  BTABLE->COUNT1_TX = 8;//data payload size for next IN transaction = 8 bytes
+  USB->EP1R = (1<<15)|(1<<10)|(1<<9)|(1<<7)|(1<<4)|(1<<0);//respond with data to next IN packet
+  while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)      
   
   return;
 }
@@ -804,13 +826,12 @@ static void sendKBreport(unsigned short modifiers, unsigned int keycodes)
 static void sendMSreport(unsigned int mousedata)
 {
   //write mouse report data into a new report
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 0) ) = (mousedata <<  8) | 0x02;
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 2) ) = mousedata >>  8;
-  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR1_TX + 4) ) = mousedata >> 24;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR2_TX + 0) ) = mousedata >>  0;
+  *( (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR2_TX + 2) ) = mousedata >> 16;
   
-  BTABLE->COUNT1_TX = 5;//data payload size for next IN transaction = 5 bytes
-  USB->EP1R = (1<<15)|(1<<10)|(1<<9)|(1<<7)|(1<<4)|(1<<0);//respond with data to next IN packet
-  while( (USB->EP1R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)
+  BTABLE->COUNT2_TX = 4;//data payload size for next IN transaction = 4 bytes
+  USB->EP2R = (1<<15)|(1<<10)|(1<<9)|(1<<7)|(1<<4)|(2<<0);//respond with data to next IN packet
+  while( (USB->EP2R & 0x0030) == 0x0030 );//wait until STAT_TX has changed from VALID to NAK (means host has received the report)
   
   return;
 }

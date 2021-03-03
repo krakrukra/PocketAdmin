@@ -50,7 +50,22 @@ static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".r
 {
  0x70,//current error sense data
  0x00,//reserved
- 0x05 //ILLEGAL REQUEST
+ 0x05,//sense key = ILLEGAL REQUEST
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//additional length = 0
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x24,//sense code = INVALID CDB FIELD
+ 0x00,//sense qualifier = 0
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00,//reserved
+ 0x00 //reserved
 };
 
 static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2) )) =

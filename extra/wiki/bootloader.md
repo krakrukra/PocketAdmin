@@ -54,7 +54,8 @@ both old and new firmware update procedures.
 7. tap on capslock 20 times or more again  
 8. click on "Choose" button (bottom right)  
 9. select the /firmware/firmware_13nnn.dfu file  
-10. click on "Upgrade" button (bottom right)  
-11. confirm by clicking "yes"  
-12. wait for update process to finish, pull the device out  
+10. select "Internal Flash" as target region (Target ID = 00)  
+11. click on "Upgrade" button (bottom right)  
+12. confirm by clicking "yes"  
+13. wait for update process to finish, pull the device out  
   
