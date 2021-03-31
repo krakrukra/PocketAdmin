@@ -1,0 +1,1 @@
+write-output 'C:\ProgramData\stream\ffmpeg.exe -framerate 30 -s 640x480 -f dshow -i video="USB 2.0 PC Cam" -f dshow -i audio="Микрофон (Realtek High Definition Audio)" -c:v libx264 -b:v 1M -preset ultrafast -c:a aac -b:a 128k -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:5554' | out-file C:\ProgramData\stream\sendstream.ps1
