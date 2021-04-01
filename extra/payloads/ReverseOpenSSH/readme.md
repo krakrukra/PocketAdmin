@@ -13,7 +13,7 @@ setup will allow for remote command execution and SFTP file
 transfer even in situations where both main and target machines  
 are in different LAN's and are unable to communicate directly.  
   
-More information about the payload is available in this [video](https://www.youtube.com/watch?v=h9NPPq0q95o).  
+More information about the payload is available in [this video](https://www.youtube.com/watch?v=h9NPPq0q95o).  
 This payload requires quite a bit of preliminary setup to work,  
 so I encourage you to spend some time and learn all the details.  
   
@@ -91,4 +91,11 @@ target machine. This information can be used later when the
 main machine connects to your VPS, as you need to specify  
 some port and username to log in as. Effectively, this way  
 you can choose where to connect, VPS or a particular target.  
+  
+#### stream  
+  
+There is a directory called stream in this payload, which is  
+not related to establishing a reverse shell between machines.  
+Rather, this is an extention to an already established SSH  
+connection and it is described in more detail in [this video](https://www.youtube.com/watch?v=BF4Q4MDFaKE).  
   
