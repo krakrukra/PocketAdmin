@@ -15,7 +15,7 @@ printf "setting a new password for user\n"
 passwd user
 # make main machine authorized to log in as user, give user a normal shell
 cp ./user/authorized_keys /home/user/.ssh/authorized_keys
-chmod 644 /home/user/authorized_keys
+chmod 644 /home/user/.ssh/authorized_keys
 chown -R user:user /home/user
 chsh -s /bin/bash user
 
@@ -27,7 +27,7 @@ printf "setting a new password for peasant\n"
 passwd peasant
 # make target machine authorized to log in as peasant, prevent any command execution
 cp ./peasant/authorized_keys /home/peasant/.ssh/authorized_keys
-chmod 644 /home/peasant/authorized_keys
+chmod 644 /home/peasant/.ssh/authorized_keys
 chown -R peasant:peasant /home/peasant
 chsh -s /bin/true peasant
 
