@@ -179,7 +179,7 @@ static void readConfigFile(char* filename)
   
   if( !f_open(&openedFileInfo, filename, FA_READ | FA_OPEN_EXISTING) )//if configuration file was successfully opened
     {
-      f_read(&openedFileInfo, (char*) &PayloadBuffer, 512, &BytesRead );
+      f_read(&openedFileInfo, (char*) &PayloadBuffer, 512, &BytesRead);
       PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;//move PayloadPointer back to start
       PayloadInfo.BytesLeft = BytesRead + 1;//one extra newline character will be appended to the end of payload script
       //always append a newline after config file contents; that prevents bricking the device by skipString() if there is no newline in config.txt
@@ -239,14 +239,14 @@ static void readConfigFile(char* filename)
 	    }
 	  else if( checkKeyword("USE_LAYOUT ") )
 	    {	      	      
-	      f_mkdir("0:/kblayout");//create /kbalyout/
+	      f_mkdir("0:/kblayout");//create /kblayout/
 	      f_chdir("0:/kblayout");//go to /kblayout/ directory
 	      setFilename(PayloadInfo.PayloadPointer);
 	      
 	      //load new keymap from the specified file
-	      if( !f_open(&openedFileInfo, (char*) &(PayloadInfo.Filename), FA_READ | FA_OPEN_EXISTING) )
+	      if( !f_open( &openedFileInfo, (char*) &(PayloadInfo.Filename), FA_READ | FA_OPEN_EXISTING) )
 		{
-		  f_read(&openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
+		  f_read( &openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
 		  f_close( &openedFileInfo );
 		}
 	    }	  	 
@@ -413,10 +413,10 @@ static void runDuckyPayload(char* filename)
                if( !(PayloadInfo.PayloadFlags & (1<<0)) && (PayloadInfo.PayloadPointer >= ((char*) &PayloadBuffer + 1024)) ) replaceFlag = 1;
 	  else if(  (PayloadInfo.PayloadFlags & (1<<0)) && (PayloadInfo.PayloadPointer <  ((char*) &PayloadBuffer + 1024)) ) replaceFlag = 1;
 	  
-	  if(replaceFlag)
+	  if(replaceFlag)//if some 1024 byte block was completely processed
 	    {
 	      NVIC_DisableIRQ(31);//disable usb interrupt, so f_read() and MSD access do not collide
-	      f_read( &openedFileInfo, (char*) &PayloadBuffer + (PayloadInfo.PayloadFlags % 2) * 1024, 1024, &BytesRead );//first 1024 bytes can now be overwritten
+	      f_read( &openedFileInfo, (char*) &PayloadBuffer + (PayloadInfo.PayloadFlags % 2) * 1024, 1024, &BytesRead );//try to read next 1024 bytes of payload
 	      PayloadInfo.BytesLeft = PayloadInfo.BytesLeft + BytesRead;
 	      if(BytesRead < 1024) PayloadBuffer[ (PayloadInfo.PayloadFlags % 2) * 1024 + BytesRead ] = 0x0A;//if end of file is detected, add an extra newline
 	      
@@ -452,14 +452,17 @@ static void runDuckyCommand()
   //search for specific keywords, take appropriate actions if found; keep going until the end of line is found
   while( *(PayloadInfo.PayloadPointer) != 0x0A )
     {
-      if(limit) limit--;//if limit of keywords is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKBreport(MOD_NONE, KB_Reserved);
+      //if limit of keywords is reached, set ErrorFlag
+      if(limit == 0) PayloadInfo.PayloadFlags |= (1<<7);
+      else limit--;
       
-      skipSpaces();
+      skipSpaces();//try to skip space separator characters between keywords
+      if(PayloadInfo.PayloadFlags & (1<<7)) {PayloadInfo.BytesLeft = 0; return;}//if any error was detected, stop script execution
+      
       
       //if PayloadPointer is at some ASCII-nonprintable character, skip the rest of the line
       if( ( *(PayloadInfo.PayloadPointer) < 32 ) || ( *(PayloadInfo.PayloadPointer) > 126 ) ) skipString();
-
+      
       //special functionality commands are only valid if they are at the very start of the line
       else if( (limit == 10) && checkKeyword("REM") )              {skipString();}
       else if( (limit == 10) && checkKeyword("REPEAT_START") )     {PayloadInfo.RepeatStart = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft; PayloadInfo.PayloadFlags |= (1<<1); skipString();}
@@ -549,7 +552,7 @@ static void runDuckyCommand()
 	  else if( (keycodePointer[3] == 0) && checkKeyword("F2") )          keycodes = (keycodes << 8) | KB_F2;	       
 	  else if( (keycodePointer[3] == 0) && checkKeyword("F1") )          keycodes = (keycodes << 8) | KB_F1;
 	  
-	  else if( keycodePointer[3] == 0)//if keyword is not recognized, but PayloadPointer is at some ASCII printable character
+	  else if(  keycodePointer[3] == 0)//if keyword is not recognized, but PayloadPointer is at some ASCII printable character
 	    {
 	      keycodes = (keycodes << 8) | (Keymap[ *(PayloadInfo.PayloadPointer) - 32 ] & 0x7F);//map ascii symbol to HID keycode, append this keycode to the list of similtaneous keycodes
 	      if( Keymap[  *PayloadInfo.PayloadPointer - 32 ] & (1<<7) ) modifiers = modifiers | MOD_LSHIFT;//if most significant bit in Keymap[] is set, add LSHIFT modifier
@@ -578,7 +581,7 @@ static void runDuckyCommand()
       PayloadInfo.HoldMousedata = mousedata & 0x000000FF;//only hold mouse buttons for next commands
       PayloadInfo.PayloadFlags &= ~(1<<2);//clear HoldFlag
     }
-
+  
   //release specified key combo and mouse activity
   sendKBreport(PayloadInfo.HoldModifiers, PayloadInfo.HoldKeycodes);
   if(PayloadInfo.PayloadFlags & (1<<3)) sendMSreport(PayloadInfo.HoldMousedata);
@@ -596,10 +599,12 @@ static void runDuckyCommand()
   if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 2047) ) PayloadInfo.PayloadPointer++;
   else PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;
   
-  //calculate the size of current command, subtract it from BytesLeft
+  //calculate the size of current command
   if( (unsigned int) PayloadInfo.PayloadPointer >= commandStart) bytesUsed = (unsigned int) PayloadInfo.PayloadPointer - commandStart;
   else                                                           bytesUsed = (unsigned int) PayloadInfo.PayloadPointer - commandStart + 2048;  
-  PayloadInfo.BytesLeft = PayloadInfo.BytesLeft - bytesUsed;
+  //subtract size of command from BytesLeft
+  if(PayloadInfo.BytesLeft < bytesUsed) PayloadInfo.BytesLeft = 0;
+  else PayloadInfo.BytesLeft = PayloadInfo.BytesLeft - bytesUsed;
   
   return;
 }
@@ -768,25 +773,30 @@ static void sendString(char* stringStart)
   unsigned short modifiers;//modifier byte to send in a next report
   unsigned short limit = 1000;//maximum number of symbols by which PayloadPointer is allowed to move
   
-  if(PayloadInfo.HoldKeycodes >> 24) return;//if there is not enough space for one more keycode, do nothing and return  
+  //if there is not enough space for one more keycode, set ErrorFlag and return
+  if(PayloadInfo.HoldKeycodes >> 24) {PayloadInfo.PayloadFlags |= (1<<7); return;}
   
   while( ( *stringStart > 31 ) && ( *stringStart < 127 ) )//continue until first unsupported character is encountered
     {
-      if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKBreport(MOD_NONE, KB_Reserved);
+      //if limit of symbols is reached, set ErrorFlag and exit
+      if(limit == 0) {PayloadInfo.PayloadFlags |= (1<<7); return;}
+      else limit--;
       
       keycodes  = PayloadInfo.HoldKeycodes;//HID keycodes to send in a next report
       modifiers = PayloadInfo.HoldModifiers;//modifier byte to send in a next report
       
       keycodes = (keycodes << 8) | (Keymap[*stringStart - 32] & 0x7F);//map ASCII symbol into HID keycode
-      if( Keymap[*stringStart - 32] & (1<<7) ) modifiers = modifiers | MOD_LSHIFT;//if most significant bit in the Keymap[] is set, add LSHIFT modifier
-      if( Keymap[ (*stringStart - 32) / 8 + 95 ] & (1 << (*stringStart % 8)) ) modifiers = modifiers | MOD_RALT;//if corresponding AltGr bit is set, add RALT modifier
-      
-      //remove any repeating keycodes from new report data
+      //if new keycode repeats one of the old ones, remove it
            if(keycodePointer[0] == keycodePointer[1]) keycodes = keycodes >> 8;
       else if(keycodePointer[0] == keycodePointer[2]) keycodes = keycodes >> 8;
       else if(keycodePointer[0] == keycodePointer[3]) keycodes = keycodes >> 8;
-            
+      //if new keycode is unique, proceed to adding modifiers
+      else
+	{
+	  if( Keymap[*stringStart - 32] & (1<<7) ) modifiers = modifiers | MOD_LSHIFT;//if most significant bit in the Keymap[] is set, add LSHIFT modifier
+	  if( Keymap[ (*stringStart - 32) / 8 + 95 ] & (1 << (*stringStart % 8)) ) modifiers = modifiers | MOD_RALT;//if corresponding AltGr bit is set, add RALT modifier
+	}
+      
       sendKBreport(modifiers, keycodes);//send correct keycodes and modifiers for the current symbol
       delay_ms(PayloadInfo.StringDelay);//if necessary, wait for STRING_DELAY
       sendKBreport(PayloadInfo.HoldModifiers, PayloadInfo.HoldKeycodes);//release current symbol keys
@@ -843,8 +853,8 @@ static void skipSpaces()
   
   while( *(PayloadInfo.PayloadPointer) == 32 )
     {
-      //if limit of symbols is reached, skip the entire line
-      if(limit == 0) skipString();
+      //if limit of symbols is reached, set ErrorFlag and exit
+      if(limit == 0) {PayloadInfo.PayloadFlags |= (1<<7); return;}
       else limit--;
       
       //go to next character in a string. if the end of PayloadBuffer is reached, move pointer back to start of buffer
@@ -855,15 +865,16 @@ static void skipSpaces()
   return;
 }
 
-//move PayloadPointer to the next newline
+//move PayloadPointer to the next newline character
 static void skipString()
 {
   unsigned short limit = 1000;//maximum number of symbols by which PayloadPointer is allowed to move
   
   while( *(PayloadInfo.PayloadPointer) != 0x0A )
     {
-      if(limit) limit--;//if limit of symbols is reached, release all buttons and freeze ducky interpreter
-      else while(1) sendKBreport(MOD_NONE, KB_Reserved);
+      //if limit of symbols is reached, set ErrorFlag and exit
+      if(limit == 0) {PayloadInfo.PayloadFlags |= (1<<7); return;}
+      else limit--;
       
       //go to next character in a string. if the end of PayloadBuffer is reached, move pointer back to start of buffer
       if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 2047) ) PayloadInfo.PayloadPointer++;

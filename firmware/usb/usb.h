@@ -322,7 +322,7 @@ typedef struct
   // (1<<4) ActionFlag; 1 means ONACTION_DEFAULT_DELAY should be inserted after current command; 0 means ONACTION delay will not be inserted
   // (1<<5) Reserved
   // (1<<6) Reserved
-  // (1<<7) Reserved
+  // (1<<7) ErrorFlag; 1 means some error was detected in payload file, so it's execution must be stopped; 0 means no errors were found
   
   volatile unsigned char DeviceFlags;//holds status flag bitmask with meanings of each bit specified below:
   // (1<<0) NoInsertFlag; 1 means do not run on-insertion payload; 0 means run on-insertion payload
