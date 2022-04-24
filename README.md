@@ -155,7 +155,19 @@ Shipping method is Registered Air Mail (Russian Post), estimated delivery time i
   
 If you want to place an order you should write me an email to krakrukra@tutanota.com  
 and I will guide you through the purchasing process. In general, you will need to  
-provide your shipping address and how many units you want to buy. The total value  
-of your order will be converted to crypto (eg. via ETH price on etherscan.io) and  
-I will give you the destination address and the amount of crypto to transfer.  
+provide your shipping address, how many units you want to buy and your payment method.  
+  
+Here is an example of all the necessary information:  
+  
+Recipient Name,  
+Street Address,  
+City, State/Province  
+Postcode, Country  
+phone number (optional)  
+X units of PocketAdmin, payment with ETH.  
+  
+The total value of your order will be converted to crypto  
+(eg. via ETH price onetherscan.io) and I will give you the  
+destination address and the amount of crypto to transfer.  
+Once your package is shipped I will give you a tracking link.  
   
