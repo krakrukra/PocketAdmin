@@ -167,7 +167,7 @@ phone number (optional)
 X units of PocketAdmin, payment with ETH.  
   
 The total value of your order will be converted to crypto  
-(eg. via ETH price onetherscan.io) and I will give you the  
+(eg. via ETH price on etherscan.io) and I will give you the  
 destination address and the amount of crypto to transfer.  
 Once your package is shipped I will give you a tracking link.  
   
