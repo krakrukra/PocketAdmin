@@ -55,6 +55,12 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "STRING **s**"   --- types in an ASCII-printable character string  
 * "HOLD **s**"   --- keeps specified keys / mouse clicks continuously pressed  
 * "RELEASE"   --- releases all keys / mouse clicks held by "HOLD **s**" command  
+* "SETNUM_ON"   --- toggle NUMLOCK until it's LED is turned ON  
+* "SETNUM_OFF"   --- toggle NUMLOCK until it's LED is turned OFF  
+* "SETCAPS_ON"   --- toggle CAPSLOCK until it's LED is turned ON  
+* "SETCAPS_OFF"   --- toggle CAPSLOCK until it's LED is turned OFF  
+* "SETSCROLL_ON"   --- toggle SCROLLLOCK until it's LED is turned ON  
+* "SETSCROLL_OFF"   --- toggle SCROLLLOCK until it's LED is turned OFF  
   
 #### press key commands:  
 * "GUI"   --- applies left GUI modifier key  
@@ -112,6 +118,24 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "F11"  
 * "F12"  
 * ASCII-printable characters, except space ("a", "b", "G", "/", etc)  
+*   
+* "KP_SLASH"  --- keypad "/"  
+* "KP_ASTERISK"  --- keypad "*"  
+* "KP_MINUS"  --- keypad "-"  
+* "KP_PLUS"  --- keypad "+"  
+* "KP_ENTER"  --- keypad ENTER  
+* "KP_1"  --- keypad "1" or END  
+* "KP_2"  --- keypad "2" or DOWNARROW  
+* "KP_3"  --- keypad "3" or PAGEDOWN  
+* "KP_4"  --- keypad "4" or LEFTARROW  
+* "KP_5"  --- keypad "5"  
+* "KP_6"  --- keypad "6" or RIGHTARROW  
+* "KP_7"  --- keypad "7" or HOME  
+* "KP_8"  --- keypad "8" or UPARROW  
+* "KP_9"  --- keypad "9" or PAGEUP  
+* "KP_0"  --- keypad "0" or INSERT  
+* "KP_PERIOD"  --- keypad "." or DELETE  
+  
   
 #### mouse control commands:  
 * "MOUSE_LEFTCLICK"  

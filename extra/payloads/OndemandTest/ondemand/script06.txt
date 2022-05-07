@@ -1,3 +1,3 @@
-WAITFOR_INIT
+SETCAPS_OFF
 STRING this is an ON-DEMAND payload number 6!
 ENTER

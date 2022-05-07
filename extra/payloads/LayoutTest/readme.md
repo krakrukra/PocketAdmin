@@ -15,7 +15,7 @@ as the reference string above.
 If any characters are not the same as above you should either use a  
 different layout file, or modify it so it works. In this example  
 French layout is expected. To change it you should edit the  
-config.txt and replace "fr_FR" with a different layout filename.  
+config.txt and replace "fra_FR" with a different layout filename.  
   
 Note: on Italian keyboard there is no way to input tilde and  
 backtick symbols ( ~ and ` ), so spacebars are used instead.  

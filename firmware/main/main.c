@@ -16,6 +16,8 @@ static FRESULT FATFSresult;//holds return values of FATFS related funtions
 
 static void readConfigFile(char* filename);
 static void waitForInit();
+static void setLEDon (unsigned char keycode, unsigned char bitmask);
+static void setLEDoff(unsigned char keycode, unsigned char bitmask);
 static unsigned short countCapsToggles(unsigned short toggleLimit);
 static void runDuckyPayload(char* filename);
 static void runDuckyCommand();
@@ -268,71 +270,17 @@ static void readConfigFile(char* filename)
 
 static void waitForInit()
 {
-  unsigned char CAPSstate = PayloadInfo.LEDstates & (1<<1);//holds last sampled value of capslock LED state
-
   restart_tim6(50);//set TIM6 to count for 50ms
   while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
     {
       sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
       delay_ms(10);//wait for 10 milliseconds before sending new report
-      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
     }
   
-  while( !CAPSstate )//keep toggling capslock until it is turned on
-    {
-      restart_tim6(100);//set TIM6 to count for 100ms
-      while( (TIM6->CR1 & (1<<0)) && !CAPSstate )//keep capslock pressed until TIM6 runs out or CAPS LED turns on
-	{
-	  sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
-	  delay_ms(10);//wait for 10 milliseconds before sending new report
-	  CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample capslock state
-	}
-      
-      restart_tim6(200);//set TIM6 to count for 200ms
-      while( (TIM6->CR1 & (1<<0)) && !CAPSstate )//keep capslock released until TIM6 runs out or CAPS LED turns on
-	{
-	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-	  delay_ms(10);//wait for 10 milliseconds before sending new report
-	  CAPSstate = PayloadInfo.LEDstates & (1<<1);
-	}
-    }
+  setLEDon(KB_CAPSLOCK, 0x02); //keep toggling capslock until it is turned on 
+  setLEDoff(KB_CAPSLOCK, 0x02);//keep toggling capslock until it is turned off
   
-  restart_tim6(50);//set TIM6 to count for 50ms
-  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
-    {
-      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-      delay_ms(10);//wait for 10 milliseconds before sending new report
-      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
-    }
-  
-  while( CAPSstate )//keep toggling capslock until it is turned off
-    {
-      restart_tim6(100);//set TIM6 to count for 100ms
-      while( (TIM6->CR1 & (1<<0)) && CAPSstate )//keep capslock pressed until TIM6 runs out or CAPS LED turns off
-	{
-	  sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
-	  delay_ms(10);//wait for 10 milliseconds before sending new report
-	  CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample capslock state
-	}
-      
-      restart_tim6(1010);//start TIM6, wait up to 1010ms for host to acknowledge capslock press event (if not, try again)
-      while( (TIM6->CR1 & (1<<0)) && CAPSstate )//keep capslock released until TIM6 runs out or CAPS LED turns off
-	{
-	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-	  delay_ms(10);//wait for 10 milliseconds before sending new report
-	  CAPSstate = PayloadInfo.LEDstates & (1<<1);
-	}
-    }
-
-  restart_tim6(50);//set TIM6 to count for 50ms
-  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
-    {
-      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
-      delay_ms(10);//wait for 10 milliseconds before sending new report
-      CAPSstate = PayloadInfo.LEDstates & (1<<1);//sample current capslock LED state
-    }
-  
-  if( CAPSstate )//if late arriving capslock was detected, toggle capslock for one more time
+  if(PayloadInfo.LEDstates & (1<<1))//if late arriving capslock was detected, toggle capslock for one more time
     {
       sendKBreport(MOD_NONE, KB_CAPSLOCK);//press capslock key
       delay_ms(10);//keep capslock pressed for 10 milliseconds
@@ -341,6 +289,74 @@ static void waitForInit()
   
   //unless HID-only mode is used, make sure MSD interface has received at least 1 read command
   while( (ControlInfo.EnumerationMode == 0) && !(PayloadInfo.DeviceFlags & (1<<1)) );
+  
+  return;
+}
+
+//keycode must be KB_CAPSLOCK, KB_SCROLLLOCK or KP_NUMLOCK, bitmask must match LED from keycode
+static void setLEDon (unsigned char keycode, unsigned char bitmask)
+{
+  unsigned char LEDon = PayloadInfo.LEDstates & bitmask;//holds nonzero value if selected LED is ON
+  
+  while( !LEDon )//keep going until selected LED is turned on
+    {
+      restart_tim6(100);//set TIM6 to count for 100ms
+      while( (TIM6->CR1 & (1<<0)) && !LEDon )//keep selected key pressed until TIM6 runs out or LED turns on
+	{
+	  sendKBreport(MOD_NONE, keycode);//press selected key
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  LEDon = PayloadInfo.LEDstates & bitmask;//sample selected LED state
+	}
+      
+      restart_tim6(200);//set TIM6 to count for 200ms
+      while( (TIM6->CR1 & (1<<0)) && !LEDon )//keep selected key released until TIM6 runs out or LED turns on
+	{
+	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  LEDon = PayloadInfo.LEDstates & bitmask;//sample selected LED state
+	}
+    }
+  
+  restart_tim6(50);//set TIM6 to count for 50ms
+  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
+    {
+      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+      delay_ms(10);//wait for 10 milliseconds before sending new report
+    }
+  
+  return;
+}
+
+//keycode must be KB_CAPSLOCK, KB_SCROLLLOCK or KP_NUMLOCK, bitmask must match LED from keycode
+static void setLEDoff (unsigned char keycode, unsigned char bitmask)
+{
+  unsigned char LEDon = PayloadInfo.LEDstates & bitmask;//holds nonzero value if selected LED is ON
+  
+  while( LEDon )//keep going until selected LED is turned off
+    {
+      restart_tim6(100);//set TIM6 to count for 100ms
+      while( (TIM6->CR1 & (1<<0)) && LEDon )//keep selected key pressed until TIM6 runs out or LED turns off
+	{
+	  sendKBreport(MOD_NONE, keycode);//press selected key
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  LEDon = PayloadInfo.LEDstates & bitmask;//sample selected LED state
+	}
+      
+      restart_tim6(1010);//start TIM6, wait up to 1010ms for host to acknowledge capslock press event (if not, try again)
+      while( (TIM6->CR1 & (1<<0)) && LEDon )//keep capslock released until TIM6 runs out or CAPS LED turns off
+	{
+	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+	  delay_ms(10);//wait for 10 milliseconds before sending new report
+	  LEDon = PayloadInfo.LEDstates & bitmask;//sample selected LED state
+	}
+    }
+  
+  restart_tim6(50);//set TIM6 to count for 50ms
+  while(TIM6->CR1 & (1<<0))//keep all keys released until TIM6 runs out
+    {
+      sendKBreport(MOD_NONE, KB_Reserved);//send an empty report
+      delay_ms(10);//wait for 10 milliseconds before sending new report
+    }
   
   return;
 }
@@ -475,8 +491,14 @@ static void runDuckyCommand()
       else if( (limit == 10) && checkKeyword("WAITFOR_INIT") )     {waitForInit(); skipString();}
       else if( (limit == 10) && checkKeyword("WAITFOR_RESET") )    {while( ControlInfo.DeviceState != DEFAULT ); skipString();}
       else if( (limit == 10) && checkKeyword("WAITFOR_CAPSLOCK") ) {while( countCapsToggles(2) < 2 ); skipString();}
-      else if( (limit == 10) && checkKeyword("ALLOW_EXIT") )       {if( countCapsToggles(65535) > 1 ) {PayloadInfo.BytesLeft = 0; return;} else skipString(); }
-      
+      else if( (limit == 10) && checkKeyword("ALLOW_EXIT") )       {if( countCapsToggles(65535) > 1 ) {PayloadInfo.BytesLeft = 0; return;} else skipString();}
+      else if( (limit == 10) && checkKeyword("SETNUM_ON") )        {setLEDon (KP_NUMLOCK, 0x01);    skipString();}
+      else if( (limit == 10) && checkKeyword("SETNUM_OFF") )       {setLEDoff(KP_NUMLOCK, 0x01);    skipString();}
+      else if( (limit == 10) && checkKeyword("SETCAPS_ON") )       {setLEDon (KB_CAPSLOCK, 0x02);   skipString();}
+      else if( (limit == 10) && checkKeyword("SETCAPS_OFF") )      {setLEDoff(KB_CAPSLOCK, 0x02);   skipString();}
+      else if( (limit == 10) && checkKeyword("SETSCROLL_ON") )     {setLEDon (KB_SCROLLLOCK, 0x04); skipString();}
+      else if( (limit == 10) && checkKeyword("SETSCROLL_OFF") )    {setLEDoff(KB_SCROLLLOCK, 0x04); skipString();}
+		  
       else
 	{
 	  PayloadInfo.PayloadFlags |= (1<<4);//set ActionFlag
@@ -551,6 +573,22 @@ static void runDuckyCommand()
 	  else if( (keycodePointer[3] == 0) && checkKeyword("F3") )          keycodes = (keycodes << 8) | KB_F3;	       
 	  else if( (keycodePointer[3] == 0) && checkKeyword("F2") )          keycodes = (keycodes << 8) | KB_F2;	       
 	  else if( (keycodePointer[3] == 0) && checkKeyword("F1") )          keycodes = (keycodes << 8) | KB_F1;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_SLASH") )    keycodes = (keycodes << 8) | KP_SLASH;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_ASTERISK") ) keycodes = (keycodes << 8) | KP_ASTERISK;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_MINUS") )    keycodes = (keycodes << 8) | KP_MINUS;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_PLUS") )     keycodes = (keycodes << 8) | KP_PLUS;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_ENTER") )    keycodes = (keycodes << 8) | KP_ENTER;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_1") )        keycodes = (keycodes << 8) | KP_1;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_2") )        keycodes = (keycodes << 8) | KP_2;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_3") )        keycodes = (keycodes << 8) | KP_3;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_4") )        keycodes = (keycodes << 8) | KP_4;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_5") )        keycodes = (keycodes << 8) | KP_5;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_6") )        keycodes = (keycodes << 8) | KP_6;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_7") )        keycodes = (keycodes << 8) | KP_7;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_8") )        keycodes = (keycodes << 8) | KP_8;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_9") )        keycodes = (keycodes << 8) | KP_9;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_0") )        keycodes = (keycodes << 8) | KP_0;
+	  else if( (keycodePointer[3] == 0) && checkKeyword("KP_PERIOD") )   keycodes = (keycodes << 8) | KP_PERIOD;
 	  
 	  else if(  keycodePointer[3] == 0)//if keyword is not recognized, but PayloadPointer is at some ASCII printable character
 	    {
