@@ -3,6 +3,8 @@ softwares on the target machine, to make screenshots of user's
 desktop, log keystrokes and then periodically send collected  
 data back to a specified dropbox account. It is described in  
 more detail in [this video](https://www.youtube.com/watch?v=pKTy7eIpTOI).  
+**UPDATE:** due to dropbox changing their authentication method the  
+procedure of configuring upload.ps1 will be somewhat different now   
   
 After insertion, device will execute commands from **payload.txt**  
 file. This will bring up windows runline dialog and use it to  
@@ -73,12 +75,19 @@ When it detects a hour-of-the-day boundary (eg time goes from
 software have been using is now written completely and can be  
 sent back to a remote server. This folder will then be compressed  
 into a zip archive and sent out to a specific dropbox app, depending  
-on an acces token used in uploader script. Default access token is  
-"OywLJyPxoBAAAAAAAAAAD6ph2oSEH_ZPeNISpeNISp-enIsD1C-KCoCK8ahSwsZt",  
-you **must** replace it with an access token for your dropbox app to  
-receive anything. Both the original directory and the zip archive  
-will be removed from target machine's local storage after the data  
-was sent to dropbox.  
+on **app_key, app_secret, refresh_token** values of your application.  
+Both the original directory and the zip archive will be removed from  
+target machine's local storage after the data was sent to dropbox.  
+  
+You **must** replace APP_KEY_HERE, APP_SECRET_HERE, REFRESH_TOKEN_HERE  
+strings with correct values inside your upload.ps1 file in order to  
+receive anything. Values of app_key and app_secret are available via  
+dropbox webpage dedicated to your app. To get refresh token you first  
+need to go to permissions tab for your app and enable files.metadata  
+and files.content for both read and write access.  
+After that you will have to run interactive powershell script called  
+get_refresh_token.ps1 and follow the instructions it provides.  
+  
   
 #### stop the softwares
   

@@ -154,17 +154,15 @@ arbitrary combination of **press key** and **mouse control** commands.
 Below is a more detailed explaination for some commands:  
   
 1. "WAITFOR_INIT" command is intended to be used at startup, as a first ever  
-command in a script. It actively taps on capslock key and waits for host response.  
+command to be run. It actively taps on capslock key and waits for host response.  
 Once the host responds with a request to light up the capslock LED, this command  
 makes sure that the capslock is turned off. If default HID+MSD configuration is  
 used, then "WAITFOR_INIT" will also wait until at least 1 read command was sent  
 to the MSD interface, making sure that it is configured as well. This allows you  
-to make sure that the host is ready to receive keystrokes, even if there was a  
-rather long delay because of drivers being installed; it also makes sure that your  
-payload will be executed the same way, no matter if capslock was turned on or off  
-before device was inserted. Payloads which use this command can run successfully  
-on the very first insertion, and at the same time you don't have to hardcode  
-a huge delay in the script and waste more time than necessary.  
+to make sure that the host is ready to receive keystrokes, before you actually try  
+to send them. Even if there was a rather long startup delay because of drivers being  
+installed, etc, your payload can run successfully on the very first insertion, without  
+you having to hardcode a huge delay in the script and waste more time than necessary.  
   
 2. "WAITFOR_CAPSLOCK" command waits until user manually taps capslock 2 times  
 (on a real keyboard), and only then continues with the payload execution. This is  
@@ -188,7 +186,15 @@ though, that if the device will be actually powered off, then script execution
 cannot continue. In that case you should use the OS fingerprinter to select  
 appropriate BIOS-specific payload once the power is turned on again.  
   
-4. "ONACTION_DELAY **n**" command is similar to "DEFAULT_DELAY **n**", and is in  
+4. "SETNUM_ON", "SETNUM_OFF", "SETCAPS_ON", "SETCAPS_OFF", "SETSCROLL_ON",  
+"SETSCROLL_OFF" are commands which will toggle NUMLOCK, CAPSLOCK, SCROLLLOCK  
+keys until their respective LED's are turned ON or OFF. After the necessary  
+LED state is reached, execution moves to the next command in the script.  
+These commands can be useful eg. when you want to use windows ALT codes, which  
+need the NUMLOCK to be set ON to work reliably, or to make sure CAPSLOCK is  
+turned off before you type some case-sensitive command.  
+  
+5. "ONACTION_DELAY **n**" command is similar to "DEFAULT_DELAY **n**", and is in  
 fact it's alternative. That is, you cannot use them simultaneously and if one of  
 these commands is encountered in the script, it overwrites any effect that the  
 previous command had. Both commands are used to automatically insert a  
@@ -200,7 +206,7 @@ or any combination of **press key** and **mouse control** commands.
 "DEFAULT_DELAY **n**" command only exists for compatibility with ducky script  
 and is not recommended for use in your own scripts.  
   
-5. "ALLOW_EXIT" command provides a means to stop current payload execution. It  
+6. "ALLOW_EXIT" command provides a means to stop current payload execution. It  
 waits for 1 second while watching for user-initiated capslock toggles. If capslock  
 was pressed 2 or more times, then the payload script will be abandoned and the  
 device will go back to idle state, waiting for user to select some on-demand  
@@ -212,7 +218,7 @@ sequence allows you to have a payload that can be blocked by continuosly tapping
 on capslock while inserting the device (so you don't have to take the device  
 apart and use MSD-only button for this).  
   
-6. "STRING_DELAY **n**" command provides you a capability to slow down the rate  
+7. "STRING_DELAY **n**" command provides you a capability to slow down the rate  
 at which subsequent "STRING **s**" commands will be typing specified characters.  
 Normally, the device will send one report with pressed keys, and in the next frame,  
 that is, after 1ms it will send a report with keys being released. If for some  
@@ -221,7 +227,7 @@ reason the host machine cannot keep up with such typing rate, specifying a
 extra milliseconds. After this, the key will be released and again the extra **n** ms  
 delay will be inseted before the next character will be typed in.  
   
-7. "STRING **s**" command only accepts ASCII-printable characters, max length of the  
+8. "STRING **s**" command only accepts ASCII-printable characters, max length of the  
 string is 1000 characters. By default a US-compatible keyboard layout is expected.  
 If you have a different layout you need to change this by "USE_LAYOUT **s**"  
 pre-configuration command in config.txt; otherwise symbols from script will not be  
@@ -233,7 +239,7 @@ configured to have RU input, "STRING Dtkjcbgtl CNTKC" command will result in
 "Велосипед СТЕЛС" string typed. (because you have to press the same key to  
 type 'l' or 'д', same key for 'k' or 'л', etc)  
   
-8. Mouse control commands which have to do with moving the pointer or the wheel  
+9. Mouse control commands which have to do with moving the pointer or the wheel  
 take decimal arguments, ranging from 0 to 127. These arguments are relative  
 values which represent displacement from the previous location and are expressed  
 in logical units. It is completely up to the host machine to decide what these  
@@ -246,20 +252,20 @@ mouse control successfully. Commands which have to do with moving mouse pointer
 on different axies (or add scroll) can be combined on a single line, for example,  
 "MOUSE_RIGHT 120 MOUSE_DOWN 35 MOUSE_SCROLLUP 47" is a valid command.  
   
-9. Single ASCII-printable character commands are available, which will type  
+10. Single ASCII-printable character commands are available, which will type  
 out that character. The appropriate modifiers (left SHIFT and right ALT keys)  
 are applied automatically. That is, both "m" and "M" commands send the same  
 keycode, but for "M" SHIFT modifier will be used. This also means you must use  
 lowercase letters for key combos such as "GUI r" ("GUI R" means "GUI SHIFT r").  
 You can, however, add more modifiers, like this: "CTRL SHIFT t" or "GUI CTRL M"  
   
-10. "KEYCODE **n**", "KEYCODE **x**" commands are available, in case you want to  
+11. "KEYCODE **n**", "KEYCODE **x**" commands are available, in case you want to  
 send a keystroke by HID keycode (eg. you might want to type a ASCII non-printable  
 character). The acceped keycode values are from 0 to 221 (decimal).  
 Some information about keycodes can be found in [this document](https://usb.org/document-library/hid-usage-tables-112), pages 52-59.  
 It is possible to use modifier keys with it, for example: "CTRL SHIFT KEYCODE 23"  
   
-11. "HOLD **s**" command applies to keyboard keys (both modifiers or not) and also  
+12. "HOLD **s**" command applies to keyboard keys (both modifiers or not) and also  
 to mouse clicks. It is used whenever you need some keys continuously pressed, eg.  
 while in windows 10 language selection menu, opened with GUI + SPACE keys. This  
 command also affects output of "STRING **s**" and also of any **press key** or  
@@ -271,7 +277,7 @@ discard any previously held keys. For example, the following command sequence
 keys pressed for 500ms, then release only the "g" key, and only 500ms later  
 release "f" as well.  
   
-12. "REPEAT **n**" command can repeat one or more previous commands for a specified  
+13. "REPEAT **n**" command can repeat one or more previous commands for a specified  
 number of times. If a block of commands is to be repeated, the beginning of this  
 block should be marked by a "REPEAT_START" command. The size of a repeat block  
 is unlimited, so it can span for the entire length of the payload script. Once the  
