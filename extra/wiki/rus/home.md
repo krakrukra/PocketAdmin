@@ -33,13 +33,13 @@ PocketAdmin сначала читает этот файл, изменяет св
 отдельных страницах документации посвященных этому.  
   
 #### Другие страницы документации:  
-* [команды](https://github.com/krakrukra/PocketAdmin/wiki/rus/commands.md)  
-* [настройка](https://github.com/krakrukra/PocketAdmin/wiki/rus/configuration.md)  
-* [скрипты по запросу](https://github.com/krakrukra/PocketAdmin/wiki/rus/ondemand.md)  
-* [сканер ОС](https://github.com/krakrukra/PocketAdmin/wiki/rus/fingerprinter.md)  
-* [раскладки клавиатуры](https://github.com/krakrukra/PocketAdmin/wiki/rus/layouts.md)  
-* [примеры скриптов](https://github.com/krakrukra/PocketAdmin/wiki/rus/examples.md)  
-* [DFU загрузчик](https://github.com/krakrukra/PocketAdmin/wiki/rus/bootloader.md)  
+* [команды](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/commands.md)  
+* [настройка](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/configuration.md)  
+* [скрипты по запросу](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/ondemand.md)  
+* [сканер ОС](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/fingerprinter.md)  
+* [раскладки клавиатуры](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/layouts.md)  
+* [примеры скриптов](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/examples.md)  
+* [DFU загрузчик](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/bootloader.md)  
   
 #### На моём [youtube канале](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g) есть видео по применению устройства  
   
