@@ -40,61 +40,61 @@ arbitrary combination of **press key** and **mouse control** commands.
 ### Below is a complete list of all payload commands:  
   
 #### special functionality commands:  
-* "REM **s**"   --- skips to the next line, used for comments  
-* "DEFAULT_DELAY **n**"   --- sets how many milliseconds to wait after every command  
-* "DEFAULTDELAY **n**"   --- same as "DEFAULT_DELAY **n**"  
-* "ONACTION_DELAY **n**"   --- applies default delay, but only after some of commands  
-* "DELAY **n**"   --- waits a specified number of milliseconds  
-* "WAITFOR_INIT"   --- waits until host machine has finished device initialization  
-* "WAITFOR_CAPSLOCK"   --- waits until user has manually toggled capslock 2 times  
-* "WAITFOR_RESET"   --- waits until host machine resets the device (eg. on reboot)  
-* "ALLOW_EXIT"   ---  gives user 1 second to toggle capslock, exits script if detected  
-* "REPEAT_START"   --- marks the beginning of a repeat block  
-* "REPEAT **n**"   --- repeats previous command block for a specified number of times  
-* "STRING_DELAY **n**"   --- sets how long to keep a key pressed/released with "STRING **s**"  
-* "STRING **s**"   --- types in an ASCII-printable character string  
-* "HOLD **s**"   --- keeps specified keys / mouse clicks continuously pressed  
-* "RELEASE"   --- releases all keys / mouse clicks held by "HOLD **s**" command  
-* "SETNUM_ON"   --- toggle NUMLOCK until it's LED is turned ON  
-* "SETNUM_OFF"   --- toggle NUMLOCK until it's LED is turned OFF  
-* "SETCAPS_ON"   --- toggle CAPSLOCK until it's LED is turned ON  
-* "SETCAPS_OFF"   --- toggle CAPSLOCK until it's LED is turned OFF  
-* "SETSCROLL_ON"   --- toggle SCROLLLOCK until it's LED is turned ON  
-* "SETSCROLL_OFF"   --- toggle SCROLLLOCK until it's LED is turned OFF  
+* "REM **s**"  --- skips to the next line, used for comments  
+* "DEFAULT_DELAY **n**"  --- sets how many milliseconds to wait after every command  
+* "DEFAULTDELAY **n**"  --- same as "DEFAULT_DELAY **n**"  
+* "ONACTION_DELAY **n**"  --- applies default delay, but only after some of commands  
+* "DELAY **n**"  --- waits a specified number of milliseconds  
+* "WAITFOR_INIT"  --- waits until host machine has finished device initialization  
+* "WAITFOR_CAPSLOCK"  --- waits until user has manually toggled capslock 2 times  
+* "WAITFOR_RESET"  --- waits until host machine resets the device (eg. on PC reboot)  
+* "ALLOW_EXIT"  ---  gives user 1 second to toggle capslock, exits script if pressed  
+* "REPEAT_START"  --- marks the beginning of a repeat block  
+* "REPEAT **n**"  --- repeats previous command block for a specified number of times  
+* "STRING_DELAY **n**"  --- sets how long to keep a key pressed/released with "STRING **s**"  
+* "STRING **s**"  --- types in specified character string (ASCII-printable input)  
+* "HOLD **s**"  --- keeps specified keys / mouse clicks continuously pressed  
+* "RELEASE"  --- releases all keys / mouse clicks held by "HOLD **s**" command  
+* "SETNUM_ON"  --- toggle NUMLOCK until it's LED is turned ON  
+* "SETNUM_OFF"  --- toggle NUMLOCK until it's LED is turned OFF  
+* "SETCAPS_ON"  --- toggle CAPSLOCK until it's LED is turned ON  
+* "SETCAPS_OFF"  --- toggle CAPSLOCK until it's LED is turned OFF  
+* "SETSCROLL_ON"  --- toggle SCROLLLOCK until it's LED is turned ON  
+* "SETSCROLL_OFF"  --- toggle SCROLLLOCK until it's LED is turned OFF  
   
 #### press key commands:  
-* "GUI"   --- applies left GUI modifier key  
-* "WINDOWS"   --- same as "GUI"  
-* "CTRL"   --- applies left CTRL modifier key  
-* "CONTROL"   --- same as "CTRL"  
-* "SHIFT"   --- applies left SHIFT modifier key  
-* "ALT"   --- applies left ALT modifier key  
-* "RGUI"   --- applies right GUI modifier key  
-* "RCTRL"   --- applies right CTRL modifier key  
-* "RSHIFT"   --- applies right SHIFT modifier key  
-* "RALT"   --- applies right ALT modifier key  
+* "GUI"  --- applies left GUI modifier key  
+* "WINDOWS"  --- same as "GUI"  
+* "CTRL"  --- applies left CTRL modifier key  
+* "CONTROL"  --- same as "CTRL"  
+* "SHIFT"  --- applies left SHIFT modifier key  
+* "ALT"  --- applies left ALT modifier key  
+* "RGUI"  --- applies right GUI modifier key  
+* "RCTRL"  --- applies right CTRL modifier key  
+* "RSHIFT"  --- applies right SHIFT modifier key  
+* "RALT"  --- applies right ALT modifier key  
 *   
-* "KEYCODE **n**"   --- sends a key by HID keycode (decimal)  
-* "KEYCODE **x**"   --- sends a key by HID keycode (hex)  
-* "MENU"   --- key to open a menu (often the same as right click)  
-* "APP"   --- same as "MENU"  
+* "KEYCODE **n**"  --- sends a key by HID keycode (decimal)  
+* "KEYCODE **x**"  --- sends a key by HID keycode (hex)  
+* "MENU"  --- key to open a menu (often the same as right click)  
+* "APP"  --- same as "MENU"  
 * "ENTER"  
-* "RETURN"   --- same as "ENTER"  
+* "RETURN"  --- same as "ENTER"  
 * "DOWN"  
 * "LEFT"  
 * "RIGHT"  
 * "UP"  
-* "DOWNARROW"   --- same as "DOWN" 
-* "LEFTARROW"   --- same as "LEFT"  
-* "RIGHTARROW"   --- same as "RIGHT"  
-* "UPARROW"   --- same as "UP"  
+* "DOWNARROW"  --- same as "DOWN" 
+* "LEFTARROW"  --- same as "LEFT"  
+* "RIGHTARROW"  --- same as "RIGHT"  
+* "UPARROW"  --- same as "UP"  
 * "PAUSE"  
-* "BREAK"   --- same as "PAUSE"  
+* "BREAK"  --- same as "PAUSE"  
 * "CAPSLOCK"  
 * "DELETE"  
 * "END"  
 * "ESC"  
-* "ESCAPE"   --- same as "ESC"  
+* "ESCAPE"  --- same as "ESC"  
 * "HOME"  
 * "INSERT"  
 * "NUMLOCK"  
@@ -103,7 +103,7 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "PRINTSCREEN"  
 * "SCROLLLOCK"  
 * "SPACE"  
-* "SPACEBAR" --- same as "SPACE"  
+* "SPACEBAR"  --- same as "SPACE"  
 * "TAB"  
 * "F1"  
 * "F2"  
@@ -142,12 +142,12 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "MOUSE_RIGHTCLICK"  
 * "MOUSE_MIDCLICK"  
 *   
-* "MOUSE_RIGHT **n**" --- move mouse cursor right by **n** units  
-* "MOUSE_LEFT **n**" --- move mouse cursor left by **n** units  
-* "MOUSE_UP **n**" --- move mouse cursor up by **n** units  
-* "MOUSE_DOWN **n**" --- move mouse cursor down by **n** units  
-* "MOUSE_SCROLLDOWN **n**" --- scroll mouse wheel by **n** units towards the user  
-* "MOUSE_SCROLLUP **n**" --- scroll mouse wheel by **n** units away from user  
+* "MOUSE_RIGHT **n**"  --- move mouse cursor right by **n** units  
+* "MOUSE_LEFT **n**"  --- move mouse cursor left by **n** units  
+* "MOUSE_UP **n**"  --- move mouse cursor up by **n** units  
+* "MOUSE_DOWN **n**"  --- move mouse cursor down by **n** units  
+* "MOUSE_SCROLLDOWN **n**"  --- scroll mouse wheel by **n** units towards the user  
+* "MOUSE_SCROLLUP **n**"  --- scroll mouse wheel by **n** units away from user  
   
 ---
   
@@ -284,7 +284,7 @@ is unlimited, so it can span for the entire length of the payload script. Once t
 "REPEAT **n**" command is completed, the previous repeat block is over and a new  
 "REPEAT_START" command is expected. In case a "REPEAT **n**" command is used  
 without a script block beginning explicitly specified, only the command  
-immediately preceding the "REPAT **n**" will be repeated. Some examples:  
+immediately preceding the "REPEAT **n**" will be repeated. Some examples:  
 \
 The following script will run 3 commands right before REPEAT for  
 11 times (once normally + repeated 10 times):  

@@ -1,3 +1,5 @@
+#### Русская версия документации доступна [здесь](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/home.md)  
+  
 By default PocketAdmin shows up as a compound device with HID  
 (keyboard + mouse) and MSD (flash drive) interfaces. For the most  
 basic use, there must be a FAT16 or FAT32 filesystem on the first  
@@ -30,13 +32,13 @@ directories stored on the device. You can find more info about that
 in dedicated wiki pages.  
   
 #### Read other wiki pages:  
-* [commands](https://github.com/krakrukra/PocketAdmin/wiki/commands)  
-* [configuration](https://github.com/krakrukra/PocketAdmin/wiki/configuration)  
-* [on-demand payloads](https://github.com/krakrukra/PocketAdmin/wiki/ondemand)  
-* [OS fingerprinter](https://github.com/krakrukra/PocketAdmin/wiki/fingerprinter)  
-* [keyboard layouts](https://github.com/krakrukra/PocketAdmin/wiki/layouts)  
-* [example payloads](https://github.com/krakrukra/PocketAdmin/wiki/examples)  
-* [DFU bootloader](https://github.com/krakrukra/PocketAdmin/wiki/bootloader)  
+* [commands](https://github.com/krakrukra/PocketAdmin/wiki/eng/commands)  
+* [configuration](https://github.com/krakrukra/PocketAdmin/wiki/eng/configuration)  
+* [on-demand payloads](https://github.com/krakrukra/PocketAdmin/wiki/eng/ondemand)  
+* [OS fingerprinter](https://github.com/krakrukra/PocketAdmin/wiki/eng/fingerprinter)  
+* [keyboard layouts](https://github.com/krakrukra/PocketAdmin/wiki/eng/layouts)  
+* [example payloads](https://github.com/krakrukra/PocketAdmin/wiki/eng/examples)  
+* [DFU bootloader](https://github.com/krakrukra/PocketAdmin/wiki/eng/bootloader)  
   
 #### Some tutorial videos are available on my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   

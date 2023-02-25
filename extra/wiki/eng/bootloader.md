@@ -36,7 +36,7 @@ both old and new firmware update procedures.
 1. install dfu-util (sudo apt-get install dfu-util)  
 2. download this repository (.zip) to your PC and unpack it  
 3. open terminal window in /firmware/ directory  
-4. connect the device to PC  
+4. connect the device to PC via USB port  
 5. tap on capslock 20 times or more  
 6. wait at least 5 seconds  
 7. tap on capslock 20 times or more again  
@@ -48,7 +48,7 @@ both old and new firmware update procedures.
 1. download [DfuSe demo](https://www.st.com/en/development-tools/stsw-stm32080.html) software  
 2. install it and start the program  
 3. download this repository (.zip) to your PC and unpack it  
-4. connect the device to PC  
+4. connect the device to PC via USB port  
 5. tap on capslock 20 times or more  
 6. wait at least 5 seconds  
 7. tap on capslock 20 times or more again  

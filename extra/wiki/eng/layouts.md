@@ -1,7 +1,7 @@
 If "USE_LAYOUT **s**" pre-configuration command is present in config.txt,  
 the default US keyboard layout is replaced with the new one. You need to  
 have the necessary layout file in /kblayout/ directory on the device and  
-specify it's filename as argument to the command, e.g. "USE_LAYOUT fr_FR".  
+specify it's filename as argument to the command, e.g. "USE_LAYOUT fra_FR".  
 Device then will get new layout data from that file. Keep in mind that  
 the filename must be in 8.3 format, and only lowercase letters a-z,  
 upepercase letters A-Z, digits 0-9, underscore and dot symbols are allowed.  
