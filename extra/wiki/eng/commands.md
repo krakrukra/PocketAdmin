@@ -1,4 +1,4 @@
-The command language used in payload files is based on existing [ducky script](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript),  
+The command language used in payload files is based on older [ducky script 1.0](https://web.archive.org/web/20220816200129/http://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript)  
 originally made for the USB rubber ducky. This is to make the old rubber ducky  
 payloads still work with PocketAdmin. There are, however, many differences and  
 extentions, so it will not work the other way around.  
@@ -203,8 +203,8 @@ is, "DEFAULT_DELAY **n**" inserts a delay after any script line whatsoever, incl
 "DEFAULT_DELAY **n**" itself, "REM **s**", "DELAY **n**", empty lines, etc; while the  
 "ONACTION_DELAY **n**" only adds delay after "STRING **s**", "HOLD **s**", "RELEASE",  
 or any combination of **press key** and **mouse control** commands.  
-"DEFAULT_DELAY **n**" command only exists for compatibility with ducky script  
-and is not recommended for use in your own scripts.  
+"DEFAULT_DELAY **n**" command only exists for compatibility with old  
+ducky script and is not recommended for use in your own (new) scripts.  
   
 6. "ALLOW_EXIT" command provides a means to stop current payload execution. It  
 waits for 1 second while watching for user-initiated capslock toggles. If capslock  

@@ -22,9 +22,9 @@ intentionally made to be simple and generic. In any kind of real
 application, you will have to build up your own payload, possibly reusing  
 some of the code or techniques that you have learned from example payloads.  
   
-Since the command language used by PocketAdmin is based on duckyscript,  
+Since the command language used by PocketAdmin is based on duckyscript 1.0,  
 you can also quite easily reuse payloads that were originally designed for  
-the [USB rubber ducky](https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads), or some of the payloads for [HAK5 bash bunny](https://github.com/hak5/bashbunny-payloads).  
+the [USB rubber ducky](https://github.com/hak5/usbrubberducky-payloads), or some of the payloads for [HAK5 bash bunny](https://github.com/hak5/bashbunny-payloads).  
 Though, you could also take some inspiration from payloads which are in a  
 substantially different format, such as scripts for [arduino style](https://github.com/samratashok/Kautilya) badusb's;  
 if necessary, you can convert them to duckyscript without too much effort.  
