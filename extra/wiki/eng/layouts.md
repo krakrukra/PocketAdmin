@@ -44,7 +44,7 @@ file (preferably with a layout similar to yours) and then
 inserting all the right values with some hex editor.  
   
 For more info on which HID keycodes correspond to which US keys read  
-USB HID usage tables document [located here](https://usb.org/document-library/hid-usage-tables-112), pages 52-59.  
+USB HID usage tables document [located here](https://usb.org/document-library/hid-usage-tables-14), pages 89-96.  
 The HID keycode is bound to key position, not to the symbol on the key;  
 e.g. french keyboards have AZERTY layout, that means french "a" is  
 on the same position as US "q", hence they will have the same keycode;  

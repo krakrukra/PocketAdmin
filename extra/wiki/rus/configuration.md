@@ -43,11 +43,11 @@ PocketAdmin также имеет несколько вариантов наст
 секунды после этого.  
   
 3. Команда "USE_FINGERPRINTER" позволяет определить установленную ОС.  
-Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/pocketadmin/extra/wiki/rus/fingerprinter.md)  
+Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/fingerprinter.md)  
   
 4. Команда "USE_LAYOUT **s**" заменяет раскладку клавиатуры, то есть  
 как именно устройство превращает ASCII символ в значение HID-код.  
-Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/pocketadmin/extra/wiki/rus/layouts.md)  
+Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/layouts.md)  
   
 5. Команда "USE_HIDDEN_REGION" считывает таблицу разделов (должна быть в MBR  
 формате), находит первый блок памяти сразу после окончания первого раздела и  
