@@ -262,7 +262,7 @@ You can, however, add more modifiers, like this: "CTRL SHIFT t" or "GUI CTRL M"
 11. "KEYCODE **n**", "KEYCODE **x**" commands are available, in case you want to  
 send a keystroke by HID keycode (eg. you might want to type a ASCII non-printable  
 character). The acceped keycode values are from 0 to 221 (decimal).  
-Some information about keycodes can be found in [this document](https://usb.org/document-library/hid-usage-tables-112), pages 52-59.  
+Some information about keycodes can be found in [this document](https://usb.org/document-library/hid-usage-tables-14), pages 89-96.  
 It is possible to use modifier keys with it, for example: "CTRL SHIFT KEYCODE 23"  
   
 12. "HOLD **s**" command applies to keyboard keys (both modifiers or not) and also  
