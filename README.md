@@ -150,7 +150,7 @@ For extra security, you could use my PGP public key saved in [/extra/pubkey.asc]
   
 Due to sanctions on Russia I can only accept crypto payments from international buyers.  
 My preferred crypto payment method is ETH, but I can also accept BTC, LTC, DASH.  
-Price per 1 unit will be 24 usd, shipping will be 6 usd (if you buy 1 to 8 units).  
+Price per 1 unit will be 26 usd, shipping will be 10 usd (if you buy 1 to 8 units).  
 Shipping method is Registered Air Mail (Russian Post), estimated delivery time is 3-4 weeks.  
   
 If you want to place an order you should write me an email to krakrukra@tutanota.com  

@@ -20,7 +20,7 @@ clean:
 	rm -f cmsis/*~ cmsis/*#
 
 upload:
-	openocd -s ./openocd -f stlink-v2.cfg -f stm32f0x.cfg -c "program firmware.bin verify reset exit 0x08000000"
+	openocd -s ./openocd -f stlink.cfg -f stm32f0x.cfg -c "program firmware.bin verify reset exit 0x08000000"
 
 dfu: compile
 	./dfuse-pack.py -b 0x08000000:firmware.bin firmware_13004.dfu
