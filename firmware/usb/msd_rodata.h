@@ -6,7 +6,7 @@ static unsigned char InquiryData_Standard[36] __attribute__(( aligned(2), sectio
 {
   0x00,//device is accessible at specified LUN, type = direct access device
   0x80,//device is removable
-  0x02,//standard = ANSI X3.131.1994
+  0x02,//standard = ANSI X3.131:1994
   0x02,//response data format = SPC-2
   0x1F,//additional length = 31 bytes
   0x00,//no special features supported
@@ -46,40 +46,26 @@ static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2), sect
   0xC0 //number of cylinders = 192
 };
 
-static unsigned char SenseData_Fixed[18] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
+static unsigned char SenseData_FixedFormat[18] __attribute__(( aligned(2) )) =
 {
- 0x70,//current error sense data
+ 0x70,//error type = current error
  0x00,//reserved
  0x05,//sense key = ILLEGAL REQUEST
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//additional length = 0
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//reserved
- 0x24,//sense code = INVALID CDB FIELD
- 0x00,//sense qualifier = 0
- 0x00,//reserved
- 0x00,//reserved
- 0x00,//reserved
- 0x00 //reserved
+ 0x00, 0x00, 0x00, 0x00,//information = empty
+ 0x0A,//additional sense length = 10
+ 0x00, 0x00, 0x00, 0x00,//command specific information = empty
+ 0x24,//additional sense code = INVALID CDB FIELD
+ 0x00,//additional sense qualifier = 0
+ 0x00,//field replaceable unit code = empty
+ 0x00, 0x00, 0x00 //sense key specific = empty
 };
 
 static unsigned char ReadCapacity_Data[8] __attribute__(( aligned(2) )) =
 {
   //last accessible LBA = 197119
-  0x00,
-  0x03,
-  0x01,
-  0xFF,
+  0x00, 0x03, 0x01, 0xFF,
   //block size = 512 bytes
-  0x00,
-  0x00,
-  0x02,
-  0x00
+  0x00, 0x00, 0x02, 0x00
 };
 
 #endif //MSD_RODATA_H

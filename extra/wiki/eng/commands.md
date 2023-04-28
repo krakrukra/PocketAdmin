@@ -61,6 +61,8 @@ arbitrary combination of **press key** and **mouse control** commands.
 * "SETCAPS_OFF"  --- toggle CAPSLOCK until it's LED is turned OFF  
 * "SETSCROLL_ON"  --- toggle SCROLLLOCK until it's LED is turned ON  
 * "SETSCROLL_OFF"  --- toggle SCROLLLOCK until it's LED is turned OFF  
+* "KEYREFLECT_START"  ---  marks the beginning of keystroke reflection  
+* "KEYREFLECT_SAVE **n**"  --- saves keystroke reflection data into a file  
   
 #### press key commands:  
 * "GUI"  --- applies left GUI modifier key  
@@ -298,4 +300,7 @@ The following script will run 1 command right before REPEAT for
 5 times (once normally + repeated 4 times):  
 "CTRL ALT DELETE"  
 "REPEAT 4"  
+  
+14. "KEYREFLECT_START" and "KEYREFLECT_SAVE **n**" commands are used for  
+keystroke reflection. For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/keyreflection)  
   

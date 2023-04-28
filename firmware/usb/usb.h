@@ -280,7 +280,7 @@ typedef enum
     READY,//waiting for host to send CBW
     MSD_OUT,//data is being sent from host to device
     MSD_IN,//data is being sent from device to host    
-    STATUS,//CSW is being sent form device to host
+    STATUS //CSW is being sent form device to host
   } MSDstage_TypeDef;
 
 //this structure contains all necessary information for handling MSD transfers
@@ -290,6 +290,7 @@ typedef struct
   CSW_TypeDef CSW;//CSW corresponding to current CBW
   unsigned char ActiveBuffer;//0 = first 512 bytes of MSDbuffer[] are currently used by USB, 1 = last 512 bytes
   unsigned char TargetFlag;//0 = DataPointer points to MCU internal memory address, 1 = points to external flash memory
+  unsigned char EjectFlag;//0 = external flash memory considered to be available, 1 = memory considered to be ejected
   MSDstage_TypeDef MSDstage;//stage of MSD transfer
   unsigned int DataPointer;//byte address in RAM where to continue reading/writing at next MSD transaction
   unsigned int BytesLeft;//number of bytes yet to be transmitted in a given MSD transfer
@@ -311,16 +312,17 @@ typedef struct
   unsigned short HoldModifiers;//contains modifier keys to be sent in a default report
   unsigned short LBAoffset;//contains lowest LBA which is available to MSD interface (lower LBA's are hidden)
   unsigned short FakeCapacity;//contains a fake capacity value in MiB; use real capacity if FakeCapacity == 0
-  volatile unsigned char  LEDstates;//contains latest OUT report received by HID keyboard interface
+  volatile unsigned short KRbitNumber;//contains bit index into KRbuffer[] of a bit that will be set or cleared next
+  volatile unsigned char LEDstates;//contains latest OUT report received by HID keyboard interface
   char Filename[13];//holds the name of the file on which some particular action should be performed
   
-  unsigned char PayloadFlags;//holds status flag bitmask with meanings of each bit specified below:
+  volatile unsigned char PayloadFlags;//holds status flag bitmask with meanings of each bit specified below:
   // (1<<0) ActiveBufferFlag; 1 means last 1024 bytes of PayloadBuffer are being executed; 0 means first 1024 bytes
   // (1<<1) RepeatFlag; 1 means preserve the value of RepeatStart when runDuckyCommand() is called; 0 means let RepeatStart value to change
   // (1<<2) HoldFlag; 1 means Hold Modifiers, Keycodes and Mousedata should be set to a new value on command exit; 0 means no need to change
   // (1<<3) MouseFlag; 1 means mouse report should also be sent by current command; 0 means only send keyboard report
   // (1<<4) ActionFlag; 1 means ONACTION_DEFAULT_DELAY should be inserted after current command; 0 means ONACTION delay will not be inserted
-  // (1<<5) Reserved
+  // (1<<5) KRflag; 1 means keystroke reflection was enabled; 0 means keystroke reflection is disabled
   // (1<<6) Reserved
   // (1<<7) ErrorFlag; 1 means some error was detected in payload file, so it's execution must be stopped; 0 means no errors were found
   

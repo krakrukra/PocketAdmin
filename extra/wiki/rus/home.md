@@ -40,6 +40,7 @@ PocketAdmin сначала читает этот файл, изменяет св
 * [раскладки клавиатуры](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/layouts.md)  
 * [примеры скриптов](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/examples.md)  
 * [DFU загрузчик](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/bootloader.md)  
+* [отражение нажатий](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/keyreflect.md)  
   
 #### На моём [youtube канале](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g) есть видео по применению устройства  
   

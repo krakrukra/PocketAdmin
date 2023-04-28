@@ -39,6 +39,7 @@ in dedicated wiki pages.
 * [keyboard layouts](https://github.com/krakrukra/PocketAdmin/wiki/layouts)  
 * [example payloads](https://github.com/krakrukra/PocketAdmin/wiki/examples)  
 * [DFU bootloader](https://github.com/krakrukra/PocketAdmin/wiki/bootloader)  
+* [keystroke reflection](https://github.com/krakrukra/PocketAdmin/wiki/keyreflect)  
   
 #### Some tutorial videos are available on my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   

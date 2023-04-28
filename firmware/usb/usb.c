@@ -28,6 +28,7 @@ static void processGetMaxLunRequest();
 extern void processMSDtransaction();
 extern MSDinfo_TypeDef MSDinfo;
 extern PayloadInfo_TypeDef PayloadInfo;
+extern char KRbuffer[512];
 
 //this data structure is needed for control transfers
 ControlInfo_TypeDef ControlInfo;
@@ -135,6 +136,7 @@ void usb_reset()
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
   MSDinfo.TargetFlag = 0;
+  MSDinfo.EjectFlag = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;
@@ -162,6 +164,18 @@ void usb_handler()
 	case 1://EP1 CTR
 	  if(USB->ISTR & (1<<4))//if OUT transaction happened
 	    {
+	      if( (PayloadInfo.PayloadFlags & (1<<5)) && (PayloadInfo.KRbitNumber < 4096) )//if keystroke reflection was enabled and there is still space in KRbuffer[]
+		{
+		  PayloadInfo.LEDstates ^= *( (unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX) );//XOR old and new LEDstates together to find which LED state has changed
+		  
+		       if( PayloadInfo.LEDstates & (1<<0) ) KRbuffer[PayloadInfo.KRbitNumber / 8] |=  (1<<(7 - PayloadInfo.KRbitNumber % 8));//if NumLock  state was toggled write 1
+		  else if( PayloadInfo.LEDstates & (1<<1) ) KRbuffer[PayloadInfo.KRbitNumber / 8] &= ~(1<<(7 - PayloadInfo.KRbitNumber % 8));//if CapsLock state was toggled write 0
+		  else if( PayloadInfo.LEDstates & (1<<2) ) PayloadInfo.PayloadFlags &= ~(1<<5);//if ScrollLock state was toggled stop keystroke reflection
+		  
+		  if( PayloadInfo.LEDstates & (3<<0) ) PayloadInfo.KRbitNumber++;//increase KRbitNumber only after receiving CapsLock or NumLock toggle
+		}
+	      else PayloadInfo.PayloadFlags &= ~(1<<5);//if KRbuffer[] is full stop keystroke reflection
+	      
 	      PayloadInfo.LEDstates = *( (unsigned char*) (BTABLE_BaseAddr + BTABLE->ADDR1_RX) );//save latest OUT report in RAM
 	      USB->EP1R = (1<<12)|(1<<10)|(1<<9)|(1<<7)|(1<<0);//clear CTR_RX flag, respond with ACK to OUT packets
 	    }
@@ -904,6 +918,7 @@ static void processBulkOnlyResetRequest()
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
   MSDinfo.TargetFlag = 0;
+  MSDinfo.EjectFlag = 0;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;

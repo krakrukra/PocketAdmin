@@ -10,7 +10,8 @@ extern unsigned short StringDescriptor_1[13];
 
 static char PayloadBuffer[2048] __attribute__(( aligned(2) ));//holds duckyscript commands to execute
 static FATFS FATFSinfo;//holds info about filesystem on the medium
-static FIL openedFileInfo;//holds info related to an opened file
+static FIL openedFileInfo_1;//holds info related to the first opened file
+static FIL openedFileInfo_2;//holds info related to the second opened file
 static unsigned int BytesRead;//holds the number of bytes that were successfully read with f_read()
 static FRESULT FATFSresult;//holds return values of FATFS related funtions
 
@@ -38,9 +39,11 @@ static void delay_ms(unsigned int delay);
 static void restart_tim6(unsigned short time);
 static void enter_bootloader();
 
+static void saveKeyReflection();
 static void saveOSfingerprint();
 static void checkOSfingerprint();
 
+volatile char KRbuffer[512];//holds data received via keystroke reflection
 PayloadInfo_TypeDef PayloadInfo =
   {
     .DefaultDelay = 0,//if  DEFAULT_DELAY is not explicitly set, use 0ms value
@@ -54,6 +57,7 @@ PayloadInfo_TypeDef PayloadInfo =
     .HoldModifiers = MOD_NONE,//no modifiers are applied
     .LBAoffset = 0,//all blocks are available to MSD interface
     .FakeCapacity = 0,//use real capacity by default
+    .KRbitNumber = 0,//write keystroke reflection data from the begginnig of KRbuffer
     .LEDstates = 0,//assume no LED's are ON yet
     .Filename = {0x00},//no target filename is specified yet
     .PayloadFlags = 0,//no payload specific flags are set
@@ -101,7 +105,7 @@ int main()
 	{
 	  NVIC_DisableIRQ(31);//disable usb interrupt, so that MSD access and fatfs access do not collide      
 	  saveOSfingerprint();//save collected OS fingerprint in /fingerdb/current.fgp
-	  checkOSfingerprint();//set appropriate payload filename in PayladInfo.Filename[]
+	  checkOSfingerprint();//set appropriate payload filename in PayloadInfo.Filename[]
 	  f_chdir("0:/fgscript");//go to /fgscript/ directory
 	  NVIC_EnableIRQ(31);//enable USB interrupt
 	  
@@ -179,14 +183,14 @@ static void readConfigFile(char* filename)
   if( !(GPIOA->IDR & (1<<2)) ) MSDbutton = 1;
   else                         MSDbutton = 0;
   
-  if( !f_open(&openedFileInfo, filename, FA_READ | FA_OPEN_EXISTING) )//if configuration file was successfully opened
+  if( !f_open(&openedFileInfo_1, filename, FA_READ | FA_OPEN_EXISTING) )//if configuration file was successfully opened
     {
-      f_read(&openedFileInfo, (char*) &PayloadBuffer, 512, &BytesRead);
+      f_read(&openedFileInfo_1, (char*) &PayloadBuffer, 512, &BytesRead);
       PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;//move PayloadPointer back to start
       PayloadInfo.BytesLeft = BytesRead + 1;//one extra newline character will be appended to the end of payload script
       //always append a newline after config file contents; that prevents bricking the device by skipString() if there is no newline in config.txt
       PayloadBuffer[BytesRead] = 0x0A;
-      f_close(&openedFileInfo);
+      f_close(&openedFileInfo_1);
       
       //run pre-configuration commands from specified configuration file
       while(PayloadInfo.BytesLeft)
@@ -220,18 +224,18 @@ static void readConfigFile(char* filename)
 	  else if( (MSDbutton == 0) && checkKeyword("SHOW_FAKE_CAPACITY ") )
 	    {
 	      PayloadInfo.FakeCapacity = checkDecValue();//read fake capacity value (in MiB)
-	      //only allow fake capacity from 97MiB to 32GiB
-	      if(PayloadInfo.FakeCapacity > 32768) PayloadInfo.FakeCapacity = 0;
+	      //only allow fake capacity from 97MiB to 64GiB
+	      if(PayloadInfo.FakeCapacity > 65535) PayloadInfo.FakeCapacity = 0;
 	      if(PayloadInfo.FakeCapacity < 97)    PayloadInfo.FakeCapacity = 0;
 	    }
 	  else if( checkKeyword("FIRST_INSERT_ONLY") )
 	    {
 	      //if 0:/noinsert file is already present, set NoInsertFlag
-	      if( !f_open(&openedFileInfo, "noinsert", FA_READ | FA_OPEN_EXISTING ) ) PayloadInfo.DeviceFlags |= (1<<0);
+	      if( !f_open(&openedFileInfo_1, "noinsert", FA_READ | FA_OPEN_EXISTING ) ) PayloadInfo.DeviceFlags |= (1<<0);
 	      //if 0:/noinsert file is not present, create noinsert file, but keep NoInsertFlag cleared
-	      else f_open(&openedFileInfo, "noinsert", FA_WRITE | FA_CREATE_ALWAYS);
+	      else f_open(&openedFileInfo_1, "noinsert", FA_WRITE | FA_CREATE_ALWAYS);
 	      
-	      f_close(&openedFileInfo);
+	      f_close(&openedFileInfo_1);
 	    }
 	  else if( checkKeyword("USE_FINGERPRINTER") )
 	    {
@@ -246,10 +250,10 @@ static void readConfigFile(char* filename)
 	      setFilename(PayloadInfo.PayloadPointer);
 	      
 	      //load new keymap from the specified file
-	      if( !f_open( &openedFileInfo, (char*) &(PayloadInfo.Filename), FA_READ | FA_OPEN_EXISTING) )
+	      if( !f_open( &openedFileInfo_1, (char*) &(PayloadInfo.Filename), FA_READ | FA_OPEN_EXISTING) )
 		{
-		  f_read( &openedFileInfo, (unsigned char*) &Keymap, 107, &BytesRead );
-		  f_close( &openedFileInfo );
+		  f_read( &openedFileInfo_1, (unsigned char*) &Keymap, 107, &BytesRead );
+		  f_close( &openedFileInfo_1 );
 		}
 	    }	  	 
 	  
@@ -407,24 +411,25 @@ static void runDuckyPayload(char* filename)
   PayloadInfo.HoldMousedata = MOUSE_IDLE;
   PayloadInfo.HoldKeycodes = KB_Reserved;
   PayloadInfo.HoldModifiers = MOD_NONE;
+  PayloadInfo.KRbitNumber = 0;
   PayloadInfo.PayloadFlags = 0;
   
   NVIC_DisableIRQ(31);//disable usb interrupt, so f_open() and MSD access do not collide
-  FATFSresult = f_open(&openedFileInfo, filename, FA_READ | FA_OPEN_EXISTING);//try to read the specified file
+  FATFSresult = f_open(&openedFileInfo_1, filename, FA_READ | FA_OPEN_EXISTING);//try to read the specified file
   NVIC_EnableIRQ(31);//enable usb interrupt
   
   //if appropriate payload file was successfully opened, run ducky interpreter
   if( !FATFSresult )
     {
       NVIC_DisableIRQ(31);//disable usb interrupt, so f_read() and MSD access do not collide
-      f_read(&openedFileInfo, (char*) &PayloadBuffer, 2048, &BytesRead );
+      f_read(&openedFileInfo_1, (char*) &PayloadBuffer, 2048, &BytesRead );
       PayloadInfo.BytesLeft = BytesRead + 1;//one extra newline character will be appended to the end of payload script
       if(BytesRead < 2048) PayloadBuffer[BytesRead] = 0x0A;//if end of file is detected, add an extra newline
       NVIC_EnableIRQ(31);//enable usb interrupt
       
       //keep executing commands until end of file is reached
       while(PayloadInfo.BytesLeft)
-	{ 	  	  
+	{ 
 	  //if at least half of PayloadBuffer was processed and can now be replaced with new data
                if( !(PayloadInfo.PayloadFlags & (1<<0)) && (PayloadInfo.PayloadPointer >= ((char*) &PayloadBuffer + 1024)) ) replaceFlag = 1;
 	  else if(  (PayloadInfo.PayloadFlags & (1<<0)) && (PayloadInfo.PayloadPointer <  ((char*) &PayloadBuffer + 1024)) ) replaceFlag = 1;
@@ -432,11 +437,11 @@ static void runDuckyPayload(char* filename)
 	  if(replaceFlag)//if some 1024 byte block was completely processed
 	    {
 	      NVIC_DisableIRQ(31);//disable usb interrupt, so f_read() and MSD access do not collide
-	      f_read( &openedFileInfo, (char*) &PayloadBuffer + (PayloadInfo.PayloadFlags % 2) * 1024, 1024, &BytesRead );//try to read next 1024 bytes of payload
+	      f_read( &openedFileInfo_1, (char*) &PayloadBuffer + (PayloadInfo.PayloadFlags % 2) * 1024, 1024, &BytesRead );//try to read next 1024 bytes of payload
 	      PayloadInfo.BytesLeft = PayloadInfo.BytesLeft + BytesRead;
 	      if(BytesRead < 1024) PayloadBuffer[ (PayloadInfo.PayloadFlags % 2) * 1024 + BytesRead ] = 0x0A;//if end of file is detected, add an extra newline
 	      
-	      PayloadInfo.PayloadFlags ^= (1<<0);//commands are now being executed from the other half of PayloadBuffer	      
+	      PayloadInfo.PayloadFlags ^= (1<<0);//commands are now being executed from the other half of PayloadBuffer
 	      replaceFlag = 0;//set replaceFlag back to 0
 	      NVIC_EnableIRQ(31);//enable usb interrupt again
 	    }
@@ -446,7 +451,7 @@ static void runDuckyPayload(char* filename)
     }
   
   NVIC_DisableIRQ(31);//disable usb interrupt, so f_close() and MSD access do not collide
-  f_close(&openedFileInfo);//close the specified file  
+  f_close(&openedFileInfo_1);//close the specified file
   NVIC_EnableIRQ(31);//enable usb interrupt
   
   return;
@@ -481,7 +486,7 @@ static void runDuckyCommand()
       
       //special functionality commands are only valid if they are at the very start of the line
       else if( (limit == 10) && checkKeyword("REM") )              {skipString();}
-      else if( (limit == 10) && checkKeyword("REPEAT_START") )     {PayloadInfo.RepeatStart = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft; PayloadInfo.PayloadFlags |= (1<<1); skipString();}
+      else if( (limit == 10) && checkKeyword("REPEAT_START") )     {PayloadInfo.RepeatStart = openedFileInfo_1.fptr + 1 - PayloadInfo.BytesLeft; PayloadInfo.PayloadFlags |= (1<<1); skipString();}
       else if( (limit == 10) && checkKeyword("REPEAT ") )          {commandStart = (unsigned int) &PayloadBuffer; limit = 11; repeatDuckyCommands( checkDecValue() );}
       else if( (limit == 10) && checkKeyword("ONACTION_DELAY ") )  {PayloadInfo.DefaultDelay = checkDecValue(); PayloadInfo.DeviceFlags |=  (1<<4); skipString();}
       else if( (limit == 10) && checkKeyword("DEFAULT_DELAY ") )   {PayloadInfo.DefaultDelay = checkDecValue(); PayloadInfo.DeviceFlags &= ~(1<<4); skipString();}
@@ -498,7 +503,10 @@ static void runDuckyCommand()
       else if( (limit == 10) && checkKeyword("SETCAPS_OFF") )      {setLEDoff(KB_CAPSLOCK, 0x02);   skipString();}
       else if( (limit == 10) && checkKeyword("SETSCROLL_ON") )     {setLEDon (KB_SCROLLLOCK, 0x04); skipString();}
       else if( (limit == 10) && checkKeyword("SETSCROLL_OFF") )    {setLEDoff(KB_SCROLLLOCK, 0x04); skipString();}
-		  
+      else if( (limit == 10) && checkKeyword("KEYREFLECT_START") ) {PayloadInfo.KRbitNumber = 0; PayloadInfo.PayloadFlags |= (1<<5); skipString();}
+      else if( (limit == 10) && checkKeyword("KEYREFLECT_SAVE ") ) {setFilename(PayloadInfo.PayloadPointer); saveKeyReflection(); skipString();}
+      else if( (limit == 10) && checkKeyword("KEYREFLECT_SAVE") )  {setFilename(PayloadInfo.PayloadPointer); saveKeyReflection(); skipString();}
+      
       else
 	{
 	  PayloadInfo.PayloadFlags |= (1<<4);//set ActionFlag
@@ -631,7 +639,7 @@ static void runDuckyCommand()
   PayloadInfo.PayloadFlags &= ~(1<<3);//clear MouseFlag
   
   //unless the start of a repeat block was explicitly specified, set current command as a RepeatStart
-  if( !(PayloadInfo.PayloadFlags & (1<<1)) ) PayloadInfo.RepeatStart = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft;
+  if( !(PayloadInfo.PayloadFlags & (1<<1)) ) PayloadInfo.RepeatStart = openedFileInfo_1.fptr + 1 - PayloadInfo.BytesLeft;
   
   //go to next line in the ducky script
   if( PayloadInfo.PayloadPointer < ((char*) &PayloadBuffer + 2047) ) PayloadInfo.PayloadPointer++;
@@ -650,7 +658,7 @@ static void runDuckyCommand()
 static void repeatDuckyCommands(unsigned int count)
 {
   //remember where in the file current REPEAT command is (first byte outside of a repeat block)
-  unsigned int repeatEnd = openedFileInfo.fptr + 1 - PayloadInfo.BytesLeft;
+  unsigned int repeatEnd = openedFileInfo_1.fptr + 1 - PayloadInfo.BytesLeft;
   
   //if REPEAT is the very first command in the payload file, skip to the next line and do nothing else
   if(repeatEnd == 0) return;
@@ -659,19 +667,19 @@ static void repeatDuckyCommands(unsigned int count)
   if(PayloadInfo.RepeatCount)//if a repeat block still needs to be repeated
     { 
       if(PayloadInfo.RepeatCount == 0xFFFFFFFF) PayloadInfo.RepeatCount = count;
-      f_lseek(&openedFileInfo, PayloadInfo.RepeatStart);//move file read/write pointer to the previous REPEAT_START command
+      f_lseek(&openedFileInfo_1, PayloadInfo.RepeatStart);//move file read/write pointer to the previous REPEAT_START command
       PayloadInfo.RepeatCount--;//repeat block was repeated one more time
     }
   else//if a repeat block no longer needs to be repeated
     {
-      f_lseek(&openedFileInfo, repeatEnd);//move file read/write pointer to the current REPEAT command      
+      f_lseek(&openedFileInfo_1, repeatEnd);//move file read/write pointer to the current REPEAT command      
       PayloadInfo.RepeatCount = 0xFFFFFFFF;//next REPEAT command will be able to set PayloadInfo.RepeatCount value
       PayloadInfo.RepeatStart = repeatEnd;//prevent previous repeat block from executing again
       PayloadInfo.PayloadFlags &= ~(1<<1);//clear the RepeatFlag, since current repeat block is over	  
     }
   
   //load the data from repeat block into the beginning of PayloadBuffer
-  f_read(&openedFileInfo, (char*) &PayloadBuffer, 2048, &BytesRead);
+  f_read(&openedFileInfo_1, (char*) &PayloadBuffer, 2048, &BytesRead);
   PayloadInfo.PayloadPointer = (char*) &PayloadBuffer;//move PayloadPointer back to start
   PayloadInfo.BytesLeft = BytesRead + 1;//one extra newline character will be appended to the end of payload script
   if(BytesRead < 2048) PayloadBuffer[BytesRead] = 0x0A;//if end of file is detected, add an extra newline
@@ -1014,17 +1022,71 @@ static void enter_bootloader()
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static void saveKeyReflection()
+{
+  unsigned char fileNumber = 0;//used to create new filename if it was not specified explicitly in payload file
+  
+  while(PayloadInfo.PayloadFlags & (1<<5));//wait until keystroke reflection is over
+  
+  if(PayloadInfo.KRbitNumber)//if there was some data collected via keystroke reflection
+    {
+      //fill KRbuffer[] with zero bits after keystroke reflection data, until a byte boundary is reached
+      while(PayloadInfo.KRbitNumber % 8)
+	{
+	  KRbuffer[PayloadInfo.KRbitNumber / 8] &= ~(1<<(7 - PayloadInfo.KRbitNumber % 8));
+	  PayloadInfo.KRbitNumber++;
+	}
+      
+      NVIC_DisableIRQ(31);//disable usb interrupt, so that MSD access and fatfs access do not collide
+      f_mkdir("0:/keyref");//create /keyref/ directory
+      f_chdir("0:/keyref");//go to /keyref/ directory
+      
+      if(PayloadInfo.Filename[0] == 0x00)//if filename was not explicitly specified
+	{
+	  PayloadInfo.Filename[0] = 48 + fileNumber / 100;
+	  PayloadInfo.Filename[1] = 48 + (fileNumber / 10) % 10;
+	  PayloadInfo.Filename[2] = 48 + fileNumber % 10;
+	  PayloadInfo.Filename[3] = '.';
+	  PayloadInfo.Filename[4] = 'r';
+	  PayloadInfo.Filename[5] = 'e';
+	  PayloadInfo.Filename[6] = 'f';
+	  PayloadInfo.Filename[7] = 0x00;
+
+	  //keep going until an unused filename is found from fileNumber
+	  while( !f_open(&openedFileInfo_2, PayloadInfo.Filename, FA_READ | FA_OPEN_EXISTING) )
+	    {
+	      if(fileNumber < 255) fileNumber++;
+	      else break;
+	      
+	      PayloadInfo.Filename[0] = 48 + fileNumber / 100;
+	      PayloadInfo.Filename[1] = 48 + (fileNumber / 10) % 10;
+	      PayloadInfo.Filename[2] = 48 + fileNumber % 10;	      
+	    }
+	}
+      
+      //write data from KRbuffer[] into specified file, replacing it if necessary
+      if( !f_open(&openedFileInfo_2, PayloadInfo.Filename, FA_WRITE | FA_CREATE_ALWAYS) )
+	{
+	  f_write(&openedFileInfo_2, (unsigned char*) KRbuffer, PayloadInfo.KRbitNumber / 8, &BytesRead);//write data from KRbuffer[]
+	  f_close(&openedFileInfo_2);//close the specified file
+	}
+      NVIC_EnableIRQ(31);//enable usb interrupt
+    }
+  
+  return;
+}
+
 static void saveOSfingerprint()  
 {
   unsigned char* currentFingerprint = (unsigned char*) &ControlInfo.OSfingerprintData;
   unsigned char i;//used in a for() loop
   
   //if current.fgp already exists
-  if( !f_open(&openedFileInfo, "0:/fingerdb/current.fgp", FA_READ | FA_OPEN_EXISTING) )
+  if( !f_open(&openedFileInfo_1, "0:/fingerdb/current.fgp", FA_READ | FA_OPEN_EXISTING) )
     {
       //read current.fgp data and store it into PayloadBuffer
-      f_read(&openedFileInfo, (char*) &PayloadBuffer, 40, &BytesRead );
-      f_close( &openedFileInfo );
+      f_read(&openedFileInfo_1, (char*) &PayloadBuffer, 40, &BytesRead );
+      f_close( &openedFileInfo_1 );
       
       //check if data in current.fgp matches OS fingerprint collected just now
       for(i=0; i<40; i++)
@@ -1036,19 +1098,19 @@ static void saveOSfingerprint()
       if(i<40)//if current.fgp exists, but does not match collected fingerprint
 	{
 	  //save contents of current.fgp into previous.fgp, replacing it if necessary
-	  if( !f_open(&openedFileInfo,  "0:/fingerdb/previous.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
+	  if( !f_open(&openedFileInfo_1,  "0:/fingerdb/previous.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
 	    {
-	      f_write( &openedFileInfo, (unsigned char*) &PayloadBuffer, 40, &BytesRead );
-	      f_close( &openedFileInfo );
+	      f_write( &openedFileInfo_1, (unsigned char*) &PayloadBuffer, 40, &BytesRead );
+	      f_close( &openedFileInfo_1 );
 	    }
 	}
     }
   
   //save newly collected fingerprint in /fingerdb/current.fgp file, replacing it if necessaary
-  if( !f_open(&openedFileInfo,  "0:/fingerdb/current.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
+  if( !f_open(&openedFileInfo_1,  "0:/fingerdb/current.fgp", FA_WRITE | FA_CREATE_ALWAYS) )
     {
-      f_write( &openedFileInfo, (unsigned char*) &ControlInfo.OSfingerprintData, 40, &BytesRead );
-      f_close( &openedFileInfo );
+      f_write( &openedFileInfo_1, (unsigned char*) &ControlInfo.OSfingerprintData, 40, &BytesRead );
+      f_close( &openedFileInfo_1 );
     }
   
   return;
@@ -1083,9 +1145,9 @@ static void checkOSfingerprint()
 	  while( !FATFSresult && OSspecificFileInfo.fname[0] )
 	    {
 	      //read the contents of *.fgp file
-	      f_open( &openedFileInfo, OSspecificFileInfo.fname, FA_READ | FA_OPEN_EXISTING);
-	      f_read( &openedFileInfo, (char*) &PayloadBuffer, 40, &BytesRead );
-	      f_close(&openedFileInfo);
+	      f_open( &openedFileInfo_1, OSspecificFileInfo.fname, FA_READ | FA_OPEN_EXISTING);
+	      f_read( &openedFileInfo_1, (char*) &PayloadBuffer, 40, &BytesRead );
+	      f_close(&openedFileInfo_1);
 	      
 	      //compare current OS fingerprint with the data from *.fgp file
 	      for(i=0; i<40; i++)

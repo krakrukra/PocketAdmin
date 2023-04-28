@@ -298,3 +298,6 @@ CAPSLOCK выключен, прежде чем вы наберете какую-
 "CTRL ALT DELETE"  
 "REPEAT 4"  
   
+14. Команды "KEYREFLECT_START" и "KEYREFLECT_SAVE **n**" применяются для  
+отражения нажатий. Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/keyreflect.md)  
+  

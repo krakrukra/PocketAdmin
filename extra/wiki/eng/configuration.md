@@ -63,7 +63,7 @@ this command is ignored.
 6. "SHOW_FAKE_CAPACITY **n**" command makes the device lie to the host machine  
 about it's capacity. It takes a decimal number as an argument, which is new fake  
 capacity in MiB (eg. "SHOW_FAKE_CAPACITY 2048" means pretend to be a 2GiB  
-drive). The argument can be any value from 97 to 32768, otherwise the command  
+drive). The argument can be any value from 97 to 65535, otherwise the command  
 is ignored. This command can be used if you want to make the device look more  
 like an ordinary flash drive, since the real 96MiB of capacity can look suspicious  
 to the end user. "SHOW_FAKE_CAPACITY **n**" and "USE_HIDDEN_REGION" do not  

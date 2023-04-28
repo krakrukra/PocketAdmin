@@ -17,7 +17,7 @@ Here is quick summary of how PocketAdmin is different from other badusb devices:
 but hardware design files as well. This allows the user to do substantial  
 modifications to the design, as well as provides an option to build your own units.  
   
-2. Has a built-in interpreter (compatible with existing ducky script) which takes text files directly,  
+2. Has a built-in interpreter (compatible with older ducky script 1.0) which takes text files directly,  
 so you never have to install any encoder software and keep converting payload.txt to inject.bin.  
   
 3. Has USB mass storage capability, allowing for better payloads; the memory chip is integrated,  
@@ -78,9 +78,9 @@ programming language used = C
 flashing software used = openocd  
 IDE used = emacs text editor + Makefile  
   
-the firmware was developed on debian 10.3 system, using gcc-arm-none-eabi toolchain  
+the firmware was developed on debian 11.3 system, using gcc-arm-none-eabi toolchain  
 (compiler, linker, binutils) and it does use gcc specific extentions.  
-it was successfully compiled and tested with arm-none-eabi-gcc version 7.3.1  
+it was successfully compiled and tested with arm-none-eabi-gcc version 8.3.1  
   
 depends on libgcc.a, which is included in this repository. linker script,  
 startup code and openocd configuration files are included here as well.  

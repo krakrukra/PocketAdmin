@@ -40,7 +40,7 @@ static unsigned char ReportDescriptor_KB[] __attribute__(( aligned(2), section("
   0x19, 0x00,//Usage Minimum (0)
   0x29, 0xDD,//Usage Maximum (221)
   0x15, 0x00,//Logical Minimum (0)
-  0x25, 0x65,//Logical Maximum (101)
+  0x25, 0xDD,//Logical Maximum (221)
   0x75, 0x08,//Report Size (8)
   0x95, 0x06,//Report Count (6)    
   0x81, 0x00,//Input (Array, Absolute)
@@ -311,7 +311,7 @@ static GetConfigResponse_HIDonly_TypeDef GetConfigResponse_HIDonly __attribute__
 };
 
 static unsigned short StringDescriptor_0[2]  __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0304, 0x0409 };//LANGID list; only english (united states) is supported
-       unsigned short StringDescriptor_1[13] = { 0x031A, '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '4' };//iSerial
+       unsigned short StringDescriptor_1[13] = { 0x031A, '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '5' };//iSerial
 //static unsigned short StringDescriptor_2[5]  __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x030A, 'U', 'S', 'B', ' ' };//iManufacturer
 //static unsigned short StringDescriptor_3[12] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) = { 0x0318, 'F', 'L', 'A', 'S', 'H', ' ', 'D', 'R', 'I', 'V', 'E' };//iProduct
 

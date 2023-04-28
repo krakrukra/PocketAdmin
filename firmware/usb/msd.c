@@ -22,7 +22,7 @@ static void processWriteCommand_10();
 static void sendResponse(void* responseAddress, unsigned int responseSize);
 static void sendData();
 static void getData();
-static void sendCSW(unsigned char status);
+static void sendCSW(unsigned char status, unsigned char senseKey, unsigned char additionalSenseCode);
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ void processMSDtransaction()
 	  if(MSDinfo.BytesLeft == MAXPACKET_MSD)
 	    {
 	      getData();//save last data packet to flash memory
-	      sendCSW(0);//return good status	      
+	      sendCSW(0, 0x00, 0x00);//return good status	      
 	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
 	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
 	    }
@@ -59,13 +59,13 @@ void processMSDtransaction()
   
   //in case of IN transaction
   else
-    {      
+    { 
       if(MSDinfo.MSDstage == MSD_IN)
 	{
 	  //if last data transaction was just completed
 	  if( (BTABLE->COUNT4_TX == 0) || (BTABLE->COUNT4_RX == 0) )
 	    {
-	      sendCSW(0);//return good status
+	      sendCSW(0, 0x00, 0x00);//return good status
 	      
 	      //if device returned less data than host expected
 	      if( (MSDinfo.CSW).dCSWDataResidue != 0 )
@@ -130,7 +130,7 @@ static void processNewCBW()
   if( (MSDinfo.CBW).bCBWLUN != 0x00 )             error = 1;
   if(error)
     {
-      sendCSW(2);//return error status, request reset recovery
+      sendCSW(2, 0x05, 0x24);//return error status, request reset recovery; senseKey = ILLEGAL REQUEST, ASC = INVALID CDB FIELD
       
       USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
       USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
@@ -177,7 +177,7 @@ static void processNewCBW()
       break;
       
     default://command is not recognized
-      sendCSW(1);//return error status
+      sendCSW(1, 0x05, 0x20);//return error status; senseKey = ILLEGAL REQUEST, ASC = INVALID OPCODE
       
       if( (MSDinfo.CBW).dCBWDataTransferLength )//if host wants to send or receive any data
 	{ 
@@ -201,7 +201,7 @@ static void processNewCBW()
 	}
       break;
     }
-
+  
   return;
 }
 
@@ -219,7 +219,7 @@ static void processInquiryCommand_6()
 	  break;
 	  
 	default://specified VPD page code is not recognized
-	  sendCSW(1);//return error status
+	  sendCSW(1, 0x05, 0x24);//return error status; senseKey = ILLEGAL REQUEST, ASC = INVALID CDB FIELD
 	  
 	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
 	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
@@ -241,26 +241,36 @@ static void processReadCapacityCommand_10()
 {
   unsigned int sendLastLBA = 0x000301FF - PayloadInfo.LBAoffset;//value that will be sent to host as a last accessible LBA
   if(PayloadInfo.FakeCapacity) sendLastLBA = PayloadInfo.FakeCapacity * 2048 - 1;//if necessary, use fake capacity
+
+  if(MSDinfo.EjectFlag)//if medium is ejected
+    {
+      sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
+      
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
+    }
+  else//if medium is available
+    {
+      //write necessary value into ReadCapacity command response
+      ReadCapacity_Data[0] = sendLastLBA >> 24;
+      ReadCapacity_Data[1] = sendLastLBA >> 16;
+      ReadCapacity_Data[2] = sendLastLBA >>  8;
+      ReadCapacity_Data[3] = sendLastLBA >>  0;
+      
+      //copy READ CAPACITY response from RAM to PMA
+      sendResponse( &ReadCapacity_Data, sizeof(ReadCapacity_Data) );//pre-fill the first packet buffer
+      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
+      sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
+    }
   
-  //write necessary value into ReadCapacity command response
-  ReadCapacity_Data[0] = sendLastLBA >> 24;
-  ReadCapacity_Data[1] = sendLastLBA >> 16;
-  ReadCapacity_Data[2] = sendLastLBA >>  8;
-  ReadCapacity_Data[3] = sendLastLBA >>  0;
-  
-  //copy READ CAPACITY response from RAM to PMA
-  sendResponse( &ReadCapacity_Data, sizeof(ReadCapacity_Data) );//pre-fill the first packet buffer
-  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
-  sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
   return;
 }
 
 static void processTestUnitReadyCommand_6()
 {
-  //do nothing. unit is always ready
-  
-  sendCSW(0);//return good status
+  if(MSDinfo.EjectFlag) sendCSW(1, 0x02, 0x3A);//if medium ejected return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
+  else                  sendCSW(0, 0x00, 0x00);//if medium not ejected, return good status
   
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
@@ -270,7 +280,7 @@ static void processTestUnitReadyCommand_6()
 
 static void processRequestSenseCommand_6()
 {
-  sendResponse( &SenseData_Fixed, sizeof(SenseData_Fixed) );//pre-fill the first packet buffer  
+  sendResponse( &SenseData_FixedFormat, sizeof(SenseData_FixedFormat) );//pre-fill the first packet buffer  
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
   sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
@@ -280,9 +290,10 @@ static void processRequestSenseCommand_6()
 
 static void processStartStopUnitCommand_6()
 {
-  //do nothing, since no special load/eject or low power modes are necessary
+  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x02 ) MSDinfo.EjectFlag = 1;//if eject requested set EjectFlag
+  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x03 ) MSDinfo.EjectFlag = 0;//if load requested clear EjectFlag
   
-  sendCSW(0);//return good status
+  sendCSW(0, 0x00, 0x00);//return good status
   
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
@@ -294,7 +305,7 @@ static void processPreventAllowMediumRemovalCommand_6()
 {
   //do nothing
   
-  sendCSW(1);//return error status
+  sendCSW(0, 0x00, 0x00);//return good status
   
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
@@ -305,41 +316,51 @@ static void processPreventAllowMediumRemovalCommand_6()
 static void processModeSenseCommand_6()
 {
   unsigned char error = 0;
-  
-  if( ((MSDinfo.CBW).CBWCB[2] & (3<<6)) == (1<<6) ) error = 1;//if PC = 0b01 (changeable values requested)
-  if( (MSDinfo.CBW).CBWCB[3] ) error = 1;//if subpage field is nonzero
-  if(error)
+
+  if(MSDinfo.EjectFlag)//if medium is ejected
     {
-      sendCSW(1);//return error status
+      sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
       USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
       USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
-      return;
     }
-  
-  //if default, current or saved values are requested
-  switch( (MSDinfo.CBW).CBWCB[2] & 0x3F )
+  else//if medium is available
     {
-    case 0x05://requested mode page = Flexible Disk
-      sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
-      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets      
-      sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
-      break;
+      if( ((MSDinfo.CBW).CBWCB[2] & (3<<6)) == (1<<6) ) error = 1;//if PC = 0b01 (changeable values requested)
+      if( (MSDinfo.CBW).CBWCB[3] ) error = 1;//if subpage field is nonzero
+      if(error)
+	{
+	  sendCSW(1, 0x05, 0x24);//return error status; senseKey = ILLEGAL REQUEST, ASC = INVALID CDB FIELD
+	  
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
+	  return;
+	}
       
-    case 0x3F://request for all available mode pages
-      sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
-      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
-      sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
-      break;
-     
-    default://requested page number not recognized
-      sendCSW(1);//return error status
-      
-      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
-      break;
+      //if default, current or saved values are requested
+      switch( (MSDinfo.CBW).CBWCB[2] & 0x3F )
+	{
+	case 0x05://requested mode page = Flexible Disk
+	  sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets      
+	  sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
+	  break;
+	  
+	case 0x3F://request for all available mode pages
+	  sendResponse( &ModeSenseData_pagelist, sizeof(ModeSenseData_pagelist) );//pre-fill the first packet buffer      
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
+	  sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer
+	  break;
+	  
+	default://requested page number not recognized
+	  sendCSW(1, 0x05, 0x24);//return error status; senseKey = ILLEGAL REQUEST, ASC = INVALID CDB FIELD
+	  
+	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
+	  break;
+	}
     }
   
   return;
@@ -347,84 +368,104 @@ static void processModeSenseCommand_6()
 
 static void processReadCommand_10()
 {
-  //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
-  MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
-  MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all read operations
-  MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
-  
-  //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
-  if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
+  if(MSDinfo.EjectFlag)//if medium is ejected
     {
-      sendCSW(1);//return error status
+      sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
       USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
       USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
     }
-  //if specified address range is accessible
-  else
+  else//if medium is available
     {
-      if(MSDinfo.BytesLeft == 0)//if host requested 0 blocks to be read
+      //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
+      MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
+      MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all read operations
+      MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
+      
+      //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
+      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
 	{
-	  sendCSW(0);//return good status
+	  sendCSW(1, 0x05, 0x21);//return error status; senseKey = ILLEGAL REQUEST, ASC = LBA OUT OF RANGE
 	  
-	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond with NAK to OUT packets, ignore IN packets, clear CTR_RX flag
-	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
-	}
-      else//if host wants to read one or more blocks
-	{	  
-	  //preload the MSDbuffer[] with requested data
-	  while(DiskInfo.BusyFlag);//make sure dmaread_LB() request can be accepted	  
-	  dmaread_LB((unsigned char*) &MSDbuffer[0], MSDinfo.DataPointer / 512);	  
-	  while(DiskInfo.BusyFlag);//wait until one full block was read from the medium into MSDbuffer[]
-	  
-	  //if host requested 2 or more blocks to be read, preload the next block as well
-	  if(MSDinfo.BytesLeft >= 1024) dmaread_LB((unsigned char*) &MSDbuffer[512], (MSDinfo.DataPointer + 512) / 512);
-	  
-	  sendData();//start sending data to USB host	  
 	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
-	  sendData();//start sending data to USB host
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<5)|(1<<4)|(4<<0);//respond to IN packets with STALL, ignore OUT packets
+	}
+      //if specified address range is accessible
+      else
+	{
+	  if(MSDinfo.BytesLeft == 0)//if host requested 0 blocks to be read
+	    {
+	      sendCSW(0, 0x00, 0x00);//return good status
+	      
+	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond with NAK to OUT packets, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
+	    }
+	  else//if host wants to read one or more blocks
+	    {	  
+	      //preload the MSDbuffer[] with requested data
+	      while(DiskInfo.BusyFlag);//make sure dmaread_LB() request can be accepted	  
+	      dmaread_LB((unsigned char*) &MSDbuffer[0], MSDinfo.DataPointer / 512);	  
+	      while(DiskInfo.BusyFlag);//wait until one full block was read from the medium into MSDbuffer[]
+	      
+	      //if host requested 2 or more blocks to be read, preload the next block as well
+	      if(MSDinfo.BytesLeft >= 1024) dmaread_LB((unsigned char*) &MSDbuffer[512], (MSDinfo.DataPointer + 512) / 512);
+	      
+	      sendData();//start sending data to USB host	  
+	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
+	      sendData();//start sending data to USB host
+	    }
 	}
     }
-
+  
   PayloadInfo.DeviceFlags |= (1<<1);//indicate that a read command was received at least one time since poweron; used to implement DELAY functionality in ducky interpreter from main.c
   return;
 }
 
 static void processWriteCommand_10()
 {
-  //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
-  MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
-  MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all write operations
-  MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
-  
-  //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
-  if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
+  if(MSDinfo.EjectFlag)//if medium is ejected
     {
-      sendCSW(1);//return error status
+      sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
       USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
       USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
     }
-  //if specified address range is accessible
-  else
+  else//if medium is available
     {
-      if(MSDinfo.BytesLeft == 0)//if host requested 0 blocks to be written
+      //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
+      MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
+      MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all write operations
+      MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
+      
+      //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
+      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
 	{
-	  sendCSW(0);//return good status
+	  sendCSW(1, 0x05, 0x21);//return error status; senseKey = ILLEGAL REQUEST, ASC = LBA OUT OF RANGE
 	  
-	  USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
-	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
+	  USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+	  USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
 	}
-      else//if host wants to write one or more blocks
+      //if specified address range is accessible
+      else
 	{
-	  //make sure that there is pre-erased space to write all specified logical blocks
-	  while(DiskInfo.BusyFlag);//wait until prepare_LB() request can be sent
-	  prepare_LB(MSDinfo.DataPointer / 512, (MSDinfo.CBW).dCBWDataTransferLength / 512 );
-	  MSDinfo.MSDstage = MSD_OUT;
-	  
-	  USB->EP3R = (1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
-	  USB->EP4R = (1<<15)|(1<<8)|(1<<7)|(4<<0);//respond to IN packets with NAK, ingore OUT packets
+	  if(MSDinfo.BytesLeft == 0)//if host requested 0 blocks to be written
+	    {
+	      sendCSW(0, 0x00, 0x00);//return good status
+	      
+	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
+	    }
+	  else//if host wants to write one or more blocks
+	    {
+	      //make sure that there is pre-erased space to write all specified logical blocks
+	      while(DiskInfo.BusyFlag);//wait until prepare_LB() request can be sent
+	      prepare_LB(MSDinfo.DataPointer / 512, (MSDinfo.CBW).dCBWDataTransferLength / 512 );
+	      MSDinfo.MSDstage = MSD_OUT;
+	      
+	      USB->EP3R = (1<<8)|(1<<7)|(1<<6)|(3<<0);//respond to OUT packets with ACK, ignore IN packets, clear CTR_RX flag
+	      USB->EP4R = (1<<15)|(1<<8)|(1<<7)|(4<<0);//respond to IN packets with NAK, ingore OUT packets
+	    }
 	}
     }
   
@@ -562,9 +603,13 @@ static void getData()
   return;
 }
 
-//send host the CSW for current transfer. dCSWDataResidue and must already be set correctly
-static void sendCSW(unsigned char status)
+//send host the CSW for current transfer, update SenseData accordingly. dCSWDataResidue must be already set correctly
+static void sendCSW(unsigned char status, unsigned char senseKey, unsigned char additionalSenseCode)
 {
+  //update SenseData values as specified
+  SenseData_FixedFormat[2]  = senseKey;
+  SenseData_FixedFormat[12] = additionalSenseCode;
+  
   (MSDinfo.CSW).dCSWTag = (MSDinfo.CBW).dCBWTag;//set CSW tag according to current CBW
   (MSDinfo.CSW).bCSWStatus = status;//return status as specified in argument
   bufferCopy( (unsigned short*) &(MSDinfo.CSW), (unsigned short*) (BTABLE_BaseAddr + BTABLE->ADDR4_TX), 13 );//copy CSW from RAM to PMA
