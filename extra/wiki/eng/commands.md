@@ -302,5 +302,5 @@ The following script will run 1 command right before REPEAT for
 "REPEAT 4"  
   
 14. "KEYREFLECT_START" and "KEYREFLECT_SAVE **n**" commands are used for  
-keystroke reflection. For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/keyreflection)  
+keystroke reflection. For more information check this [wiki page](https://github.com/krakrukra/PocketAdmin/wiki/keyreflect)  
   

