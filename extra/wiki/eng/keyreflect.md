@@ -11,7 +11,7 @@ least significant bit last in every byte.
 "KEYREFLECT_START" command makes the device start listening and writing  
 incoming bits. Device should then make the PC send the key sequence,  
 which will take some time. This can be done by running powershell or  
-bash commands into host's CLI. To mark the end of data host must send  
+bash commands inside host's CLI. To mark the end of data host must send  
 ScrollLock LED toggle request. Once the keystroke reflection sequence  
 is over, "KEYREFLECT_SAVE **n**" command will save this data to a file  
 inside /keyref/ directory. Name of the file can be specified as an  

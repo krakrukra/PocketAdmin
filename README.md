@@ -1,5 +1,7 @@
 # PocketAdmin  
   
+#### Русская версия документации доступна [здесь](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/README.md)  
+  
 This is a keystroke injection device (also called badusb). It is similar to a well-known  
 [USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe) made by hak5, has rather extensive functionality, lower price  
 and is also completely open source. It looks and feels like an ordinary USB flash drive,  
