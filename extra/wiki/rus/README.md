@@ -9,8 +9,8 @@
 интерфейсе командной строки, но намного быстрее. Поэтому оно хорошо подходит для  
 автоматизации задач системного администратора или проверок систем на безопасность.  
   
-![outside.jpg](extra/pictures/photos/outside.jpg)  
-![inside.jpg](extra/pictures/photos/inside.jpg)  
+![outside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/outside.jpg)  
+![inside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/inside.jpg)  
   
 Вот короткий список характеристик, которыми PocketAdmin отличается от других badusb устройств:  
   
