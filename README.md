@@ -10,8 +10,8 @@ from configuring a network to installing a reverse shell, since the device can b
 do whatever an admin can with a terminal, but taking only a few seconds. This makes  
 it a very powerful tool for automating sysadmin tasks or use in penetration testing.  
   
-![outside.jpg](extra/pictures/photos/outside.jpg)  
-![inside.jpg](extra/pictures/photos/inside.jpg)  
+![outside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/outside.jpg)  
+![inside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/inside.jpg)  
   
 Here is quick summary of how PocketAdmin is different from other badusb devices:  
   
