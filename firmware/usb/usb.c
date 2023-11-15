@@ -35,19 +35,18 @@ ControlInfo_TypeDef ControlInfo;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//this function must be called before any use of USB 
+//this function must be called before any use of USB
 void usb_init()
 {
   NVIC_DisableIRQ(31);//disable USB interrupt
   RCC->CFGR3 |= (1<<7);//USB uses PLL clock
-  RCC->APB1ENR |= (1<<23);//enable USB interface clock
+  RCC->APB1ENR |= (1<<23)|(1<<4);//enable USB interface clock, TIM6 clock
   RCC->APB1RSTR |= (1<<23);//reset USB registers
   RCC->APB1RSTR &= ~(1<<23);//deassert USB macrocell reset signal
   
   USB->CNTR = (1<<0);//enable USB power supply, keep USB reset
   
   //delay of a bit more than 1us (at APBCLK = 48MHz) before USB reset is cleared
-  RCC->APB1ENR |= (1<<4);//enable TIM6 clock  
   TIM6->CR1 = (1<<7)|(1<<3)|(1<<2);//disable TIM6 (in case it was running)
   TIM6->ARR = 50;//TIM6 reload value is 50
   TIM6->PSC = 0;//TIM6 prescaler = 1
@@ -91,7 +90,7 @@ void usb_init()
   BTABLE->ADDR4_RX  = 0x01C0;
   BTABLE->COUNT4_RX = 0x0000;
   
-  usb_reset();
+  usb_reset();//reinitialize endpoints, USB state machines
   
   NVIC_SetPriority(31, 1);//give USB interrupt a lower priority than others
   NVIC_EnableIRQ(31);//enable USB interrupt
@@ -367,8 +366,7 @@ static void processClassRequest()
 {
   if(ControlInfo.DeviceState == CONFIGURED)
     {
-      //if target interface is HID interface
-      if( (ControlInfo.ControlRequest).wIndex < 2 )
+      if( (ControlInfo.ControlRequest).wIndex < 2 )//if target interface is HID interface
 	{
 	  switch((ControlInfo.ControlRequest).bRequest)
 	    {
@@ -398,8 +396,7 @@ static void processClassRequest()
 	    }
 	}
       
-      //if target interface is MSD interface
-      else if( (ControlInfo.ControlRequest).wIndex == 2 )
+      else if( (ControlInfo.ControlRequest).wIndex == 2 )//if target interface is MSD interface
 	{
 	  switch((ControlInfo.ControlRequest).bRequest)
 	    {
@@ -417,8 +414,7 @@ static void processClassRequest()
 	    }
 	}
       
-      //if target interface is not available
-      else
+      else//if target interface is not available
 	{
 	  USB->EP0R = (1<<13)|(1<<12)|(1<<9)|(1<<5)|(1<<4);//respond with STALL to IN/OUT packets, clear both CTR flags
 	}
@@ -493,7 +489,7 @@ static void processGetDescriptorRequest()
 	}
       break;
       
-      //add other descriptor codes here if necessary      
+      //add other descriptor codes here if necessary
     }
   
   if( (descriptorAddress == 0) || (descriptorSize == 0) )//if requested descriptor was not found

@@ -31,10 +31,10 @@ MCP1700-3302E/TT 3.3V LDO linear regulator --- 1pcs
 
 TL3342 tactile switch --- 1pcs
        you might want to choose similar ones with bigger height-off-PCB, up to 2mm (instead of 1.5mm with TL3342)
-       https://www.aliexpress.com/store/product/200pcs-lot-4-pins-4-4-1-5-1-6-1-7-2-5-mm-SMD/615097_32955933042.html
+       https://www.aliexpress.com/item/32996664072.html
 
 G49 black USB type A plug --- 1pcs
-       https://www.aliexpress.com/store/product/10pcs-lot-USB-2-0-4Pin-A-Type-Male-Plug-SMT-Connector-Black-G49-for-Data/3019003_32826261577.html
+       https://www.aliexpress.com/item/32661919556.html
 
 AK-N-52 black plastic enclosure --- 1pcs
-       https://www.aliexpress.com/store/product/10-pcs-8-18-53mm-plastic-usb-stick-enclosure-for-pcb-design-szomk-hot-sales-small/2007003_32849611612.html
+       https://www.aliexpress.com/item/32849611612.html

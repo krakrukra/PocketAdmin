@@ -1,7 +1,7 @@
 compile: obj elf bin
 
 obj:
-	arm-none-eabi-gcc -Wall -fno-common -std=gnu11 -mthumb -mcpu=cortex-m0 -Os -c main/*.c usb/*.c fatfs/*.c
+	arm-none-eabi-gcc -Wall -fno-common -fno-builtin -std=gnu11 -mthumb -mcpu=cortex-m0 -Os -c main/*.c usb/*.c fatfs/*.c
 
 elf:
 	arm-none-eabi-ld -X -T linkScript.ld -o firmware.elf *.o -lgcc
@@ -10,7 +10,7 @@ bin:
 	arm-none-eabi-objcopy -j .vectab -j .text -j .rodata -j .data -O binary firmware.elf firmware.bin
 
 asm:
-	arm-none-eabi-gcc -Wall -fno-common -std=gnu11 -mthumb -mcpu=cortex-m0 -Os -S main/*.c usb/*.c fatfs/*.c
+	arm-none-eabi-gcc -Wall -fno-common -fno-builtin -std=gnu11 -mthumb -mcpu=cortex-m0 -Os -S main/*.c usb/*.c fatfs/*.c
 
 clean:
 	rm -f *.o *.s firmware.* *~ *#

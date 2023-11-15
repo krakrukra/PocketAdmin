@@ -34,101 +34,21 @@
    POSSIBILITY OF SUCH DAMAGE.
    ---------------------------------------------------------------------------*/
 
-
-#ifndef __CORE_CM0_H_GENERIC
-#define __CORE_CM0_H_GENERIC
-
-/** \page CMSIS_MISRA_Exceptions  MISRA-C:2004 Compliance Exceptions
-  CMSIS violates the following MISRA-C:2004 rules:
-
-   \li Required Rule 8.5, object/function definition in header file.<br>
-     Function definitions in header files are used to allow 'inlining'.
-
-   \li Required Rule 18.4, declaration of union type or object of union type: '{...}'.<br>
-     Unions are used for effective representation of core registers.
-
-   \li Advisory Rule 19.7, Function-like macro defined.<br>
-     Function-like macros are used to allow more efficient code.
- */
-
+#ifndef CORE_CM0_H
+#define CORE_CM0_H
 
 /*******************************************************************************
  *                 CMSIS definitions
  ******************************************************************************/
-/** \ingroup Cortex_M0
-  @{
- */
-
-/*  CMSIS CM0 definitions */
-#define __CM0_CMSIS_VERSION_MAIN  (0x03)                                   /*!< [31:16] CMSIS HAL main version   */
-#define __CM0_CMSIS_VERSION_SUB   (0x20)                                   /*!< [15:0]  CMSIS HAL sub version    */
-#define __CM0_CMSIS_VERSION       ((__CM0_CMSIS_VERSION_MAIN << 16) | \
-                                    __CM0_CMSIS_VERSION_SUB          )     /*!< CMSIS HAL version number         */
-
-#define __CORTEX_M                (0x00)                                   /*!< Cortex-M Core                    */
-
-/*------------------ GNU Compiler ---------------------*/
-#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
-#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
-#define __STATIC_INLINE  static inline
-
-
-/** __FPU_USED indicates whether an FPU is used or not. This core does not support an FPU at all
-*/
-#define __FPU_USED       0
-
-#if defined (__VFP_FP__) && !defined(__SOFTFP__)
-  #warning "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-#endif
-
 
 #include <stdint.h>                      /* standard types definitions                      */
 #include "core_cmInstr.h"                /* Core Instruction Access                         */
 #include "core_cmFunc.h"                 /* Core Function Access                            */
 
-#endif /* __CORE_CM0_H_GENERIC */
-
-
-
-#ifndef __CMSIS_GENERIC
-
-#ifndef __CORE_CM0_H_DEPENDANT
-#define __CORE_CM0_H_DEPENDANT
-
-/* check device defines and use defaults */
-#if defined __CHECK_DEVICE_DEFINES
-  #ifndef __CM0_REV
-    #define __CM0_REV               0x0000
-    #warning "__CM0_REV not defined in device header file; using default!"
-  #endif
-
-  #ifndef __NVIC_PRIO_BITS
-    #define __NVIC_PRIO_BITS          2
-    #warning "__NVIC_PRIO_BITS not defined in device header file; using default!"
-  #endif
-
-  #ifndef __Vendor_SysTickConfig
-    #define __Vendor_SysTickConfig    0
-    #warning "__Vendor_SysTickConfig not defined in device header file; using default!"
-  #endif
-#endif
-
 /* IO definitions (access restrictions to peripheral registers) */
-/**
-    \defgroup CMSIS_glob_defs CMSIS Global Defines
-
-    <strong>IO Type Qualifiers</strong> are used
-    \li to specify the access to peripheral variables.
-    \li for automatic generation of peripheral register debug information.
-*/
-
 #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
 #define   __O     volatile             /*!< Defines 'write only' permissions                */
 #define   __IO    volatile             /*!< Defines 'read / write' permissions              */
-
-/*@} end of group Cortex_M0 */
-
-
 
 /*******************************************************************************
  *                 Register Abstraction
@@ -138,18 +58,8 @@
   - Core SCB Register
   - Core SysTick Register
  ******************************************************************************/
-/** \defgroup CMSIS_core_register Defines and Type Definitions
-    \brief Type definitions and defines for Cortex-M processor based devices.
-*/
 
-/** \ingroup    CMSIS_core_register
-    \defgroup   CMSIS_CORE  Status and Control Registers
-    \brief  Core Register type definitions.
-  @{
- */
-
-/** \brief  Union type to access the Application Program Status Register (APSR).
- */
+/** \brief  Union type to access the Application Program Status Register (APSR). */
 typedef union
 {
   struct
@@ -165,8 +75,7 @@ typedef union
 } APSR_Type;
 
 
-/** \brief  Union type to access the Interrupt Program Status Register (IPSR).
- */
+/** \brief  Union type to access the Interrupt Program Status Register (IPSR). */
 typedef union
 {
   struct
@@ -178,8 +87,7 @@ typedef union
 } IPSR_Type;
 
 
-/** \brief  Union type to access the Special-Purpose Program Status Registers (xPSR).
- */
+/** \brief  Union type to access the Special-Purpose Program Status Registers (xPSR). */
 typedef union
 {
   struct
@@ -198,8 +106,7 @@ typedef union
 } xPSR_Type;
 
 
-/** \brief  Union type to access the Control Registers (CONTROL).
- */
+/** \brief  Union type to access the Control Registers (CONTROL). */
 typedef union
 {
   struct
@@ -212,17 +119,8 @@ typedef union
   uint32_t w;                            /*!< Type      used for word access                  */
 } CONTROL_Type;
 
-/*@} end of group CMSIS_CORE */
 
-
-/** \ingroup    CMSIS_core_register
-    \defgroup   CMSIS_NVIC  Nested Vectored Interrupt Controller (NVIC)
-    \brief      Type definitions for the NVIC Registers
-  @{
- */
-
-/** \brief  Structure type to access the Nested Vectored Interrupt Controller (NVIC).
- */
+/** \brief  Structure type to access the Nested Vectored Interrupt Controller (NVIC). */
 typedef struct
 {
   __IO uint32_t ISER[1];                 /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register           */
@@ -237,17 +135,8 @@ typedef struct
   __IO uint32_t IP[8];                   /*!< Offset: 0x300 (R/W)  Interrupt Priority Register              */
 }  NVIC_Type;
 
-/*@} end of group CMSIS_NVIC */
 
-
-/** \ingroup  CMSIS_core_register
-    \defgroup CMSIS_SCB     System Control Block (SCB)
-    \brief      Type definitions for the System Control Block Registers
-  @{
- */
-
-/** \brief  Structure type to access the System Control Block (SCB).
- */
+/** \brief  Structure type to access the System Control Block (SCB). */
 typedef struct
 {
   __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
@@ -342,17 +231,8 @@ typedef struct
 #define SCB_SHCSR_SVCALLPENDED_Pos         15                                             /*!< SCB SHCSR: SVCALLPENDED Position */
 #define SCB_SHCSR_SVCALLPENDED_Msk         (1UL << SCB_SHCSR_SVCALLPENDED_Pos)            /*!< SCB SHCSR: SVCALLPENDED Mask */
 
-/*@} end of group CMSIS_SCB */
 
-
-/** \ingroup  CMSIS_core_register
-    \defgroup CMSIS_SysTick     System Tick Timer (SysTick)
-    \brief      Type definitions for the System Timer Registers.
-  @{
- */
-
-/** \brief  Structure type to access the System Timer (SysTick).
- */
+/** \brief  Structure type to access the System Timer (SysTick). */
 typedef struct
 {
   __IO uint32_t CTRL;                    /*!< Offset: 0x000 (R/W)  SysTick Control and Status Register */
@@ -392,24 +272,6 @@ typedef struct
 #define SysTick_CALIB_TENMS_Pos             0                                             /*!< SysTick CALIB: TENMS Position */
 #define SysTick_CALIB_TENMS_Msk            (0xFFFFFFUL << SysTick_VAL_CURRENT_Pos)        /*!< SysTick CALIB: TENMS Mask */
 
-/*@} end of group CMSIS_SysTick */
-
-
-/** \ingroup  CMSIS_core_register
-    \defgroup CMSIS_CoreDebug       Core Debug Registers (CoreDebug)
-    \brief      Cortex-M0 Core Debug Registers (DCB registers, SHCSR, and DFSR)
-                are only accessible over DAP and not via processor. Therefore
-                they are not covered by the Cortex-M0 header file.
-  @{
- */
-/*@} end of group CMSIS_CoreDebug */
-
-
-/** \ingroup    CMSIS_core_register
-    \defgroup   CMSIS_core_base     Core Definitions
-    \brief      Definitions for base addresses, unions, and structures.
-  @{
- */
 
 /* Memory mapping of Cortex-M0 Hardware */
 #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
@@ -421,29 +283,7 @@ typedef struct
 #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct       */
 #define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct          */
 
-
-/*@} */
-
-
-
-/*******************************************************************************
- *                Hardware Abstraction Layer
-  Core Function Interface contains:
-  - Core NVIC Functions
-  - Core SysTick Functions
-  - Core Register Access Functions
- ******************************************************************************/
-/** \defgroup CMSIS_Core_FunctionInterface Functions and Instructions Reference
-*/
-
-
-
 /* ##########################   NVIC functions  #################################### */
-/** \ingroup  CMSIS_Core_FunctionInterface
-    \defgroup CMSIS_Core_NVICFunctions NVIC Functions
-    \brief      Functions that manage interrupts and exceptions via the NVIC.
-    @{
- */
 
 /* Interrupt Priorities are WORD accessible only under ARMv6M                   */
 /* The following MACROS handle generation of the register offset and byte masks */
@@ -453,79 +293,65 @@ typedef struct
 
 
 /** \brief  Enable External Interrupt
-
     The function enables a device-specific interrupt in the NVIC interrupt controller.
-
     \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
-__STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
+static inline void NVIC_EnableIRQ(IRQn_Type IRQn)
 {
   NVIC->ISER[0] = (1 << ((uint32_t)(IRQn) & 0x1F));
 }
 
 
 /** \brief  Disable External Interrupt
-
     The function disables a device-specific interrupt in the NVIC interrupt controller.
-
     \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
-__STATIC_INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
+static inline void NVIC_DisableIRQ(IRQn_Type IRQn)
 {
   NVIC->ICER[0] = (1 << ((uint32_t)(IRQn) & 0x1F));
 }
 
 
 /** \brief  Get Pending Interrupt
-
     The function reads the pending register in the NVIC and returns the pending bit
     for the specified interrupt.
-
     \param [in]      IRQn  Interrupt number.
-
     \return             0  Interrupt status is not pending.
     \return             1  Interrupt status is pending.
  */
-__STATIC_INLINE uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
+static inline uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
   return((uint32_t) ((NVIC->ISPR[0] & (1 << ((uint32_t)(IRQn) & 0x1F)))?1:0));
 }
 
 
 /** \brief  Set Pending Interrupt
-
     The function sets the pending bit of an external interrupt.
-
     \param [in]      IRQn  Interrupt number. Value cannot be negative.
  */
-__STATIC_INLINE void NVIC_SetPendingIRQ(IRQn_Type IRQn)
+static inline void NVIC_SetPendingIRQ(IRQn_Type IRQn)
 {
   NVIC->ISPR[0] = (1 << ((uint32_t)(IRQn) & 0x1F));
 }
 
 
 /** \brief  Clear Pending Interrupt
-
     The function clears the pending bit of an external interrupt.
-
     \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
-__STATIC_INLINE void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
+static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
   NVIC->ICPR[0] = (1 << ((uint32_t)(IRQn) & 0x1F)); /* Clear pending interrupt */
 }
 
 
 /** \brief  Set Interrupt Priority
-
     The function sets the priority of an interrupt.
-
     \note The priority cannot be set for every core interrupt.
-
     \param [in]      IRQn  Interrupt number.
     \param [in]  priority  Priority to set.
  */
-__STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
+static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 {
   if(IRQn < 0) {
     SCB->SHP[_SHP_IDX(IRQn)] = (SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFF << _BIT_SHIFT(IRQn))) |
@@ -537,17 +363,14 @@ __STATIC_INLINE void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 
 
 /** \brief  Get Interrupt Priority
-
     The function reads the priority of an interrupt. The interrupt
     number can be positive to specify an external (device specific)
     interrupt, or negative to specify an internal (core) interrupt.
-
-
     \param [in]   IRQn  Interrupt number.
     \return             Interrupt Priority. Value is aligned automatically to the implemented
                         priority bits of the microcontroller.
  */
-__STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
+static inline uint32_t NVIC_GetPriority(IRQn_Type IRQn)
 {
 
   if(IRQn < 0) {
@@ -558,10 +381,9 @@ __STATIC_INLINE uint32_t NVIC_GetPriority(IRQn_Type IRQn)
 
 
 /** \brief  System Reset
-
     The function initiates a system reset request to reset the MCU.
  */
-__STATIC_INLINE void NVIC_SystemReset(void)
+static inline void NVIC_SystemReset(void)
 {
   __DSB();                                                     /* Ensure all outstanding memory accesses included
                                                                   buffered write are completed before reset */
@@ -571,35 +393,19 @@ __STATIC_INLINE void NVIC_SystemReset(void)
   while(1);                                                    /* wait until reset */
 }
 
-/*@} end of CMSIS_Core_NVICFunctions */
-
-
-
 /* ##################################    SysTick function  ############################################ */
-/** \ingroup  CMSIS_Core_FunctionInterface
-    \defgroup CMSIS_Core_SysTickFunctions SysTick Functions
-    \brief      Functions that configure the System.
-  @{
- */
-
-#if (__Vendor_SysTickConfig == 0)
 
 /** \brief  System Tick Configuration
-
     The function initializes the System Timer and its interrupt, and starts the System Tick Timer.
     Counter is in free running mode to generate periodic interrupts.
-
     \param [in]  ticks  Number of ticks between two interrupts.
-
     \return          0  Function succeeded.
     \return          1  Function failed.
-
     \note     When the variable <b>__Vendor_SysTickConfig</b> is set to 1, then the
     function <b>SysTick_Config</b> is not included. In this case, the file <b><i>device</i>.h</b>
     must contain a vendor-specific implementation of this function.
-
  */
-__STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
+static inline uint32_t SysTick_Config(uint32_t ticks)
 {
   if ((ticks - 1) > SysTick_LOAD_RELOAD_Msk)  return (1);      /* Reload value impossible */
 
@@ -612,14 +418,4 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
   return (0);                                                  /* Function successful */
 }
 
-#endif
-
-/*@} end of CMSIS_Core_SysTickFunctions */
-
-
-
-
-#endif /* __CORE_CM0_H_DEPENDANT */
-
-#endif /* __CMSIS_GENERIC */
-
+#endif //CORE_CM0_H

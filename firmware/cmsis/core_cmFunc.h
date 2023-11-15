@@ -34,196 +34,162 @@
    POSSIBILITY OF SUCH DAMAGE.
    ---------------------------------------------------------------------------*/
 
-
-#ifndef __CORE_CMFUNC_H
-#define __CORE_CMFUNC_H
-
+#ifndef CORE_CMFUNC_H
+#define CORE_CMFUNC_H
 
 /* ###########################  Core Function Access  ########################### */
-/** \ingroup  CMSIS_Core_FunctionInterface
-    \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
-  @{
- */
-
 
 /*------------------ GNU Compiler ---------------------*/
 /* GNU gcc specific functions */
 
 /** \brief  Enable IRQ Interrupts
-
   This function enables IRQ interrupts by clearing the I-bit in the CPSR.
   Can only be executed in Privileged modes.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __enable_irq(void)
+__attribute__( ( always_inline ) ) static inline void __enable_irq(void)
 {
-  __ASM volatile ("cpsie i" : : : "memory");
+  __asm volatile ("cpsie i" : : : "memory");
 }
 
 
 /** \brief  Disable IRQ Interrupts
-
   This function disables IRQ interrupts by setting the I-bit in the CPSR.
   Can only be executed in Privileged modes.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
+__attribute__( ( always_inline ) ) static inline void __disable_irq(void)
 {
-  __ASM volatile ("cpsid i" : : : "memory");
+  __asm volatile ("cpsid i" : : : "memory");
 }
 
 
 /** \brief  Get Control Register
-
     This function returns the content of the Control Register.
-
     \return               Control Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CONTROL(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_CONTROL(void)
 {
   uint32_t result;
 
-  __ASM volatile ("MRS %0, control" : "=r" (result) );
+  __asm volatile ("MRS %0, control" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Set Control Register
-
     This function writes the given value to the Control Register.
-
     \param [in]    control  Control Register value to set
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_CONTROL(uint32_t control)
+__attribute__( ( always_inline ) ) static inline void __set_CONTROL(uint32_t control)
 {
-  __ASM volatile ("MSR control, %0" : : "r" (control) : "memory");
+  __asm volatile ("MSR control, %0" : : "r" (control) : "memory");
 }
 
 
 /** \brief  Get IPSR Register
-
     This function returns the content of the IPSR Register.
-
     \return               IPSR Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_IPSR(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_IPSR(void)
 {
   uint32_t result;
 
-  __ASM volatile ("MRS %0, ipsr" : "=r" (result) );
+  __asm volatile ("MRS %0, ipsr" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Get APSR Register
-
     This function returns the content of the APSR Register.
-
     \return               APSR Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_APSR(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_APSR(void)
 {
   uint32_t result;
 
-  __ASM volatile ("MRS %0, apsr" : "=r" (result) );
+  __asm volatile ("MRS %0, apsr" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Get xPSR Register
-
     This function returns the content of the xPSR Register.
-
     \return               xPSR Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_xPSR(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_xPSR(void)
 {
   uint32_t result;
 
-  __ASM volatile ("MRS %0, xpsr" : "=r" (result) );
+  __asm volatile ("MRS %0, xpsr" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Get Process Stack Pointer
-
     This function returns the current value of the Process Stack Pointer (PSP).
-
     \return               PSP Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_PSP(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_PSP(void)
 {
   register uint32_t result;
 
-  __ASM volatile ("MRS %0, psp\n"  : "=r" (result) );
+  __asm volatile ("MRS %0, psp\n"  : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Set Process Stack Pointer
-
     This function assigns the given value to the Process Stack Pointer (PSP).
-
     \param [in]    topOfProcStack  Process Stack Pointer value to set
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_PSP(uint32_t topOfProcStack)
+__attribute__( ( always_inline ) ) static inline void __set_PSP(uint32_t topOfProcStack)
 {
-  __ASM volatile ("MSR psp, %0\n" : : "r" (topOfProcStack) : "sp");
+  __asm volatile ("MSR psp, %0" : : "r" (topOfProcStack) : );
 }
 
 
 /** \brief  Get Main Stack Pointer
-
     This function returns the current value of the Main Stack Pointer (MSP).
-
     \return               MSP Register value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_MSP(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_MSP(void)
 {
   register uint32_t result;
 
-  __ASM volatile ("MRS %0, msp\n" : "=r" (result) );
+  __asm volatile ("MRS %0, msp\n" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Set Main Stack Pointer
-
     This function assigns the given value to the Main Stack Pointer (MSP).
-
     \param [in]    topOfMainStack  Main Stack Pointer value to set
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_MSP(uint32_t topOfMainStack)
+__attribute__( ( always_inline ) ) static inline void __set_MSP(uint32_t topOfMainStack)
 {
-  __ASM volatile ("MSR msp, %0\n" : : "r" (topOfMainStack) : "sp");
+  __asm volatile ("MSR msp, %0" : : "r" (topOfMainStack) : );
 }
 
 
 /** \brief  Get Priority Mask
-
     This function returns the current state of the priority mask bit from the Priority Mask Register.
-
     \return               Priority Mask value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_PRIMASK(void)
+__attribute__( ( always_inline ) ) static inline uint32_t __get_PRIMASK(void)
 {
   uint32_t result;
 
-  __ASM volatile ("MRS %0, primask" : "=r" (result) );
+  __asm volatile ("MRS %0, primask" : "=r" (result) );
   return(result);
 }
 
 
 /** \brief  Set Priority Mask
-
     This function assigns the given value to the Priority Mask Register.
-
     \param [in]    priMask  Priority Mask
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_PRIMASK(uint32_t priMask)
+__attribute__( ( always_inline ) ) static inline void __set_PRIMASK(uint32_t priMask)
 {
-  __ASM volatile ("MSR primask, %0" : : "r" (priMask) : "memory");
+  __asm volatile ("MSR primask, %0" : : "r" (priMask) : "memory");
 }
 
-
-/*@} end of CMSIS_Core_RegAccFunctions */
-
-#endif /* __CORE_CMFUNC_H */
+#endif //CORE_CMFUNC_H

@@ -213,6 +213,7 @@ DRESULT disk_ioctl (
 
 DWORD get_fattime (void)
 {
+  //return 00:00 of january 1, 1980 as current time and date
   return (1<<21)|(1<<16);
 }
 
@@ -484,7 +485,7 @@ static void relocate_LS(unsigned short LSindex)
 	      read_PP((oldEBI * 64) + PPOmap[i]);//copy LP data from old EB into internal Data Buffer	      
 	      write_buffer((unsigned char*) &LSindex, 2048 + 2, 2);//write new LSImarker to internal Data Buffer
 	      PPOmap[i] = newPPO;//rewrite one PPOmap[] entry with new data
-	      	      
+	      
 	      if(newPPO == (LPcount - 1))//if the last LP is being relocated
 		{
 		  //save the new updated PPOmap[] in page metadata
@@ -645,7 +646,7 @@ static void erase_EB(unsigned short EBindex)
   
   if(EBindex  > 1023) return;//if invalid EBI is specified, do nothing
   PageAddress = EBindex * 64;//convert EBI into Physical Page Address
-
+  
   //make sure that a new command can be accepted
   wait_notbusy();
   write_enable();
@@ -657,7 +658,7 @@ static void erase_EB(unsigned short EBindex)
   spi_transfer( PageAddress >> 0 );//send Physical Page Address
   while(SPI1->SR & (1<<7));//wait until SPI1 is not busy
   CS_HIGH;//pull CS pin high
-
+  
   DiskInfo.LastErasedEB = EBindex;//remember index of the last EB that was erased
   
   return;

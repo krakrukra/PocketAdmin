@@ -42,7 +42,7 @@ void processMSDtransaction()
 	  if(MSDinfo.BytesLeft == MAXPACKET_MSD)
 	    {
 	      getData();//save last data packet to flash memory
-	      sendCSW(0, 0x00, 0x00);//return good status	      
+	      sendCSW(0, 0x00, 0x00);//return good status
 	      USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
 	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
 	    }
@@ -241,7 +241,7 @@ static void processReadCapacityCommand_10()
 {
   unsigned int sendLastLBA = 0x000301FF - PayloadInfo.LBAoffset;//value that will be sent to host as a last accessible LBA
   if(PayloadInfo.FakeCapacity) sendLastLBA = PayloadInfo.FakeCapacity * 2048 - 1;//if necessary, use fake capacity
-
+  
   if(MSDinfo.EjectFlag)//if medium is ejected
     {
       sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
@@ -280,7 +280,7 @@ static void processTestUnitReadyCommand_6()
 
 static void processRequestSenseCommand_6()
 {
-  sendResponse( &SenseData_FixedFormat, sizeof(SenseData_FixedFormat) );//pre-fill the first packet buffer  
+  sendResponse( &SenseData_FixedFormat, sizeof(SenseData_FixedFormat) );//pre-fill the first packet buffer
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with data, ingore OUT packets
   sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//start to pre-fill the next packet buffer

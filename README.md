@@ -1,7 +1,5 @@
 # PocketAdmin  
   
-#### Русская версия документации доступна [здесь](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/README.md)  
-  
 This is a keystroke injection device (also called badusb). It is similar to a well-known  
 [USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe) made by hak5, has rather extensive functionality, lower price  
 and is also completely open source. It looks and feels like an ordinary USB flash drive,  
@@ -10,8 +8,8 @@ from configuring a network to installing a reverse shell, since the device can b
 do whatever an admin can with a terminal, but taking only a few seconds. This makes  
 it a very powerful tool for automating sysadmin tasks or use in penetration testing.  
   
-![outside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/outside.jpg)  
-![inside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/inside.jpg)  
+![outside.jpg](extra/pictures/photos/outside.jpg)  
+![inside.jpg](extra/pictures/photos/inside.jpg)  
   
 Here is quick summary of how PocketAdmin is different from other badusb devices:  
   
@@ -48,7 +46,7 @@ memory region on the USB disk, show fake storage capacity to the host, etc.
   
 ## hardware
   
-project is designed using KiCad 5.1.5  
+project is designed using KiCad 6.0.11  
 check KiCad pcb file for PCB manufacturing info  
 check KiCad sch file + BOM.txt for component info  
   
@@ -70,36 +68,36 @@ Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.
 When opening up the case, be careful no to break the plastic studs near  
 the USB connector and at the opposite (from USB) end of enclosure.  
   
-hardware programmer device used in this project is ST-Link V2  
+hardware programmer device used in this project is [ST-Link V2](https://www.aliexpress.com/item/1823628996.html)  
 For instructions on how to build and flash the device go check this video:  
 [https://www.youtube.com/watch?v=cfud5Dq_w2M](https://www.youtube.com/watch?v=cfud5Dq_w2M)  
   
 ## firmware  
   
-programming language used = C  
-flashing software used = openocd  
+Programming language used = C  
+Flashing software used = openocd 0.12.0  
 IDE used = emacs text editor + Makefile  
   
-the firmware was developed on debian 11.3 system, using gcc-arm-none-eabi toolchain  
-(compiler, linker, binutils) and it does use gcc specific extentions.  
-it was successfully compiled and tested with arm-none-eabi-gcc version 8.3.1  
+The firmware was developed on debian 11.3 system, using gcc-arm-none-eabi  
+toolchain (compiler, linker, binutils) and it does use gcc specific extentions.  
+it was successfully compiled and tested with arm-none-eabi-gcc version 12.2.1  
   
-depends on libgcc.a, which is included in this repository. linker script,  
+Depends on libgcc.a, which is included in this repository. linker script,  
 startup code and openocd configuration files are included here as well.  
   
-files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
+Files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
 headers, but integral parts of usb.c, main.c, msd.c respectively.  
 they are not intended to be included in any other files.  
   
-for easy in-field updates, you can use the DFU bootloader. There is a dfu  
-firmware image available in /firmware/firmware\_RRNNN.dfu file. The name  
+For easy in-field updates, you can use the DFU bootloader. There is a dfu  
+firmware image available in **/firmware/firmware\_RRNNN.dfu** file. The name  
 format is this: RR stands for board revision (13 = rev 1.3) , NNN stands  
-for firmware version. For example, firmware\_13000.dfu means board  
-revision 1.3, firmware version 0  
+for firmware version. For example, firmware\_13005.dfu means board  
+revision 1.3, firmware version 5  
   
   
 To automate firmware build process you can use make utility. If you  
-open terminal in /firmware/ directory, you could run these commands:  
+open terminal in **/firmware/** directory, you could run these commands:  
   
 > make  
 > make upload  
@@ -109,21 +107,23 @@ open terminal in /firmware/ directory, you could run these commands:
 "make" will compile source code and create several files, among them  
 is firmware.bin which contains firmware to flash. "make upload" will  
 flash this file via St-Link V2 programmer. Make sure to connect the  
-programmer to the board properly, before you plug it in and run the  
+programmer to the board properly, before you plug it into PC and run the  
 command. "make dfu" will create a DFU firmware image from firmware.bin  
 which can be used later by DFU flashing software. "make clean" will  
 delete all the compiled or temporary files created by previous commands.  
   
 ## directories info
 
-#### /firmware/ --------------- contains makefile, linker script, source files; this is a build directory  
+#### /firmware/ ------------- contains makefile, linker script, source files; this is a build directory  
 /firmware/cmsis/ ------- header files from CMSIS compliant [STM32F0xx standard peripherals library](https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32048.html)  
 /firmware/stdlib/ ---------- standard statically linked libraries (libgcc.a)  
 /firmware/openocd/ ------- standard configuration files for openocd  
 /firmware/fatfs/ ---------- [chan fatfs](http://www.elm-chan.org/fsw/ff/00index_e.html) filesystem module + custom W25N01GVZEIG disk driver  
-/firmware/usb/ ------------ custom USB stack, implementation of MSD and HID class devices  
+/firmware/usb/ ------------ USB system, MSD and HID class device implementation  
 /firmware/main/ ------- main application file, interrupt vector table, IRQ handlers and startup code  
 /firmware/dfuse-pack.py ------- python script to create .dfu firmware images  
+/firmware/linkScript.ld ------- custom linker script for the GNU linker (ld)  
+/firmware/Makefile ------- file used by GNU make utility for build automation  
 /firmware/firmware_13NNN.dfu ------ pre-compiled firmware image in DfuSe format (STM32)  
   
 #### /hardware/ ------------------- contains KiCad project, schematic, PCB files  

@@ -1,3 +1,3 @@
 (sym_lib_table
-  (lib (name PocketAdmin)(type Legacy)(uri ${KIPRJMOD}/PocketAdmin.symbols/PocketAdmin.lib)(options "")(descr ""))
+  (lib (name "PocketAdmin")(type "Legacy")(uri "${KIPRJMOD}/PocketAdmin.symbols/PocketAdmin.lib")(options "")(descr ""))
 )

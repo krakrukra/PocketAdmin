@@ -122,7 +122,6 @@ int main()
 	  if( !(PayloadInfo.DeviceFlags & (1<<0)) ) runDuckyPayload("payload.txt");
 	}
       
-      
       while(1)
 	{
 	  sendKBreport(MOD_NONE, KB_Reserved);//send an empty keyboard report
