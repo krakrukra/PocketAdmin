@@ -1,5 +1,7 @@
 # PocketAdmin  
   
+#### Русская версия документации доступна [здесь](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/README.md)  
+  
 This is a keystroke injection device (also called badusb). It is similar to a well-known  
 [USB rubber ducky](https://shop.hak5.org/products/usb-rubber-ducky-deluxe) made by hak5, has rather extensive functionality, lower price  
 and is also completely open source. It looks and feels like an ordinary USB flash drive,  
@@ -8,9 +10,9 @@ from configuring a network to installing a reverse shell, since the device can b
 do whatever an admin can with a terminal, but taking only a few seconds. This makes  
 it a very powerful tool for automating sysadmin tasks or use in penetration testing.  
   
-![outside.jpg](extra/pictures/photos/outside.jpg)  
-![inside.jpg](extra/pictures/photos/inside.jpg)  
-  
+![outside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/outside.jpg)  
+![inside.jpg](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pictures/photos/inside.jpg)  
+												        
 Here is quick summary of how PocketAdmin is different from other badusb devices:  
   
 1. Made from inexpensive off-the-shelf parts, with not only open source firmware,  
