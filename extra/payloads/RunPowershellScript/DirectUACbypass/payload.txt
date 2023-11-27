@@ -4,19 +4,6 @@ REM --- allow user to prevent payload execution by tapping CAPSLOCK during inser
 WAITFOR_INIT
 ALLOW_EXIT
 
-REM --- close file manager popup window (opens automatically as device is plugged in) ---
-ALT F4
-
-REM --- make sure input language is set to English (if it is not default language) ---
-DEFAULT_DELAY 300
-HOLD GUI
-SPACE
-SPACE
-END
-ENTER
-DEFAULT_DELAY 0
-RELEASE
-
 REM --- find appropriate USB drive (FAT partition label must be POCKETADMIN) ---
 REM --- execute insert.ps1 script from its root directory as administartor ---
 GUI r
@@ -24,10 +11,8 @@ DELAY 100
 STRING powershell start-process powershell -verb runas {-exec bypass -noP -wind hidden -nonI  .((Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter+':\insert.ps1')}
 ENTER
 
-REM --- UAC bypass, repeated 5 times just in case GUI acts too slow ---
-REPEAT_START
-DELAY 1000
+REM --- wait 2 seconds for UAC window to appear, try to say YES ---
+DELAY 2000
 LEFT
 DELAY 50
-ALT SHIFT ENTER
-REPEAT 4
+ENTER

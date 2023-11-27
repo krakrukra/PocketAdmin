@@ -1,0 +1,1 @@
+Write-Output "this string comes from elevated.ps1 and took admin rights to appear" > C:\Windows\adminonly.txt
