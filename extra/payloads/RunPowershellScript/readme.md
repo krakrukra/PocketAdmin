@@ -4,7 +4,8 @@ to this drive and start a powershell script from **insert.ps1** file.
 It is up to the end user to replace default powershell scripts here  
 with something more useful. If you want something to start off at,  
 you can always search for scripts online. As an example, here is a  
-collection of penetration testing scripts by Nikhil Mittal: [https://github.com/samratashok/nishang](https://github.com/samratashok/nishang)  
+collection of penetration testing scripts by Nikhil Mittal:  
+[https://github.com/samratashok/nishang](https://github.com/samratashok/nishang)  
   
 Each subdirectory here contains a version of the payload that is  
 slightly different from the rest. You should copy all the files  
@@ -16,9 +17,9 @@ plug the device in, select the correct drive in the file manager
 Alternatively, in Linux you can use the fatlabel utility for that.  
   
 [VisibleNonAdminScript](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/RunPowershellScript/VisibleNonAdminScript) payload runs the insert.ps1 script without  
-requesting any administrative privileges, and also without any
+requesting any administrative privileges, and also without any  
 attempt to hide the powershell window. By default it only  
-outputs a string into a terminal. 
+outputs a string into a terminal.  
   
 [HiddenNonAdminScript](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/RunPowershellScript/HiddenNonAdminScript) payload runs the insert.ps1 script without  
 requesting any administrative privileges, and also hides  
