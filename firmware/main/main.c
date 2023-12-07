@@ -986,7 +986,7 @@ static void enter_bootloader()
   NVIC_DisableIRQ(31);
   NVIC_DisableIRQ(18);
   NVIC_DisableIRQ(10);
-
+  
   //clear all pending interrupts
   NVIC_ClearPendingIRQ(31);
   NVIC_ClearPendingIRQ(18);
@@ -998,7 +998,7 @@ static void enter_bootloader()
   GPIOA->ODR   = 0x00000000;
   GPIOA->MODER = 0x28000000;
   GPIOA->PUPDR = 0x24000000;
-
+  
   //disable all peripheral clocks
   RCC->AHBENR  = 0x00000014;
   RCC->APB1ENR = 0x00000000;
@@ -1009,7 +1009,7 @@ static void enter_bootloader()
   RCC->CFGR = 0;//set HSI as system clock
   while( !((RCC->CFGR & 0x0F) == 0b0000) );//wait until HSI is used as system clock  
   RCC->CR = 0x0083;//disable PLL, HSE clocks; disable CSS
-
+  
   __DSB();//make sure all outstanding memory transfers are over before changing MSP value
   __set_MSP(0x20003FFC);//move main stack pointer back to the top
   __ISB();//make sure the effect of changing MSP value is visible immediately
@@ -1187,7 +1187,7 @@ static void checkOSfingerprint()
       if( PayloadInfo.Filename[0] ) break;
       else FATFSresult = f_readdir(&fingerdbDirInfo, &fingerdbFileInfo);//move to the new file
     }
-
+  
   //if correct OS fingerprint was not found anywhere in database, set payload filename to other.txt
   if( PayloadInfo.Filename[0] == 0 ) setFilename("other.txt");
   
