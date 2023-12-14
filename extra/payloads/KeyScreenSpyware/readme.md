@@ -8,7 +8,8 @@ procedure of configuring upload.ps1 will be somewhat different now
   
 After insertion, device will execute commands from **payload.txt**  
 file. This will bring up windows runline dialog and use it to  
-start a powershell script contained in **/scripts/insert.ps1**  
+find the correct USB drive based on FAT volume label (POCKETADMIN)  
+and start a powershell script contained in **/scripts/insert.ps1**  
 This script will then copy all the spyware files into a directory  
 **C:\ProgramData\WindowsUserAssist**, start these softwares right  
 away and also place a vbs script from **/scripts/autostart.vbs** into  
@@ -22,8 +23,8 @@ You **must** then modify upload.ps1 script to make it work correctly.
   
 #### screen capture software  
   
-Screen capture software is stored in **/binary/scap.exe**, while  
-it's source code is available in **/scap/** directory. Source code  
+Screen capture software is stored in **/binaries/scap.exe**, while  
+it's source code is available in **/scap-src/** directory. Source code  
 is not required for the actual execution of the payload, so you do  
 not have to copy it into the PocketAdmin's USB storage. This software  
 was compiled on a windows machine using MinGW compiler toolchain.  
@@ -41,8 +42,8 @@ mm - minute, ss - second of when the screenshot was taken.
   
 #### keylogger software
   
-Keylogger software is stored in **/binary/klog.exe**, while it's  
-source code is available in **/klog/** directory. Source code is  
+Keylogger software is stored in **/binaries/klog.exe**, while it's  
+source code is available in **/klog-src/** directory. Source code is  
 not required for the actual execution of the payload, so you do  
 not have to copy it into PocketAdmin's USB storage. This software  
 was compiled on a windows machine using MinGW compiler toolchain.  

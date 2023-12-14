@@ -3,5 +3,5 @@ compile:
 	g++ *.o -static -static-libgcc -static-libstdc++ -l gdi32 -l gdiplus -O2 -mwindows -o ../binaries/scap.exe
 	
 clean:
-	del scap.exe
+	del ..\binaries\scap.exe
 	del	*.o

