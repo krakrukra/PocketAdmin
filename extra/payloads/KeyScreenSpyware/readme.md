@@ -7,8 +7,8 @@ more detail in [this video](https://www.youtube.com/watch?v=pKTy7eIpTOI).
 procedure of configuring upload.ps1 will be somewhat different now   
   
 After insertion, device will execute commands from **payload.txt**  
-file. This will bring up windows runline dialog and use it to  
-find the correct USB drive based on FAT volume label (POCKETADMIN)  
+file. This will bring up windows runline dialog and use it to find  
+the correct USB drive based on FAT volume label (POCKETADMIN)  
 and start a powershell script contained in **/scripts/insert.ps1**  
 This script will then copy all the spyware files into a directory  
 **C:\ProgramData\WindowsUserAssist**, start these softwares right  
