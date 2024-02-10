@@ -1,7 +1,5 @@
-#### IMPORTANT: for previous 1.2 revision devices, use the [old upgrade process](https://github.com/krakrukra/12004-pocketadmin-wiki)  
-  
-With new rev 1.3 hardware, you do not have to use St-Link V2  
-hardware programmer device for performing firmware updates.  
+While it is possible to use hardware programmer St-Link V2  
+for performing firmware updates, there is an alternative way.  
 You may instead use the DFU bootloader and send new updated  
 firmware directly over USB. To do so, you will need to install  
 some dedicated software on your PC, plug the PocketAdmin into  
