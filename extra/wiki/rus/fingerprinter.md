@@ -106,6 +106,6 @@ PocketAdmin к своей машине ещё несколько раз, дан�
 оставаться нетронутым (пока вы снова не подключите устройство к новой машине)  
   
 В этом репозитории для примера есть образец базы данных отпечатков ОС:  
-[/extra/payloads/FingerprinterTest/fingerdb/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FingerprinterTest/fingerdb)  
+[/extra/payloads/FeatureTesting/FingerprinterTest/fingerdb/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FeatureTesting/FingerprinterTest/fingerdb)  
 При необходимости эту базу несложно расширить самостоятельно.  
   

@@ -48,8 +48,8 @@ your script file (**payload.txt**) in the device's root directory.
 and also provide a database of .fgp files in **/fingerdb/** directory.  
   
 4. If you want to replace the default US keyboard layout with some other  
-one, you need to place required layout files in **/kblayout/** directory.  
-The database of layout files is available in [/extra/payloads/LayoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/LayoutTest/kblayout)  
+one, you need to place required layout files in **/kblayout/** directory. The  
+database of layout files is available in [/extra/payloads/FeatureTesting/LayoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FeatureTesting/LayoutTest/kblayout)  
   
 5. If you want to use on-demand payloads, you need to place them inside  
 **/ondemand/** directory, with names from **script03.txt** up to **script19.txt**  

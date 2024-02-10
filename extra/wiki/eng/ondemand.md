@@ -44,6 +44,6 @@ mode, etc. If the script file that you have requested was not found,
 the device will stay in the idle state, but sequences of 20 or more  
 toggles will function even if there is no valid filesystem found on device.  
   
-Support for on-demand payloads on macOS is very limited, as on that  
-OS keyboard LED state is usually not shared between different keyboards.  
+On-demand payloads will not work on macOS computers, as on that OS  
+keyboard LED state is usually not shared between different keyboards.  
   

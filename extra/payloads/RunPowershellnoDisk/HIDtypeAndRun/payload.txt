@@ -1,0 +1,32 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+WAITFOR_INIT
+ALLOW_EXIT
+
+REM --- open powershell window, wait for it to show up ---
+GUI r
+DELAY 100
+STRING powershell -noP
+ENTER
+DELAY 500
+
+REM --- pull the powershell window down on the screen ---
+ALT SPACE
+DOWN
+ENTER
+DOWN
+REPEAT 99
+ENTER
+
+REM --- type in your script directly, line by line, then run it and close the window ---
+STRING $string = "user name = $env:USERNAME`n"
+SHIFT ENTER
+STRING $string = $string + "PC name = $env:COMPUTERNAME`n"
+SHIFT ENTER
+STRING $string = $string + "execution policy = $(Get-ExecutionPolicy)"
+SHIFT ENTER
+STRING Write-Output $string > $HOME\Desktop\file.txt
+SHIFT ENTER
+STRING exit
+ENTER

@@ -141,8 +141,8 @@ delete all the compiled or temporary files created by previous commands.
 /extra/pictures/ ---------------- photos and mechanical drawings  
 /extra/wiki/ ------------------ github wiki pages  
 /extra/payloads/ ----------- example and test payloads for PocketAdmin  
-/extra/payloads/fingerprinterTest/fingerdb/ -- example OS fingerprint database  
-/extra/payloads/layoutTest/kblayout/ --- alternative keyboard layout files  
+/extra/payloads/FeatureTesting/fingerprinterTest/fingerdb/ -- example OS fingerprint database  
+/extra/payloads/FeatureTesting/layoutTest/kblayout/ --- alternative keyboard layout files  
   
 ## contact info  
   

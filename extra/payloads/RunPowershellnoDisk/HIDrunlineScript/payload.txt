@@ -1,0 +1,11 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+WAITFOR_INIT
+ALLOW_EXIT
+
+REM --- open windows runline, type the entire script there and run it (must fit into runline size limit)---
+GUI r
+DELAY 100
+STRING powershell -noP -wind hidden -nonI Write-Output "This did not need admin privileges to work" > $HOME\Desktop\file.txt
+ENTER

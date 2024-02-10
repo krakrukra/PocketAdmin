@@ -31,5 +31,5 @@
 Поддержка отражения нажатий на macOS крайне ограничена, из-за того что обычно  
 на этой системе статус LED индикаторов межу клавиатурами не синхронизирован.  
   
-В репозитории есть [образец скрипта](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/KeystrokeReflectionTest) для использования отражения нажатий  
+В репозитории есть [образец скрипта](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FeatureTesting/KeystrokeReflectionTest) для использования отражения нажатий  
   

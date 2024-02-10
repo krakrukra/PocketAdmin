@@ -51,7 +51,7 @@
   
 4. Если вы хотите заменить раскладку клавиатуры (по умолчанию QWERTY),  
 то сначала вам нужно будет разместить необходимые файлы в каталоге **/kblayout/**.  
-Файлы раскладок доступны в [/extra/payloads/LayoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/LayoutTest/kblayout)  
+Файлы раскладок доступны в [/extra/payloads/FeatureTesting/LayoutTest/kblayout/](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FeatureTesting/LayoutTest/kblayout)  
   
 5. Если вы хотите использовать рабочие скрипты по запросу, вам нужно  
 поместить их внутрь каталога **/ondemand/**, с именами от **script03.txt** до **script19.txt**  

