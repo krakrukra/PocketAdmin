@@ -62,7 +62,9 @@
 * "SETCAPS_OFF"  --- переключает CAPSLOCK, пока его светодиод не погаснет  
 * "SETSCROLL_ON"  --- переключает SCROLLLOCK, пока не загорится его светодиод  
 * "SETSCROLL_OFF"  --- переключает SCROLLLOCK, пока его светодиод не погаснет  
-  
+* "KEYREFLECT_START"  ---  начинает приём данных методом отражения нажатий  
+* "KEYREFLECT_SAVE **s**"  --- сохраняет данные отражения нажатий в указанный файл  
+
 #### команды нажатия клавиш:  
 * "GUI"  --- нажимает левую клавишу-модификатор GUI  
 * "WINDOWS"  --- то же самое, что и "GUI"  
@@ -298,6 +300,6 @@ CAPSLOCK выключен, прежде чем вы наберете какую-
 "CTRL ALT DELETE"  
 "REPEAT 4"  
   
-14. Команды "KEYREFLECT_START" и "KEYREFLECT_SAVE **n**" применяются для  
+14. Команды "KEYREFLECT_START" и "KEYREFLECT_SAVE **s**" применяются для  
 отражения нажатий. Для дополнительной информации можете изучить [эту страницу](https://github.com/krakrukra/PocketAdmin/blob/master/extra/wiki/rus/keyreflect.md)  
   

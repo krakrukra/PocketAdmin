@@ -13,7 +13,7 @@ incoming bits. Device should then make the PC send the key sequence,
 which will take some time. This can be done by running powershell or  
 bash commands inside host's CLI. To mark the end of data host must send  
 ScrollLock LED toggle request. Once the keystroke reflection sequence  
-is over, "KEYREFLECT_SAVE **n**" command will save this data to a file  
+is over, "KEYREFLECT_SAVE **s**" command will save this data to a file  
 inside /keyref/ directory. Name of the file can be specified as an  
 argument, but this is optional. If specified, it must be in 8.3 format  
 and the contents of it will be overwritten every time payload runs.  
@@ -21,7 +21,7 @@ If not set explicitly, device will make a new file with previously
 unused numeric name, eg. /keyref/002.ref, /keyref/003.ref, etc.  
   
 Maximum size of reflection data received in one sequence is 512 bytes.  
-If "KEYREFLECT_SAVE **n**" command is run before key sequence is over  
+If "KEYREFLECT_SAVE **s**" command is run before key sequence is over  
 it will wait until ScrollLock toggle request is received or a limit of  
 512 bytes is reached, whichever comes first. Only then the device will  
 procede to save the data into a file. Keep in mind that the process of  
