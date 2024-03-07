@@ -28,8 +28,6 @@ procede to save the data into a file. Keep in mind that the process of
 data exfiltration using this method is usually very slow, so only use  
 it if you really have to avoid using mass storage or other means (eg.  
 air-gapped and USB storage restricted PC).  
-Support for keystroke reflection on macOS is very limited, as on that  
-OS keyboard LED state is usually not shared between different keyboards.  
   
 There is an [example payload](https://github.com/krakrukra/PocketAdmin/tree/master/extra/payloads/FeatureTesting/KeystrokeReflectionTest) for testing keystroke reflection on windows.  
   

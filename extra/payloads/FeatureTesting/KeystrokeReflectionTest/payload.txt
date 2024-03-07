@@ -1,10 +1,10 @@
 WAITFOR_INIT
 ALLOW_EXIT
 
-REM save username of currently logged in user into $env:tmp\x.txt
+REM save username of currently logged in user into $env:tmp\x.txt using UTF8NoBOM encoding
 GUI r
 DELAY 100
-STRING powershell "$env:username > $env:tmp\x.txt"
+STRING powershell [IO.File]::WriteAllLines(\"$env:tmp\\x.txt\", $env:username)
 ENTER
 DELAY 100
 
