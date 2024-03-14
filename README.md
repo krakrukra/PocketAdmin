@@ -156,7 +156,7 @@ For extra security, you could use my PGP public key saved in [/extra/pubkey.asc]
 #### if you want to buy:  
   
 Due to sanctions on Russia I can only accept crypto payments from international buyers.  
-My preferred crypto payment method is ETH, but I can also accept BTC, LTC, DASH.  
+My preferred crypto payment method is ETH, but I can also accept BTC.  
 Price per 1 unit will be 26 usd, shipping will be 10 usd (if you buy 1 to 8 units).  
 Shipping method is Registered Air Mail (Russian Post), estimated delivery time is 3-4 weeks.  
   
@@ -171,7 +171,7 @@ Street Address,
 City, State/Province  
 Postcode, Country  
 phone number (optional)  
-X units of PocketAdmin, payment with ETH.  
+X units of PocketAdmin, payment with ETH (or BTC).  
   
 The total value of your order will be converted to crypto  
 (eg. via ETH price on etherscan.io) and I will give you the  
