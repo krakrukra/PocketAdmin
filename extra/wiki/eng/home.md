@@ -16,9 +16,8 @@ every single time, for example, if you just want to edit some files.
 To prevent an on-insertion script execution you could use the MSD-only  
 button. You need to hold it down, insert the device, wait around 1  
 second after that, then release. In that case the device will not type  
-anything in, and instead will show up as a flash drive, even if you have  
-enabled HID-only mode. This button will also disable features like fake  
-capacity and hidden region, so you are always able to access the files.  
+anything in, and instead will show up as a normal flash drive, even if you have  
+enabled HID or read-only modes. So you are always able to access the files.  
 Another way to prevent on-insertion payloads is with the "ALLOW_EXIT"  
 command, which allows you to avoid taking the device apart every time.  
   

@@ -23,4 +23,4 @@ upload:
 	openocd -s ./openocd -f stlink.cfg -f stm32f0x.cfg -c "program firmware.bin verify reset exit 0x08000000"
 
 dfu: compile
-	./dfuse-pack.py -b 0x08000000:firmware.bin firmware_13005.dfu
+	./dfuse-pack.py -b 0x08000000:firmware.bin firmware_13006.dfu

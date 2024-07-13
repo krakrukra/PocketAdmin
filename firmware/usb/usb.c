@@ -134,8 +134,8 @@ void usb_reset()
   
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
-  MSDinfo.TargetFlag = 0;
-  MSDinfo.EjectFlag = 0;
+  MSDinfo.MSDflags &= ~(1<<1);//clear MSD TargetFlag;
+  MSDinfo.MSDflags &= ~(1<<2);//clear MSD EjectFlag;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;
@@ -913,8 +913,8 @@ static void processBulkOnlyResetRequest()
 {
   //initialize MSD state machine related registers
   MSDinfo.ActiveBuffer = 0;
-  MSDinfo.TargetFlag = 0;
-  MSDinfo.EjectFlag = 0;
+  MSDinfo.MSDflags &= ~(1<<1);//clear MSD TargetFlag;
+  MSDinfo.MSDflags &= ~(1<<2);//clear MSD EjectFlag;
   MSDinfo.MSDstage = READY;
   MSDinfo.DataPointer = 0;
   MSDinfo.BytesLeft = 0;

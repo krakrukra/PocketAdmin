@@ -28,12 +28,12 @@ static unsigned char InquiryData_VPDpagelist[] __attribute__(( aligned(2), secti
   0x00 //VPD page 0x00 supported
 };
 
-static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2), section(".rodata,\"a\",%progbits@") )) =
+static unsigned char ModeSenseData_pagelist[36] __attribute__(( aligned(2) )) =
 {  
-  0x23,//mode data length = 35 bytes  
-  0x00,//medium type = 0  
+  0x23,//mode data length = 35 bytes
+  0x00,//medium type = 0
   0x00,//medium is not write protected; no support for DPO, FUA bits
-  0x00,//total length of block descriptors = 0  
+  0x00,//total length of block descriptors = 0
   0x05,//mode page = Flexible Disk, page is not saveable, not a subpage format
   0x1E,//page length = 30 bytes
   0x13,//transfer rate = 610KiB per second

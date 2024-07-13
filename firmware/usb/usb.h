@@ -289,11 +289,22 @@ typedef struct
   CBW_TypeDef CBW;//CBW currently being processed
   CSW_TypeDef CSW;//CSW corresponding to current CBW
   unsigned char ActiveBuffer;//0 = first 512 bytes of MSDbuffer[] are currently used by USB, 1 = last 512 bytes
-  unsigned char TargetFlag;//0 = DataPointer points to MCU internal memory address, 1 = points to external flash memory
-  unsigned char EjectFlag;//0 = external flash memory considered to be available, 1 = memory considered to be ejected
+  
+  volatile unsigned char MSDflags;//holds status flag bitmask with meanings of each bit specified below:
+  // (1<<0) Reserved
+  // (1<<1) TargetFlag; 0 = DataPointer points to MCU internal memory address, 1 = points to external flash memory
+  // (1<<2) EjectFlag; 0 = external flash memory considered to be available, 1 = memory considered to be ejected
+  // (1<<3) FirstReadFlag; 0 = no MSD read command was received yet, 1 = there was at least 1 read command sent to MSD interface
+  // (1<<4) ReadOnlyFlag; 0 = read and write access is available on MSD interface, 1 = only read access is allowed 
+  // (1<<5) Reserved
+  // (1<<6) Reserved
+  // (1<<7) Reserved
+  
   MSDstage_TypeDef MSDstage;//stage of MSD transfer
   unsigned int DataPointer;//byte address in RAM where to continue reading/writing at next MSD transaction
   unsigned int BytesLeft;//number of bytes yet to be transmitted in a given MSD transfer
+  unsigned short LBAoffset;//contains lowest LBA which is available to MSD interface (lower LBA's are hidden)
+  unsigned short FakeCapacity;//contains a fake capacity value in MiB; use real capacity if FakeCapacity == 0
 } MSDinfo_TypeDef;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -310,8 +321,6 @@ typedef struct
   unsigned int   HoldMousedata;//contains mouse keys and movement to be sent in a default report
   unsigned int   HoldKeycodes;//contains keycodes to be sent in a default report
   unsigned short HoldModifiers;//contains modifier keys to be sent in a default report
-  unsigned short LBAoffset;//contains lowest LBA which is available to MSD interface (lower LBA's are hidden)
-  unsigned short FakeCapacity;//contains a fake capacity value in MiB; use real capacity if FakeCapacity == 0
   volatile unsigned short KRbitNumber;//contains bit index into KRbuffer[] of a bit that will be set or cleared next
   volatile unsigned char LEDstates;//contains latest OUT report received by HID keyboard interface
   char Filename[13];//holds the name of the file on which some particular action should be performed
@@ -328,9 +337,9 @@ typedef struct
   
   volatile unsigned char DeviceFlags;//holds status flag bitmask with meanings of each bit specified below:
   // (1<<0) NoInsertFlag; 1 means do not run on-insertion payload; 0 means run on-insertion payload
-  // (1<<1) FirstReadFlag; 1 means there was at least 1 read command sent to MSD interface; 0 means no MSD read command was received yet
+  // (1<<1) Reserved
   // (1<<2) FingerprinterFlag; 1 means run script based on which OS is detected; 0 means run script from payload.txt
-  // (1<<3) DFUmodeFlag; 1 means request for on-demand payload number 20 or above results in reboot to DFU mode; 0 means reboot to MSD mode
+  // (1<<3) DFUmodeFlag; 1 means next request for on-demand payload number 20 or above results in reboot to DFU mode; 0 means reboot to MSD mode
   // (1<<4) OnactionDelayFlag; 1 means default delay is only placed after commands which press keys; 0 means add default delay after every single line
   // (1<<5) Reserved
   // (1<<6) Reserved

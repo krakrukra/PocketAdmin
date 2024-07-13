@@ -5,6 +5,7 @@
 #include "../fatfs/diskio.h"
 
 extern ControlInfo_TypeDef ControlInfo;
+extern MSDinfo_TypeDef MSDinfo;
 extern DeviceDescriptor_TypeDef DeviceDescriptor;
 extern unsigned short StringDescriptor_1[13];
 
@@ -55,8 +56,6 @@ PayloadInfo_TypeDef PayloadInfo =
     .HoldMousedata = MOUSE_IDLE,//no mouse activity present
     .HoldKeycodes= KB_Reserved,//no keycodes are applied    
     .HoldModifiers = MOD_NONE,//no modifiers are applied
-    .LBAoffset = 0,//all blocks are available to MSD interface
-    .FakeCapacity = 0,//use real capacity by default
     .KRbitNumber = 0,//write keystroke reflection data from the begginnig of KRbuffer
     .LEDstates = 0,//assume no LED's are ON yet
     .Filename = {0x00},//no target filename is specified yet
@@ -144,9 +143,10 @@ int main()
 	    }
 	  else if(toggleCount > 19)//if there was 20 or more capslock toggles in a given sequence
 	    {
-	      PayloadInfo.LBAoffset = 0;//do not hide any blocks from MSD interface
-	      PayloadInfo.FakeCapacity = 0;//show real capacity
-	      ControlInfo.EnumerationMode = 0;//set enumeration mode to default	  
+	      MSDinfo.LBAoffset = 0;//do not hide any blocks from MSD interface
+	      MSDinfo.FakeCapacity = 0;//show real capacity
+	      ControlInfo.EnumerationMode = 0;//set enumeration mode to default
+	      MSDinfo.MSDflags &= ~(1<<4);//allow read and write MSD operations
 	      
 	      RCC->APB1RSTR |= (1<<23);//reset USB registers, detach from the USB bus
 	      delay_ms(1000);//wait for 1000ms
@@ -157,8 +157,8 @@ int main()
 	      NVIC_DisableIRQ(31);//disable USB interrupt to prevent race condition
 	      __DSB();//make sure NVIC registers are updated before ISB is executed
 	      __ISB();//make sure the latest NVIC setting is used immediately
-	      PayloadInfo.DeviceFlags |=  (1<<3);//set DFUmodeFlag
-	      PayloadInfo.DeviceFlags &= ~(1<<1);//clear FirstReadFlag
+	      PayloadInfo.DeviceFlags |= (1<<3);//set DFUmodeFlag
+	      MSDinfo.MSDflags &= ~(1<<3);//clear MSD FirstReadFlag
 	      NVIC_EnableIRQ(31);//enable USB interrupt again
 	    }
 	}
@@ -202,7 +202,8 @@ static void readConfigFile(char* filename)
 	  else if( checkKeyword("PID 0x") )     {DeviceDescriptor.idProduct = (unsigned short) checkHexValue();}
 	  else if( checkKeyword("SERIAL ") )    {setSerialNumber(PayloadInfo.PayloadPointer);}
 	  else if( checkKeyword("MASS_ERASE") ) {mass_erase(); NVIC_SystemReset();}
-	  else if( (MSDbutton == 0) && checkKeyword("HID_ONLY_MODE") ) {ControlInfo.EnumerationMode = 1;}
+	  else if( (MSDbutton == 0) && checkKeyword("READ_ONLY_MODE") ) {MSDinfo.MSDflags |= (1<<4);}
+	  else if( (MSDbutton == 0) && checkKeyword("HID_ONLY_MODE") )  {ControlInfo.EnumerationMode = 1;}
 	  
 	  else if( (MSDbutton == 0) && checkKeyword("USE_HIDDEN_REGION") )
 	    {
@@ -217,15 +218,15 @@ static void readConfigFile(char* filename)
 		  LBAcount  = *( (unsigned short*) (&PayloadBuffer[1482]) ) <<  0;
 		  LBAcount |= *( (unsigned short*) (&PayloadBuffer[1484]) ) << 16;
 		  //if LBAoffset is 16MiB of less, hide the specified LBA's
-		  if( (firstLBA + LBAcount) <= 32768 ) PayloadInfo.LBAoffset = firstLBA + LBAcount;
+		  if( (firstLBA + LBAcount) <= 32768 ) MSDinfo.LBAoffset = firstLBA + LBAcount;
 		}
 	    }
 	  else if( (MSDbutton == 0) && checkKeyword("SHOW_FAKE_CAPACITY ") )
 	    {
-	      PayloadInfo.FakeCapacity = checkDecValue();//read fake capacity value (in MiB)
+	      MSDinfo.FakeCapacity = checkDecValue();//read fake capacity value (in MiB)
 	      //only allow fake capacity from 97MiB to 64GiB
-	      if(PayloadInfo.FakeCapacity > 65535) PayloadInfo.FakeCapacity = 0;
-	      if(PayloadInfo.FakeCapacity < 97)    PayloadInfo.FakeCapacity = 0;
+	      if(MSDinfo.FakeCapacity > 65535) MSDinfo.FakeCapacity = 0;
+	      if(MSDinfo.FakeCapacity < 97)    MSDinfo.FakeCapacity = 0;
 	    }
 	  else if( checkKeyword("FIRST_INSERT_ONLY") )
 	    {
@@ -291,7 +292,7 @@ static void waitForInit()
     }
   
   //unless HID-only mode is used, make sure MSD interface has received at least 1 read command
-  while( (ControlInfo.EnumerationMode == 0) && !(PayloadInfo.DeviceFlags & (1<<1)) );
+  while( (ControlInfo.EnumerationMode == 0) && !(MSDinfo.MSDflags & (1<<3)) );
   
   return;
 }

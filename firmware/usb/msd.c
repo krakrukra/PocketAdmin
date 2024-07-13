@@ -3,7 +3,6 @@
 #include "../fatfs/diskio.h"
 
 extern DiskInfo_TypeDef DiskInfo;
-extern PayloadInfo_TypeDef PayloadInfo;
 
 MSDinfo_TypeDef MSDinfo;
 unsigned char MSDbuffer[1024];
@@ -88,7 +87,7 @@ void processMSDtransaction()
 	      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(4<<0);//respond to IN packets with data, ignore OUT packets, clear CTR_TX flag
 	      
 	      //pre-fill the next buffer with data
-	      if( MSDinfo.TargetFlag ) sendData();//if data should come from the medium
+	      if( MSDinfo.MSDflags & (1<<1) ) sendData();//if data should come from the medium
 	      else sendResponse( (void*) MSDinfo.DataPointer, MSDinfo.BytesLeft );//if data should come from RAM or ROM	      		  
 	    }
 	}
@@ -122,7 +121,7 @@ static void processNewCBW()
   MSDinfo.BytesLeft = (MSDinfo.CBW).dCBWDataTransferLength;//try to send as much data as host expects
   (MSDinfo.CSW).dCSWDataResidue = (MSDinfo.CBW).dCBWDataTransferLength;//no data was received / sent yet
   MSDinfo.ActiveBuffer = 0;//start reading/writing from the first 512 bytes of MSDbuffer[]
-  MSDinfo.TargetFlag = 0;//read data from MCU memory space, unless Read or Write commands are being processed
+  MSDinfo.MSDflags &= ~(1<<1);//read data from MCU memory space, unless Read or Write commands are being processed
   
   //check if CBW is 31 bytes long, check if CBW signature is valid, check if target LUN is 0
   if(  bytesReceived != 31 )                      error = 1;
@@ -239,10 +238,10 @@ static void processInquiryCommand_6()
 
 static void processReadCapacityCommand_10()
 {
-  unsigned int sendLastLBA = 0x000301FF - PayloadInfo.LBAoffset;//value that will be sent to host as a last accessible LBA
-  if(PayloadInfo.FakeCapacity) sendLastLBA = PayloadInfo.FakeCapacity * 2048 - 1;//if necessary, use fake capacity
+  unsigned int sendLastLBA = 0x000301FF - MSDinfo.LBAoffset;//value that will be sent to host as a last accessible LBA
+  if(MSDinfo.FakeCapacity) sendLastLBA = MSDinfo.FakeCapacity * 2048 - 1;//if necessary, use fake capacity
   
-  if(MSDinfo.EjectFlag)//if medium is ejected
+  if(MSDinfo.MSDflags & (1<<2))//if medium is ejected
     {
       sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
@@ -269,8 +268,8 @@ static void processReadCapacityCommand_10()
 
 static void processTestUnitReadyCommand_6()
 {
-  if(MSDinfo.EjectFlag) sendCSW(1, 0x02, 0x3A);//if medium ejected return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
-  else                  sendCSW(0, 0x00, 0x00);//if medium not ejected, return good status
+  if(MSDinfo.MSDflags & (1<<2)) sendCSW(1, 0x02, 0x3A);//if medium is ejected return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
+  else                          sendCSW(0, 0x00, 0x00);//if medium is not ejected, return good status
   
   USB->EP3R = (1<<8)|(1<<7)|(3<<0);//respond to OUT packets with NAK, ignore IN packets, clear CTR_RX flag
   USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ingore OUT packets
@@ -290,8 +289,8 @@ static void processRequestSenseCommand_6()
 
 static void processStartStopUnitCommand_6()
 {
-  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x02 ) MSDinfo.EjectFlag = 1;//if eject requested set EjectFlag
-  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x03 ) MSDinfo.EjectFlag = 0;//if load requested clear EjectFlag
+  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x02 ) MSDinfo.MSDflags |= (1<<2);//if eject requested set MSD EjectFlag
+  if( ((MSDinfo.CBW).CBWCB[4] & 0x03) == 0x03 ) MSDinfo.MSDflags &= ~(1<<2);//if load requested clear MSD EjectFlag
   
   sendCSW(0, 0x00, 0x00);//return good status
   
@@ -316,8 +315,12 @@ static void processPreventAllowMediumRemovalCommand_6()
 static void processModeSenseCommand_6()
 {
   unsigned char error = 0;
-
-  if(MSDinfo.EjectFlag)//if medium is ejected
+  
+  //update ModeSense response data with correct value for Write Protect bit
+  if(MSDinfo.MSDflags & (1<<4)) ModeSenseData_pagelist[2] = 0x80;
+  else                         ModeSenseData_pagelist[2] = 0x00;
+  
+  if(MSDinfo.MSDflags & (1<<2))//if medium is ejected
     {
       sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
@@ -368,7 +371,7 @@ static void processModeSenseCommand_6()
 
 static void processReadCommand_10()
 {
-  if(MSDinfo.EjectFlag)//if medium is ejected
+  if(MSDinfo.MSDflags & (1<<2))//if medium is ejected
     {
       sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
@@ -379,11 +382,11 @@ static void processReadCommand_10()
     {
       //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
       MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
-      MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all read operations
-      MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
+      MSDinfo.DataPointer = MSDinfo.DataPointer + MSDinfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all read operations
+      MSDinfo.MSDflags |= (1<<1);//MSDinfo.DataPointer points into external flash memory now
       
       //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
-      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
+      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (MSDinfo.FakeCapacity == 0) )
 	{
 	  sendCSW(1, 0x05, 0x21);//return error status; senseKey = ILLEGAL REQUEST, ASC = LBA OUT OF RANGE
 	  
@@ -418,28 +421,35 @@ static void processReadCommand_10()
 	}
     }
   
-  PayloadInfo.DeviceFlags |= (1<<1);//indicate that a read command was received at least one time since poweron; used to implement DELAY functionality in ducky interpreter from main.c
+  MSDinfo.MSDflags |= (1<<3);//remember that a read command was received at least one time since poweron; used to implement DELAY functionality in ducky interpreter from main.c
   return;
 }
 
 static void processWriteCommand_10()
 {
-  if(MSDinfo.EjectFlag)//if medium is ejected
+  if(MSDinfo.MSDflags & (1<<2))//if medium is ejected
     {
       sendCSW(1, 0x02, 0x3A);//return error status; senseKey = NOT READY, ASC = MEDIUM NOT PRESENT
       
       USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
       USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
     }
-  else//if medium is available
+  else if(MSDinfo.MSDflags & (1<<4))//if medium is available in read only mode
+    {
+      sendCSW(1, 0x07, 0x27);//return error status; senseKey = DATA PROTECT, ASC = WRITE PROTECTED
+      
+      USB->EP3R = (1<<13)|(1<<8)|(1<<7)|(3<<0);//respond to OUT packets with STALL, ignore IN packets, clear CTR_RX flag
+      USB->EP4R = (1<<15)|(1<<14)|(1<<8)|(1<<7)|(1<<4)|(4<<0);//respond to IN packets with CSW, ignore OUT packets
+    }
+  else//if medium is available for read and write operations
     {
       //convert logical block address from big endian to little endian, map LBA address to byte address in external device memory
       MSDinfo.DataPointer = ( ((MSDinfo.CBW).CBWCB[2] << 24) | ((MSDinfo.CBW).CBWCB[3] << 16) | ((MSDinfo.CBW).CBWCB[4] << 8) | ((MSDinfo.CBW).CBWCB[5] << 0) ) * 512;
-      MSDinfo.DataPointer = MSDinfo.DataPointer + PayloadInfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all write operations
-      MSDinfo.TargetFlag = 1;//MSDinfo.DataPointer points into external flash memory now
+      MSDinfo.DataPointer = MSDinfo.DataPointer + MSDinfo.LBAoffset * 512;//if some blocks should be hidden, add necessary LBA offset to all write operations
+      MSDinfo.MSDflags |= (1<<1);//MSDinfo.DataPointer points into external flash memory now
       
       //if anything in specified address range is not accessible and fake capacity is not used (last real LBA is 197119)
-      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (PayloadInfo.FakeCapacity == 0) )
+      if( ((MSDinfo.DataPointer + MSDinfo.BytesLeft) > (197120 * 512)) && (MSDinfo.FakeCapacity == 0) )
 	{
 	  sendCSW(1, 0x05, 0x21);//return error status; senseKey = ILLEGAL REQUEST, ASC = LBA OUT OF RANGE
 	  
@@ -487,7 +497,7 @@ static void sendResponse(void* responseAddress, unsigned int responseSize)
   
   //try to return all data requested, but not more than is available
   if(responseSize < MSDinfo.BytesLeft) MSDinfo.BytesLeft = responseSize;
-
+  
   //if one transaction is enough to transfer all remaining data
   if(MSDinfo.BytesLeft <= MAXPACKET_MSD)
     {
