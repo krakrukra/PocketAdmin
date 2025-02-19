@@ -40,7 +40,7 @@ a set of hardcoded key combinations, only by the maximum of 10 commands on a sin
 7. User has several configuration options available, none of which require a firmware update.  
 You can set which serial number and VID / PID values to use, how the device should show up  
 (keyboard+mouse+disk or keyboard+mouse only), change keyboard layout, hide a particular  
-memory region on the USB disk, show fake storage capacity to the host, etc.  
+memory region on the USB disk, show fake storage capacity, make disk read-only, etc.  
   
 8. Has a special HID-only method of exfiltrating data into a file, known as keystroke reflection.  
 It allows to extract small amounts of data even from very restricted and air-gapped computers.  
@@ -67,7 +67,7 @@ The pushbutton on the device is referred to as MSD-only button. Normally
 the payload is run whenever you plug the device into a PC. But if you press  
 and hold this button while inserting the device, it prevents any keystrokes  
 from being typed in and makes the device show up as a flash drive. It also  
-prevents the use of camouflage features like hidden region or fake capacity.  
+prevents use of features like hidden region, fake capacity, read-only mode.  
   
 Fully assembled unit has dimensions of 59x18x9mm and weight of 8 grams.  
 When opening up the case, be careful no to break the plastic studs near  
@@ -87,7 +87,7 @@ The firmware was developed on debian 11.3 system, using gcc-arm-none-eabi
 toolchain (compiler, linker, binutils) and it does use gcc specific extentions.  
 it was successfully compiled and tested with arm-none-eabi-gcc version 12.2.1  
   
-Depends on libgcc.a, which is included in this repository. linker script,  
+Depends on libgcc.a, which is included in this repository. Linker script,  
 startup code and openocd configuration files are included here as well.  
   
 Files usb\_rodata.h, hid\_rodata.h, msd\_rodata.h are not really  
@@ -152,29 +152,4 @@ create a new github issue (check [closed issues](https://github.com/krakrukra/Po
 also, you can check out my [youtube channel](https://www.youtube.com/channel/UC8HZCV1vNmZvp7ci1vNmj7g)  
   
 For extra security, you could use my PGP public key saved in [/extra/pubkey.asc](https://github.com/krakrukra/PocketAdmin/blob/master/extra/pubkey.asc).  
-  
-#### if you want to buy:  
-  
-Due to sanctions on Russia I can only accept crypto payments from international buyers.  
-My preferred crypto payment method is ETH, but I can also accept BTC.  
-Price per 1 unit will be 26 usd, shipping will be 10 usd (if you buy 1 to 8 units).  
-Shipping method is Registered Air Mail (Russian Post), estimated delivery time is 3-4 weeks.  
-  
-If you want to place an order you should write me an email to krakrukra@tutanota.com  
-and I will guide you through the purchasing process. In general, you will need to  
-provide your shipping address, how many units you want to buy and your payment method.  
-  
-Here is an example of all the necessary information:  
-  
-Recipient Name,  
-Street Address,  
-City, State/Province  
-Postcode, Country  
-phone number (optional)  
-X units of PocketAdmin, payment with ETH (or BTC).  
-  
-The total value of your order will be converted to crypto  
-(eg. via ETH price on etherscan.io) and I will give you the  
-destination address and the amount of crypto to transfer.  
-Once your package is shipped I will give you a tracking link.  
   
