@@ -36,7 +36,7 @@ read by specialized SQL database softwares (eg [sqlitebrowser](https://sqlitebro
 the data inside those database files is encrypted, so you will have to  
 make additional steps to get the data out and use it. In order to decrypt  
 saved passwords you can use python scripts provided in payload directory,  
-these are [firefox_decrypt.py](https://github.com/unode/firefox_decrypt) and chrome_decrypt_v10.py;  
+these are [firefox_decrypt.py](https://github.com/unode/firefox_decrypt) and **chrome_decrypt_v10.py**;  
 These scripts are not necessary to extract the data from target machine,  
 so you may not copy them to PocketAdmin's USB storage, but use them later  
 to decrypt data on a different computer. Here are the example commands for  
@@ -56,7 +56,7 @@ be aware that since chrome version 127 cookies are encrypted with v20 method.
   
 SAM and SYSTEM files collected on a target machine can be used to extract  
 LM and NT hashes for local user account passwords. For example, it can be  
-done using a python script pwdump.py from a packege called [creddump7](https://github.com/CiscoCXSecurity/creddump7);  
+done using a python script **pwdump.py** from a package called [creddump7](https://github.com/CiscoCXSecurity/creddump7);  
 Those hashes may be used directly in some circumstances or be used for  
 cracking the original local user passwords. For example, if you choose to  
 crack passwords using [hashcat](https://hashcat.net/hashcat) utility you could run commands like this  
