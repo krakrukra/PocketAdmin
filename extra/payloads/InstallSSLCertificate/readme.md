@@ -24,13 +24,13 @@ automate the process. You should first run commands in
 **generateRootCA.sh** to create a new CA certificate and encrypted  
 private key. Then, you can proceed to generating certificates for  
 your web server. To do that, run **generateCertChain.sh** script.  
-New web server certificate and private key will be created and moved  
-to **website/ssl** directory.  
+New web server certificate and private key will be created and  
+moved to **website/ssl** directory.  
   
 Besides adding a new SSL root certificate authority, **insert.ps1** script  
 will also add new DNS entries into the windows **hosts** file, so make  
-sure to modify default values used in **insert.ps1** with IP's and  
-domain names of your specific web server. These DNS names must match  
+sure to modify default values used in **insert.ps1** with IP's and domain  
+names of your specific web server. These DNS names must match  
 the subjectAltName value specified in your website's SSL certificate.  
   
 Note that the contents of **rootCA** and **website** directories are  
