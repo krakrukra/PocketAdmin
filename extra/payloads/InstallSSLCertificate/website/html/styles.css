@@ -1,0 +1,77 @@
+*
+{
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+}
+
+.container
+{
+    display: inline-block;
+    width:  440px;
+    height: 440px;
+    text-align: center;
+    background-color: rgb(192,192,192);
+    padding: 10px;
+    margin: 20px;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.pRed
+{
+    font-size: 24px;
+    color: rgb(0,0,0);
+    background-color: rgb(255,128,128);
+    margin: 10px;
+}
+
+.pGreen
+{
+    font-size: 24px;
+    color: rgb(0,0,0);
+    background-color: rgb(128,255,128);
+    margin: 10px;
+}
+
+.pBlue
+{
+    font-size: 24px;
+    color: rgb(0,0,0);
+    background-color: rgb(128,128,255);
+    margin: 10px;
+}
+
+.pGrayInline
+{
+    font-size: 24px;
+    color: rgb(0,0,0);
+    background-color: rgb(192,192,192);
+    margin: 10px;
+    display: inline-block;
+}
+
+.inputLine
+{
+    display: block;
+}
+
+.inputBox
+{
+    font-size: 24px;
+    width: 250px;
+}
+
+.loginButton
+{
+    font-size: 24px;
+    padding: 10px;
+    color: rgb(255,255,255);
+    background-color: rgb(0,0,0);
+}
+
+.loginButton:hover
+{
+    color: rgb(0,0,0);
+    background-color: rgb(255,255,255);
+}
