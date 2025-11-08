@@ -37,10 +37,10 @@ Note that the contents of **rootCA** and **website** directories are
 not meant to be copied to the PocketAdmin's USB drive. CA private  
 key should be kept safe from any unauthorized access, and website  
 directory contains configuration files for an example web server.  
-In this particular example payload, web server is expected to be  
-an apache2 software (httpd), installed on a Debian Linux system.  
-If that is the case, you should be able to simply copy website  
-directory from the payload into **/var/www/** directory on your  
-Debian VPS, and then configure the web server by running a bash  
-script located at **/var/www/website/config/configureApache2.sh**  
+This particular example payload expects that your web server is  
+installed on a VPS with Debian Linux system. If that is the case,  
+make sure you have packages apache2 and php installed there. Then  
+you need to copy website directory from the payload into **/var/www/**  
+directory on your Debian VPS, and configure your web server by  
+running a bash script located at **/var/www/website/config/configureApache2.sh**  
   

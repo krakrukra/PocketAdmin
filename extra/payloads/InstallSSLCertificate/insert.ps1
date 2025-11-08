@@ -3,8 +3,7 @@ $driveletter=(Get-Volume -FileSystemLabel POCKETADMIN).DriveLetter
 Import-Certificate -FilePath "${driveletter}:\ca-certificate.pem" -CertStoreLocation Cert:\LocalMachine\Root
 
 #add a new entry into hosts file on target machine. Replace default values for IP and domain name here with your own.
-$text = "`n"
-$text = $text + "192.168.0.102 website.here" + "`n"
+$text = "`n"  + "192.168.0.102 website.here" + "`n"
 $text = $text + "192.168.0.102 www.website.here" + "`n"
 Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "${text}"
 

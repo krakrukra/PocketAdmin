@@ -7,24 +7,28 @@
   </head>
   
   <body>
-    
     <div class="container">
       <img src="toad.gif">
       
       <h1>Provide your login credentials</h1>
       
-      <div class="inputLine">
-      <p class="pGrayInline">Username:</p>
-      <input type="text" class="inputBox" placeholder="username">
-      </div>
+      <form action="login.php" method="POST">
+	<div>
+	  <label for="usr" class="pGrayInline">Username:</label>
+	  <input type="text" id="usr" name="username" required class="inputBox">
+	</div>
+	
+	<div>
+	  <label for="pwd" class="pGrayInline">Password:</label>
+	  <input type="password" id="pwd" name="password" required class="inputBox">
+	</div>
+	
+	<div>
+	  <input type="submit" value="Login" class="loginButton">
+	</div>
+	
+      </form>      
       
-      <div class="inputLine">
-      <p class="pGrayInline">Password:</p>
-      <input type="text" class="inputBox" placeholder="password">
-      </div>
-      
-      <button class="loginButton">Login</button>
     </div>
-    
   </body>
 </html>
