@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 printf "\ngenerating website private key... "
 openssl genrsa -out website-privateKey.pem 4096

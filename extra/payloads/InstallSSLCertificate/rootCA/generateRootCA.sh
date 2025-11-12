@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 printf "\ngenerating CA encrypted private key...\n"
 openssl genrsa -aes256 -out ca-privateKey.pem 4096
